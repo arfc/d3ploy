@@ -12,7 +12,6 @@ setup_kwargs = {
 if __name__ == '__main__':
     setup(
         name='d3ploy',
-        packages=['d3ploy'],
-        scripts=['xo'],
+        packages=["d3ploy"],
         **setup_kwargs
         )
