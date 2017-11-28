@@ -32,15 +32,7 @@ class DemandFac(Facility):
         uilabel = ""
     )
 
-    #def __init__(self, *args, **kwargs):
-    #    super().__init__(*args, **kwargs)
-    #    import pdb; pdb.set_trace()
-
     def tick(self):
-        #try:
         rate = random.uniform(self.production_rate_min, self.production_rate_max)
-        #except KeyError:
-        #    import pdb; pdb.set_trace()
-        print(self.id, rate, self.production_rate_min)
         lib.record_time_series(self.commodity, self, rate)
 

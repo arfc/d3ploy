@@ -37,7 +37,7 @@
       <config>
         <NOInst>
           <growth_commod>bears</growth_commod>
-          <growth_rate>0.05</growth_rate>
+          <growth_rate>0.02</growth_rate>
           <prototypes><val>BearStore</val></prototypes>
           <initial_demand>20.0</initial_demand>
         </NOInst>

@@ -42,22 +42,24 @@ class NOInst(Institution):
     )
 
     #The supply of a commodity
-    commodity_supply = {} 
+    commodity_supply = {}
+    deployed = 0
 
     def tick(self):
+        if self.growth_commod not in lib.TIME_SERIES_LISTENERS:
+            lib.TIME_SERIES_LISTENERS[self.growth_commod].append(self.extract_supply)
+        print("Total Facilities deployed: " + str(self.deployed))
+
+    def tock(self):
         """
         #Method for the deployment of facilities.     
         """
-        if self.growth_commod not in lib.TIME_SERIES_LISTENERS:
-            lib.TIME_SERIES_LISTENERS[self.growth_commod].append(self.extract_supply)
         time = self.context.time
-        if time is 0:
-            return
-        print(self.commodity_supply[time-1], self.demand_calc(time))
-        if self.commodity_supply[time-1] < self.demand_calc(time):
-            proto = random.choice(self.prototypes)            
-            print("New fac: " + proto)
-            print(self.kind)           
+        diff = self.demand_calc(time+1) - self.moving_avg_sup(5)
+        print("Demand:" +str(self.demand_calc(time+1)) + "  Supply:" +  str(self.moving_avg_sup(5)))
+        if  diff > 0:
+            proto = random.choice(self.prototypes)
+            self.deployed += 1          
             self.context.schedule_build(self, proto)        
 
     
@@ -92,8 +94,16 @@ class NOInst(Institution):
         return demand
 
 
+    def moving_avg_sup(self, order):
+        supply = np.array(list(self.commodity_supply.values()))
+        if order >= len(supply):
+            order = len(supply) * -1
+        else:
+            order *= -1
+        x = np.average(supply[order:])
+        return x    
 
-    def predict_arma(ts, time, ar_q, ma_p, c=0., ar_w=None, ma_w=None):
+    def predict_arma(self, ts, epsi, time, ar_w, ma_w, q=1, p=1, c=0.):
         """
         Predict the value of supply or demand at a given time step using the 
         currently available time series data. This method impliments an ARMA
@@ -110,11 +120,16 @@ class NOInst(Institution):
         --------
         X : Predicted value for the time series at chosen timestep (time). 
         """
-        x = c
-        ma = 0
-        for i in range(len(ma_w)):
-            ma += w[-1*(i+1)]*ts[-1*(i+1)]
-    
+        i, j, ar, ma = 0
+        vals = np.array(list(ts.values()) 
+        while i < q:
+            ar += epsi[(i+1)*-1]*ar_w[i*-1]
+            i++
+        while j < p:
+            ma += vals[j*-1]*ma_w[j*-1]
+            j++       
+        x = epsi[-1] + ar + ma + c
+        return x
 
     
     def predict_arch(ts, time):
