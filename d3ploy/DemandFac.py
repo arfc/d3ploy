@@ -26,6 +26,13 @@ class DemandFac(Facility):
         uilabel = "Max Production"
     )
 
+    demand_ts = ts.Int(
+        doc = "The number of timesteps between demand calls by the agent", 
+        tooltip = "The number of timesteps between demand calls by the agent", 
+        uilabel = "Demand Timestep",
+        default = 1
+    )
+
     supply_rate_max = ts.Double(
         doc = "The maximum rate at which this facility produces it's commodity.", 
         tooltip = "The maximum rate at which this facility produces its product.",
@@ -36,6 +43,13 @@ class DemandFac(Facility):
         doc = "The maximum rate at which this facility produces it's commodity.", 
         tooltip = "The maximum rate at which this facility produces its product.",
         uilabel = "Max Production"
+    )
+
+    supply_ts = ts.Int(
+        doc = "The number of timesteps between supply calls by the agent", 
+        tooltip = "The number of timesteps between supply calls by the agent", 
+        uilabel = "Supply Timestep",
+        default = 1
     )    
 
     supply_commod = ts.String(
@@ -55,6 +69,13 @@ class DemandFac(Facility):
         tooltip = "",
         uilabel = ""
     )
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        demand_t = 0
+        supply_t = 0
+
 
     def tick(self):
         supply_rate = random.uniform(self.supply_rate_min, self.supply_rate_max)

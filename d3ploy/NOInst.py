@@ -63,7 +63,6 @@ class NOInst(Institution):
         uilabel = "x"
     )
 
-    #The supply of a commodity
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -71,10 +70,11 @@ class NOInst(Institution):
         self.commodity_demand = {}
         self.fac_supply = {}
 
+
     def tick(self):
-        if self.supply_commod not in lib.TIME_SERIES_LISTENERS:
+        if not lib.TIME_SERIES_LISTENERS[self.supply_commod]:
             lib.TIME_SERIES_LISTENERS[self.supply_commod].append(self.extract_supply)
-            lib.TIME_SERIES_LISTENERS[self.demand_commod].append(self.extract_demand)
+            lib.TIME_SERIES_LISTENERS[self.demand_commod].append(self.extract_demand)  
 
     def tock(self):
         """
