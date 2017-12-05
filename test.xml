@@ -14,7 +14,7 @@
     </spec>
   </archetypes>
   <control>
-    <duration>2</duration>
+    <duration>100</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
   </control>
@@ -27,6 +27,7 @@
         <demand_rate_min>2000.</demand_rate_min>
         <supply_rate_max>1000.</supply_rate_max>
         <supply_rate_min>1000.</supply_rate_min>
+        <demand_ts>16</demand_ts>
         <proto>Reactor</proto>
       </DemandFac>
     </config>
@@ -74,7 +75,7 @@
           <prototypes><val>Reactor</val></prototypes>
           <initial_demand>100000.0</initial_demand>
           <deployed>100</deployed>
-          <calc_method>arma</calc_method>
+          <calc_method>ma</calc_method>
         </NOInst>
       </config>
       <initialfacilitylist>
@@ -94,7 +95,7 @@
           <prototypes><val>Enrichment</val></prototypes>
           <initial_demand>200000.0</initial_demand>
           <deployed>20</deployed>
-          <calc_method>arma</calc_method>
+          <calc_method>ma</calc_method>
         </NOInst>
       </config>
       <initialfacilitylist>
@@ -114,7 +115,7 @@
           <prototypes><val>Mine</val></prototypes>
           <initial_demand>4000000.0</initial_demand>
           <deployed>40</deployed>
-          <calc_method>arma</calc_method>
+          <calc_method>ma</calc_method>
         </NOInst>
       </config>
       <initialfacilitylist>

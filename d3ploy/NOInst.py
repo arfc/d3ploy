@@ -70,11 +70,12 @@ class NOInst(Institution):
         self.commodity_demand = {}
         self.fac_supply = {}
 
+    
+    def enter_notify(self):
+        super().enter_notify()
+        lib.TIME_SERIES_LISTENERS[self.supply_commod].append(self.extract_supply)
+        lib.TIME_SERIES_LISTENERS[self.demand_commod].append(self.extract_demand)         
 
-    def tick(self):
-        if not lib.TIME_SERIES_LISTENERS[self.supply_commod]:
-            lib.TIME_SERIES_LISTENERS[self.supply_commod].append(self.extract_supply)
-            lib.TIME_SERIES_LISTENERS[self.demand_commod].append(self.extract_demand)  
 
     def tock(self):
         """
@@ -123,6 +124,10 @@ class NOInst(Institution):
         """
         Gather information on the available supply of a commodity over the
         lifetime of the simulation. 
+
+        Parameters
+        ----------
+        
         """
         if time in self.commodity_supply:
             self.commodity_supply[time] += value
@@ -134,6 +139,10 @@ class NOInst(Institution):
         """
         Gather information on the demand of a commodity over the
         lifetime of the simulation.
+        
+        Parameters
+        ----------
+        
         """
         if time in self.commodity_demand:
             self.commodity_demand[time] += value
@@ -144,10 +153,14 @@ class NOInst(Institution):
     def demand_calc(self, time):
         """
         Calculate the electrical demand at a given timestep (time). 
+        
         Parameters
         ----------
         time : int
             The timestep that the demand will be calculated at. 
+        Returns
+        -------
+        demand : The calculated demand at a given timestep.
         """
         timestep = self.context.dt
         time = time * timestep
@@ -156,15 +169,30 @@ class NOInst(Institution):
 
 
     def moving_avg_sup(self, ts, order=1):
+        """
+        Calculates the moving average of a previous [order] entries in
+        timeseries [ts]. It will automatically reduce the order if the
+        length of ts is shorter than the order. 
+
+        Parameters:
+        -----------
+        ts : Array of doubles
+            An array of time series data to be used for the arma prediction
+        order : int
+            The number of values used for the moving average. 
+        Returns
+        -------
+        x : The moving average calculated by the function.         
+        """
         supply = np.array(list(ts.values()))
         if order >= len(supply):
             order = len(supply) * -1
         else:
             order *= -1
         x = np.average(supply[order:])
-        return x    
+        return x
 
-    def predict_arma(self, ts):
+    def predict_arma(self, ts, time=1):
         """
         Predict the value of supply or demand at a given time step using the 
         currently available time series data. This method impliments an ARMA
@@ -175,14 +203,13 @@ class NOInst(Institution):
         ts : Array of doubles
             An array of time series data to be used for the arma prediction
         time: int
-            The time which is used to determine the predicted value. 
-
+            The number of timesteps to predict forward. 
         Returns:
         --------
-        X : Predicted value for the time series at chosen timestep (time). 
+        x : Predicted value for the time series at chosen timestep (time). 
         """
         v = list(ts.values())
-        x = sm.tsa.ARMA(v, (1,0,1)).fit(disp=-1).forecast()[0][0]
+        x = sm.tsa.ARMA(v, (2,0)).fit(disp=-1).forecast(time)[0][time-1]
         return x
 
     
@@ -193,6 +220,9 @@ class NOInst(Institution):
         calculation to perform the prediciton. 
         """
 
+    """This dictionary is used to select the calculation method used in the 
+    institution. 
+    """
     calc_methods = {
         'ma' : moving_avg_sup,
         'arma' : predict_arma

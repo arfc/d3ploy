@@ -53,33 +53,49 @@ class DemandFac(Facility):
     )    
 
     supply_commod = ts.String(
-        doc = "",
-        tooltip = "",
-        uilabel = ""
+        doc = "The commodity supplied by this facility.",
+        tooltip = "Supplied Commodity",
+        uilabel = "Supplied Commodity"
     )
 
     demand_commod = ts.String(
-        doc = "",
-        tooltip = "",
-        uilabel = ""
+        doc = "The commodity demanded by this facility.",
+        tooltip = "Commodity demanded",
+        uilabel = "Commodity Demanded"
     )
 
     proto = ts.String(
-        doc = "",
-        tooltip = "",
-        uilabel = ""
+        doc = "This is the prototype of the archetype. Note that is is required currently" +
+              "because there is a bug in python modules that causes self.prototype to fail.",
+        tooltip = "The prototype of this archetype",
+        uilabel = "Prototype"
     )
 
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        demand_t = 0
-        supply_t = 0
+        self.demand_t = -2
+        self.supply_t = -2
 
 
     def tick(self):
+        """
+        This function defines the tick behavior for this archtype. The demand and supply
+        rates are calculated, and those are recorded in time series. 
+        """
+        self.demand_t += 1
+        self.supply_t += 1
         supply_rate = random.uniform(self.supply_rate_min, self.supply_rate_max)
         demand_rate = random.uniform(self.demand_rate_min, self.demand_rate_max)
-        lib.record_time_series(self.supply_commod, self, supply_rate)
-        lib.record_time_series(self.demand_commod, self, demand_rate)
+        if self.supply_t is -1 or self.supply_t is self.supply_ts:
+            lib.record_time_series(self.supply_commod, self, supply_rate)
+            self.supply_t = 0
+        else:
+            lib.record_time_series(self.supply_commod, self, 0)
+        if self.demand_t is -1 or self.demand_t is self.demand_ts:
+            lib.record_time_series(self.demand_commod, self, demand_rate)
+            self.demand_t = 0
+        else:
+            lib.record_time_series(self.demand_commod, self, 0)
+
 
