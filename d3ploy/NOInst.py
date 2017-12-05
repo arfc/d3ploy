@@ -52,15 +52,27 @@ class NOInst(Institution):
     )
 
     calc_method = ts.String(
-        doc = "x",
-        tooltip = "x",
-        uilabel = "x"
+        doc = "This is the calculated method used to determine the supply and demand " +
+              "for the commodities of this institution. Currently this can be ma for " +
+              "moving average, or arma for autoregressive moving average.",
+        tooltip = "Calculation method used to predict supply/demand",
+        uilabel = "Calculation Method"
     )
     
     deployed = ts.Int(
-        doc = "x",
-        tooltip = "x",
-        uilabel = "x"
+        doc = "The number of facilities initially deployed to this institution. "+ 
+              "This should match the initial facilities in the initial facilities list",
+        tooltip = "Initial facilities of this institution",
+        uilabel = "Initial Facilities"
+    )
+
+    record=ts.Bool(
+        doc = "Indicates whether or not the institution should record it's output to text " +
+              "file outputs. The output files match the name of the demand commodity of the " +
+              "institution.",
+        tooltip = "Boolean to indicate whether or not to record output to text file.",
+        uilabel = "Record to Text",
+        default = False
     )
 
 
@@ -79,13 +91,9 @@ class NOInst(Institution):
 
     def tock(self):
         """
-        #Method for the deployment of facilities.     
+        This is the tock method for the institution. Here the institution determines the difference
+        in supply and demand and makes the the decision to deploy facilities or not.     
         """
-        #if len(self.commodity_supply.items()) == 1:
-            #k, i = list(self.commodity_supply.keys())[0], 1
-            #while i < 10:
-            #    self.commodity_supply[k-i] = self.commodity_supply[k]
-            #    i+=1
         time = self.context.time
         diff, supply, demand = self.calc_diff(time)
         if  diff < 0:
@@ -98,11 +106,27 @@ class NOInst(Institution):
             while i < number:
                 self.context.schedule_build(self, proto)
                 i+=1
-        f = open(self.demand_commod+".txt", 'a')
-        f.write("Time " + str(time) + " Deployed " + str(self.deployed) + " supply " + str(self.commodity_supply[time]) + " demand " +str(self.commodity_demand[time]) + "\n")   
-        f.close()  
+        if self.record:
+            f = open(self.demand_commod+".txt", 'a')
+            f.write("Time " + str(time) + " Deployed " + str(self.deployed) + " supply " + str(self.commodity_supply[time]) + " demand " +str(self.commodity_demand[time]) + "\n")   
+            f.close()  
 
     def calc_diff(self, time):
+        """
+        This function calculates the different in supply and demand for a given facility
+        Parameters
+        ----------        
+        time : int
+            This is the time step that the difference is being calculated for.
+        Returns
+        -------
+        diff : double
+            This is the difference between supply and demand at [time]
+        supply : double
+            The calculated supply of the supply commodity at [time].
+        demand : double
+            The calculated demand of the demand commodity at [time]
+        """
         try:
             supply = self.calc_methods[self.calc_method](self, self.commodity_supply)
         except:
@@ -127,7 +151,13 @@ class NOInst(Institution):
 
         Parameters
         ----------
-        
+        agent : cyclus agent
+            This is the agent that is making the call to the listener.
+        time : int
+            Timestep that the call is made.
+        value : object
+            This is the value of the object being recorded in the time
+            series.
         """
         if time in self.commodity_supply:
             self.commodity_supply[time] += value
@@ -142,8 +172,14 @@ class NOInst(Institution):
         
         Parameters
         ----------
-        
-        """
+        agent : cyclus agent
+            This is the agent that is making the call to the listener.
+        time : int
+            Timestep that the call is made.
+        value : object
+            This is the value of the object being recorded in the time
+            series.
+        """        
         if time in self.commodity_demand:
             self.commodity_demand[time] += value
         else:
