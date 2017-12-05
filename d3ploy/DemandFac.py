@@ -13,62 +13,62 @@ class DemandFac(Facility):
     Non Optimizing (NO) methods. 
     """
 
-    demand_rate_min = ts.Double(
-        doc = "The minimum rate at which this facility produces it's commodity. ", 
-        tooltip = "The minimum rate at which this facility produces its product.",
-        uilabel = "Min Production"
+    demand_rate_min=ts.Double(
+        doc="The minimum rate at which this facility produces it's commodity. ", 
+        tooltip="The minimum rate at which this facility produces its product.",
+        uilabel="Min Production"
     )
 
 
-    demand_rate_max = ts.Double(
-        doc = "The maximum rate at which this facility produces it's commodity.", 
-        tooltip = "The maximum rate at which this facility produces its product.",
-        uilabel = "Max Production"
+    demand_rate_max=ts.Double(
+        doc="The maximum rate at which this facility produces it's commodity.", 
+        tooltip="The maximum rate at which this facility produces its product.",
+        uilabel="Max Production"
     )
 
-    demand_ts = ts.Int(
-        doc = "The number of timesteps between demand calls by the agent", 
-        tooltip = "The number of timesteps between demand calls by the agent", 
-        uilabel = "Demand Timestep",
-        default = 1
+    demand_ts=ts.Int(
+        doc="The number of timesteps between demand calls by the agent", 
+        tooltip="The number of timesteps between demand calls by the agent", 
+        uilabel="Demand Timestep",
+        default=1
     )
 
-    supply_rate_max = ts.Double(
-        doc = "The maximum rate at which this facility produces it's commodity.", 
-        tooltip = "The maximum rate at which this facility produces its product.",
-        uilabel = "Max Production"
+    supply_rate_max=ts.Double(
+        doc="The maximum rate at which this facility produces it's commodity.", 
+        tooltip="The maximum rate at which this facility produces its product.",
+        uilabel="Max Production"
     )
 
-    supply_rate_min = ts.Double(
-        doc = "The maximum rate at which this facility produces it's commodity.", 
-        tooltip = "The maximum rate at which this facility produces its product.",
-        uilabel = "Max Production"
+    supply_rate_min=ts.Double(
+        doc="The maximum rate at which this facility produces it's commodity.", 
+        tooltip="The maximum rate at which this facility produces its product.",
+        uilabel="Max Production"
     )
 
-    supply_ts = ts.Int(
-        doc = "The number of timesteps between supply calls by the agent", 
-        tooltip = "The number of timesteps between supply calls by the agent", 
-        uilabel = "Supply Timestep",
-        default = 1
+    supply_ts=ts.Int(
+        doc="The number of timesteps between supply calls by the agent", 
+        tooltip="The number of timesteps between supply calls by the agent", 
+        uilabel="Supply Timestep",
+        default=1
     )    
 
-    supply_commod = ts.String(
-        doc = "The commodity supplied by this facility.",
-        tooltip = "Supplied Commodity",
-        uilabel = "Supplied Commodity"
+    supply_commod=ts.String(
+        doc="The commodity supplied by this facility.",
+        tooltip="Supplied Commodity",
+        uilabel="Supplied Commodity"
     )
 
-    demand_commod = ts.String(
-        doc = "The commodity demanded by this facility.",
-        tooltip = "Commodity demanded",
-        uilabel = "Commodity Demanded"
+    demand_commod=ts.String(
+        doc="The commodity demanded by this facility.",
+        tooltip="Commodity demanded",
+        uilabel="Commodity Demanded"
     )
 
-    proto = ts.String(
-        doc = "This is the prototype of the archetype. Note that is is required currently" +
+    proto=ts.String(
+        doc="This is the prototype of the archetype. Note that is is required currently" +
               "because there is a bug in python modules that causes self.prototype to fail.",
-        tooltip = "The prototype of this archetype",
-        uilabel = "Prototype"
+        tooltip="The prototype of this archetype",
+        uilabel="Prototype"
     )
 
 

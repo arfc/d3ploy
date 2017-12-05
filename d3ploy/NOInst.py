@@ -16,63 +16,63 @@ class NOInst(Institution):
     Non Optimizing (NO) methods. 
     """
 
-    prototypes = ts.VectorString(
-        doc = "A list of prototypes that the institution will draw upon to fit" +
+    prototypes=ts.VectorString(
+        doc="A list of prototypes that the institution will draw upon to fit" +
               "the demand curve",
-        tooltip = "List of prototypes the institution can use to meet demand",
-        uilabel = "Prototypes",
-        uitype = "oneOrMore"    
+        tooltip="List of prototypes the institution can use to meet demand",
+        uilabel="Prototypes",
+        uitype="oneOrMore"    
     )
 
-    growth_rate = ts.Double(
-        doc = "This value represents the growth rate that the institution is " +
-              "attempting to meet.",
-        tooltip = "Growth rate of growth commodity",
-        uilabel = "Growth Rate"    
+    growth_rate=ts.Double(
+        doc="This value represents the growth rate that the institution is " +
+            "attempting to meet.",
+        tooltip="Growth rate of growth commodity",
+        uilabel="Growth Rate"    
     )
     
-    supply_commod = ts.String(
-        doc = "The commodity this institution will be monitoring for demand growth. " +
-              "The default value of this field is electric power.",
-        tooltip = "Growth commodity",
-        uilabel = "Growth Commodity"
+    supply_commod=ts.String(
+        doc="The commodity this institution will be monitoring for demand growth. " +
+            "The default value of this field is electric power.",
+        tooltip="Growth commodity",
+        uilabel="Growth Commodity"
     )
     
-    demand_commod = ts.String(
-        doc = "The commodity this institution will be monitoring for demand growth. " +
+    demand_commod=ts.String(
+        doc="The commodity this institution will be monitoring for demand growth. " +
               "The default value of this field is electric power.",
-        tooltip = "Growth commodity",
-        uilabel = "Growth Commodity"
+        tooltip="Growth commodity",
+        uilabel="Growth Commodity"
     )
 
-    initial_demand = ts.Double(
-        doc = "The initial power of the facility",
-        tooltip = "Initital demand",
-        uilabel = "Initial demand"
+    initial_demand=ts.Double(
+        doc="The initial power of the facility",
+        tooltip="Initital demand",
+        uilabel="Initial demand"
     )
 
-    calc_method = ts.String(
-        doc = "This is the calculated method used to determine the supply and demand " +
+    calc_method=ts.String(
+        doc="This is the calculated method used to determine the supply and demand " +
               "for the commodities of this institution. Currently this can be ma for " +
               "moving average, or arma for autoregressive moving average.",
-        tooltip = "Calculation method used to predict supply/demand",
-        uilabel = "Calculation Method"
+        tooltip="Calculation method used to predict supply/demand",
+        uilabel="Calculation Method"
     )
     
-    deployed = ts.Int(
-        doc = "The number of facilities initially deployed to this institution. "+ 
+    deployed=ts.Int(
+        doc="The number of facilities initially deployed to this institution. "+ 
               "This should match the initial facilities in the initial facilities list",
-        tooltip = "Initial facilities of this institution",
-        uilabel = "Initial Facilities"
+        tooltip="Initial facilities of this institution",
+        uilabel="Initial Facilities"
     )
 
     record=ts.Bool(
-        doc = "Indicates whether or not the institution should record it's output to text " +
+        doc="Indicates whether or not the institution should record it's output to text " +
               "file outputs. The output files match the name of the demand commodity of the " +
               "institution.",
-        tooltip = "Boolean to indicate whether or not to record output to text file.",
-        uilabel = "Record to Text",
-        default = False
+        tooltip="Boolean to indicate whether or not to record output to text file.",
+        uilabel="Record to Text",
+        default=False
     )
 
 
