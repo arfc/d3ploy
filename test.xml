@@ -1,7 +1,7 @@
 <simulation>
   <archetypes>
     <spec>
-      <lib>d3ploy.DemandFac</lib>
+      <lib>d3ploy.demand_fac</lib>
       <name>DemandFac</name>
     </spec>
     <spec>
@@ -9,7 +9,7 @@
       <name>NullRegion</name>
     </spec>
     <spec>
-      <lib>d3ploy.NOInst</lib>
+      <lib>d3ploy.no_inst</lib>
       <name>NOInst</name>
     </spec>
   </archetypes>
