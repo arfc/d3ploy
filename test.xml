@@ -27,7 +27,6 @@
         <demand_rate_min>2000.</demand_rate_min>
         <supply_rate_max>1000.</supply_rate_max>
         <supply_rate_min>1000.</supply_rate_min>
-        <demand_ts>16</demand_ts>
         <proto>Reactor</proto>
       </DemandFac>
     </config>
@@ -75,7 +74,7 @@
           <prototypes><val>Reactor</val></prototypes>
           <initial_demand>100000.0</initial_demand>
           <demand_std_dev>1.5</demand_std_dev>
-          <steps>2</steps>
+          <steps>1</steps>
           <deployed>100</deployed>
           <calc_method>arma</calc_method>
         </NOInst>
@@ -98,7 +97,7 @@
           <initial_demand>200000.0</initial_demand>
           <deployed>20</deployed>
           <demand_std_dev>1.5</demand_std_dev>
-          <steps>2</steps>
+          <steps>1</steps>
           <calc_method>arma</calc_method>
         </NOInst>
       </config>
@@ -120,7 +119,7 @@
           <initial_demand>4000000.0</initial_demand>
           <deployed>40</deployed>
           <demand_std_dev>1.5</demand_std_dev>
-          <steps>2</steps>
+          <steps>1</steps>
           <calc_method>arma</calc_method>
         </NOInst>
       </config>
