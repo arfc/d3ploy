@@ -34,19 +34,18 @@ class NOInst(Institution):
         doc="This value represents the growth rate that the institution is " +
             "attempting to meet.",
         tooltip="Growth rate of growth commodity",
-        uilabel="Growth Rate"    
+        uilabel="Growth Rate"
+        default="0.02"    
     )
     
     supply_commod = ts.String(
-        doc="The commodity this institution will be monitoring for demand growth. " +
-            "The default value of this field is electric power.",
-        tooltip="Growth commodity",
-        uilabel="Growth Commodity"
+        doc="The commodity this institution will be monitoring for supply growth.",
+        tooltip="Supply commodity",
+        uilabel="Supply Commodity"
     )
     
     demand_commod = ts.String(
-        doc="The commodity this institution will be monitoring for demand growth. " +
-              "The default value of this field is electric power.",
+        doc="The commodity this institution will be monitoring for demand growth.",
         tooltip="Growth commodity",
         uilabel="Growth Commodity"
     )
@@ -71,7 +70,7 @@ class NOInst(Institution):
               "institution.",
         tooltip="Boolean to indicate whether or not to record output to text file.",
         uilabel="Record to Text",
-        default=True
+        default=False
     )
 
     supply_std_dev = ts.Double(

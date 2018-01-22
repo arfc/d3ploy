@@ -27,7 +27,6 @@
         <demand_rate_min>2000.</demand_rate_min>
         <supply_rate_max>1000.</supply_rate_max>
         <supply_rate_min>1000.</supply_rate_min>
-        <proto>Reactor</proto>
       </DemandFac>
     </config>
     <name>Reactor</name>
@@ -41,7 +40,6 @@
         <demand_rate_min>200000.</demand_rate_min>
         <supply_rate_max>10000.</supply_rate_max>
         <supply_rate_min>10000.</supply_rate_min>
-        <proto>Enrichment</proto>
       </DemandFac>
     </config>
     <name>Enrichment</name>
@@ -55,7 +53,6 @@
         <demand_rate_min>0.</demand_rate_min>
         <supply_rate_max>100000.</supply_rate_max>
         <supply_rate_min>100000.</supply_rate_min>
-        <proto>Mine</proto>
       </DemandFac>
     </config>
     <name>Mine</name>

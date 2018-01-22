@@ -67,13 +67,6 @@ class DemandFac(Facility):
         uilabel="Commodity Demanded"
     )
 
-    proto = ts.String(
-        doc="This is the prototype of the archetype. Note that is is required currently" +
-              "because there is a bug in python modules that causes self.prototype to fail.",
-        tooltip="The prototype of this archetype",
-        uilabel="Prototype"
-    )
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.demand_t = -2
