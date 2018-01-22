@@ -65,13 +65,6 @@ class NOInst(Institution):
         uilabel="Calculation Method"
     )
     
-    deployed = ts.Int(
-        doc="The number of facilities initially deployed to this institution. "+ 
-              "This should match the initial facilities in the initial facilities list",
-        tooltip="Initial facilities of this institution",
-        uilabel="Initial Facilities"
-    )
-
     record = ts.Bool(
         doc="Indicates whether or not the institution should record it's output to text " +
               "file outputs. The output files match the name of the demand commodity of the " +
@@ -124,16 +117,15 @@ class NOInst(Institution):
         diff, supply, demand = self.calc_diff(time)
         if  diff < 0:
             proto = random.choice(self.prototypes)
-            prod_rate = self.commodity_supply[time] / self.deployed
+            prod_rate = self.commodity_supply[time] / len(self.children)
             number = np.ceil(-1*diff/prod_rate)
-            self.deployed += number
             i = 0
             while i < number:
                 self.context.schedule_build(self, proto)
                 i += 1
         if self.record:
             with open(self.demand_commod+".txt", 'a') as f:
-                f.write("Time " + str(time) + " Deployed " + str(self.deployed) + 
+                f.write("Time " + str(time) + " Deployed " + str(len(self.children)) + 
                                               " supply " + str(self.commodity_supply[time]) + 
                                               " demand " +str(self.commodity_demand[time]) + "\n")    
 

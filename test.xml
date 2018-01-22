@@ -75,7 +75,6 @@
           <initial_demand>100000.0</initial_demand>
           <demand_std_dev>1.5</demand_std_dev>
           <steps>1</steps>
-          <deployed>100</deployed>
           <calc_method>arma</calc_method>
         </NOInst>
       </config>
@@ -95,7 +94,6 @@
           <growth_rate>0.05</growth_rate>
           <prototypes><val>Enrichment</val></prototypes>
           <initial_demand>200000.0</initial_demand>
-          <deployed>20</deployed>
           <demand_std_dev>1.5</demand_std_dev>
           <steps>1</steps>
           <calc_method>arma</calc_method>
@@ -117,7 +115,6 @@
           <growth_rate>0.05</growth_rate>
           <prototypes><val>Mine</val></prototypes>
           <initial_demand>4000000.0</initial_demand>
-          <deployed>40</deployed>
           <demand_std_dev>1.5</demand_std_dev>
           <steps>1</steps>
           <calc_method>arma</calc_method>
