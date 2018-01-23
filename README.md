@@ -44,7 +44,7 @@ the institution will schedule facilities for deployment only if there is a
 deficit in the current time step. 
 
 Required Inputs
-------------------
+---------------
 - **demand_commod**: This is the commodity that is demanded of the institution.
 Facilities outside of this insitution need this commodity and request it from
 facilities inside of this institution. **NOTE** If 'power' is used as the 
@@ -82,4 +82,28 @@ be predicted. Default: 1.
 
 Demand Fac
 ==========
+This facility is a test facility for D3ploy. It generates a random amount of
+supply and demand for commodities, and then reports these using the 
+**RecordTimeSeries** functions inside of Cyclus.Thus providing a supply and
+demand to the institutions.
 
+Amount of commodity demanded and supplied can be determined randomly through
+their minimum and maximum values. If for instance you'd like variability in
+the production rate of your supply you can set these minimum and maximum 
+values to reflect that. 
+
+Required Inputs
+--------------- 
+**demand_commod**: This is the commodity that the facility demands in order to
+operate. 
+**demand_rate_min**: Minimum amount of the demanded commodity needed. 
+**demand_rate_max**: Maximum amount of the demanded commodity needed.
+**supply_commod**: The commodity that the facility supplies. 
+**supply_rate_min**: Minimum rate of production of the supplied commodity.
+**supply_rate_max**: Maximum rate of production of the supplied commodity.
+
+Optional Inputs
+---------------
+**demand_ts**: The amount of time steps between demanding material. For
+example a reactor may only demand material every 18 months.
+**supply_ts**: The amount of time steps between supplying material.
