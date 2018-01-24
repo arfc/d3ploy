@@ -3,5 +3,6 @@
 *.xml
 *.sqlite
 *.txt
+*.pyc
 build
 d3ploy/__pycache__
