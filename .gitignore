@@ -3,4 +3,5 @@
 *.xml
 *.sqlite
 *.txt
-/build
+build
+d3ploy/__pycache__
