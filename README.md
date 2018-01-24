@@ -5,8 +5,13 @@ can communicate. The goal of this package is to provide three types of mathemati
 basis for determining supply and demand of commodities within Cyclus; Non-optimizing (NO)
 deterministing optimization (DO), and Stochastic optimization (SO). 
 
-Non-Optimizing
-==============
+Dependencies
+============
+**statsmodels**: Python package for statistical analysis
+**arch**: Python package for conditional heteroskidasticity models.
+
+Non-Optimizing Methods
+======================
 There are two methods currently being considered for the NO models. Autoregressive
 moving average (ARMA), and autoregressive conditional heteroskedasticity (ARCH).
 

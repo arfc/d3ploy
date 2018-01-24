@@ -4,7 +4,6 @@
 
 import random
 import copy
-import math
 from collections import defaultdict
 import numpy as np
 import scipy as sp
@@ -14,7 +13,6 @@ from cyclus import lib
 import cyclus.typesystem as ts
 
 import statsmodels.api as sm
-from arch import arch_model
 
 CALC_METHODS = {}
 
@@ -36,18 +34,19 @@ class NOInst(Institution):
         doc="This value represents the growth rate that the institution is " +
             "attempting to meet.",
         tooltip="Growth rate of growth commodity",
-        uilabel="Growth Rate"
-        default="0.02"    
+        uilabel="Growth Rate"    
     )
     
     supply_commod = ts.String(
-        doc="The commodity this institution will be monitoring for supply growth.",
-        tooltip="Supply commodity",
-        uilabel="Supply Commodity"
+        doc="The commodity this institution will be monitoring for demand growth. " +
+            "The default value of this field is electric power.",
+        tooltip="Growth commodity",
+        uilabel="Growth Commodity"
     )
     
     demand_commod = ts.String(
-        doc="The commodity this institution will be monitoring for demand growth.",
+        doc="The commodity this institution will be monitoring for demand growth. " +
+              "The default value of this field is electric power.",
         tooltip="Growth commodity",
         uilabel="Growth Commodity"
     )
@@ -72,7 +71,7 @@ class NOInst(Institution):
               "institution.",
         tooltip="Boolean to indicate whether or not to record output to text file.",
         uilabel="Record to Text",
-        default=False
+        default=True
     )
 
     supply_std_dev = ts.Double(
@@ -95,14 +94,6 @@ class NOInst(Institution):
         uilabel="Demand Std Dev",
         default=1
     )
-    back_steps = ts.Int(
-        doc="This is the number of steps backwards from the current time step" +
-            "that will be used to make the prediction. If this is set to '0'" +
-            "then the calculation will use all values in the time series.",
-        tooltip="",
-        uilabel="",
-        default="5"
-    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -111,7 +102,6 @@ class NOInst(Institution):
         self.fac_supply = {}
         CALC_METHODS['ma'] = self.moving_avg
         CALC_METHODS['arma'] = self.predict_arma
-        CALC_METHODS['arch'] = self.predict_arch
 
     def enter_notify(self):
         super().enter_notify()
@@ -225,7 +215,7 @@ class NOInst(Institution):
         return demand
 
 
-    def moving_avg(self, ts, steps=1, std_dev = 0, back_steps=5):
+    def moving_avg(self, ts, steps=1, std_dev = 0):
         """
         Calculates the moving average of a previous [order] entries in
         timeseries [ts]. It will automatically reduce the order if the
@@ -249,7 +239,7 @@ class NOInst(Institution):
         x = np.average(supply[steps:])
         return x
 
-    def predict_arma(self, ts, steps=1, std_dev = 0, back_steps=5):
+    def predict_arma(self, ts, steps=1, std_dev = 0):
         """
         Predict the value of supply or demand at a given time step using the 
         currently available time series data. This method impliments an ARMA
@@ -266,24 +256,16 @@ class NOInst(Institution):
         x : Predicted value for the time series at chosen timestep (time). 
         """
         v = list(ts.values())
-        fit = sm.tsa.ARMA(v, (1,0)).fit(disp=-1)
-        forecast = fit.forecast(steps)
+        fit = sm.tsa.ARMA(v, (1,0)).fit(disp=-1).forecast(steps)
         x = fit[0][steps-1] + fit[1][steps-1]*std_dev
         return x
 
     
-    def predict_arch(self, ts, steps=1, std_dev = 0, back_steps=5):
+    def predict_arch(ts, time):
         """
         Predict the value of supply or demand at a given time step using the 
         currently available time series data. This method impliments an ARCH
         calculation to perform the prediciton. 
         """
-        f_obs = len(ts)-back_steps
-        if f_obs < 0 or back_steps == 0: f_obs = 0        
-        model = arch_model(ts)
-        fit = model.fit(disp='nothing', update_freq=0, show_warning=False, first_obs=f_obs)
-        forecast = fit.forecast(horizon=steps)
-        x = forecast.mean.get('h.1')[len(ts)-1]
-        std_dev = math.sqrt(forecast.variance.get('h.1')[len(ts)-1]) * std_dev
-        return x+std_dev
+        return
 
