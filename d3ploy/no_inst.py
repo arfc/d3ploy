@@ -36,7 +36,7 @@ class NOInst(Institution):
         doc="This value represents the growth rate that the institution is " +
             "attempting to meet.",
         tooltip="Growth rate of growth commodity",
-        uilabel="Growth Rate"
+        uilabel="Growth Rate",
         default="0.02"    
     )
     
