@@ -82,8 +82,12 @@ with a standard deviation of 2, +1 will result in a predicted value of 12 and
 value to use as the predicted value. For example if the predicted value is 10
 with a standard deviation of 2, +1 will result in a predicted value of 12 and 
 -1 will result in a predicted value of 8. Default: 0
-- **steps** This is the number of time steps forward the supply and demand will
+- **steps**: This is the number of time steps forward the supply and demand will
 be predicted. Default: 1. 
+- **back_steps**: This input is for the ARCH methods. It provides the user with
+the ability to set the number of timesteps back from the current time step
+to use for prediction. If this is set to '0', all values in the time series
+are used. Default: 5. 
 
 Demand Fac
 ==========
@@ -99,16 +103,16 @@ values to reflect that.
 
 Required Inputs
 --------------- 
-**demand_commod**: This is the commodity that the facility demands in order to
+- **demand_commod**: This is the commodity that the facility demands in order to
 operate. 
-**demand_rate_min**: Minimum amount of the demanded commodity needed. 
-**demand_rate_max**: Maximum amount of the demanded commodity needed.
-**supply_commod**: The commodity that the facility supplies. 
-**supply_rate_min**: Minimum rate of production of the supplied commodity.
-**supply_rate_max**: Maximum rate of production of the supplied commodity.
+- **demand_rate_min**: Minimum amount of the demanded commodity needed. 
+- **demand_rate_max**: Maximum amount of the demanded commodity needed.
+- **supply_commod**: The commodity that the facility supplies. 
+- **supply_rate_min**: Minimum rate of production of the supplied commodity.
+- **supply_rate_max**: Maximum rate of production of the supplied commodity.
 
 Optional Inputs
 ---------------
-**demand_ts**: The amount of time steps between demanding material. For
+- **demand_ts**: The amount of time steps between demanding material. For
 example a reactor may only demand material every 18 months.
-**supply_ts**: The amount of time steps between supplying material.
+- **supply_ts**: The amount of time steps between supplying material.
