@@ -116,3 +116,4 @@ Optional Inputs
 - **demand_ts**: The amount of time steps between demanding material. For
 example a reactor may only demand material every 18 months.
 - **supply_ts**: The amount of time steps between supplying material.
+
