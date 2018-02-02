@@ -72,7 +72,7 @@ class NOInst(Institution):
               "institution.",
         tooltip="Boolean to indicate whether or not to record output to text file.",
         uilabel="Record to Text",
-        default=False
+        default=True
     )
 
     supply_std_dev = ts.Double(
@@ -101,7 +101,7 @@ class NOInst(Institution):
             "then the calculation will use all values in the time series.",
         tooltip="",
         uilabel="",
-        default="5"
+        default=10
     )
 
     def __init__(self, *args, **kwargs):
@@ -157,7 +157,8 @@ class NOInst(Institution):
         """
         try:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply, steps = self.steps, 
-                                                    std_dev = self.supply_std_dev)
+                                                    std_dev = self.supply_std_dev,
+                                                    back_steps=self.back_steps)
         except (ValueError, np.linalg.linalg.LinAlgError):
             supply = CALC_METHODS['ma'](self.commodity_supply)
         if not self.commodity_demand:
@@ -167,7 +168,8 @@ class NOInst(Institution):
             self.commodity_demand[time] = demand
         try:
             demand = CALC_METHODS[self.calc_method](self.commodity_demand, steps = self.steps, 
-                                                    std_dev = self.demand_std_dev)
+                                                    std_dev = self.demand_std_dev,
+                                                    back_steps=self.back_steps)
         except (np.linalg.linalg.LinAlgError, ValueError):
             demand = CALC_METHODS['ma'](self.commodity_demand)
         diff = supply - demand
@@ -266,24 +268,25 @@ class NOInst(Institution):
         x : Predicted value for the time series at chosen timestep (time). 
         """
         v = list(ts.values())
+        v = v[-1*back_steps:]        
         fit = sm.tsa.ARMA(v, (1,0)).fit(disp=-1)
         forecast = fit.forecast(steps)
-        x = fit[0][steps-1] + fit[1][steps-1]*std_dev
+        x = forecast[0][steps-1] + forecast[1][steps-1]*std_dev
         return x
 
     
-    def predict_arch(self, ts, steps=1, std_dev = 0, back_steps=5):
+    def predict_arch(self, ts, steps=1, std_dev = 0, back_steps=10):
         """
         Predict the value of supply or demand at a given time step using the 
         currently available time series data. This method impliments an ARCH
         calculation to perform the prediciton. 
         """
-        f_obs = len(ts)-back_steps
-        if f_obs < 0 or back_steps == 0: f_obs = 0        
-        model = arch_model(ts)
-        fit = model.fit(disp='nothing', update_freq=0, show_warning=False, first_obs=f_obs)
+        v = list(ts.values())
+        model = arch_model(v)
+        fit = model.fit(disp='nothing', update_freq=0, show_warning=False)
         forecast = fit.forecast(horizon=steps)
-        x = forecast.mean.get('h.1')[len(ts)-1]
-        std_dev = math.sqrt(forecast.variance.get('h.1')[len(ts)-1]) * std_dev
-        return x+std_dev
+        step = 'h.' + str(steps)
+        x = forecast.mean.get(step)[len(v)-steps]
+        sd = math.sqrt(forecast.variance.get(step)[len(v)-steps]) * std_dev
+        return x+sd
 
