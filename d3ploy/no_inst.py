@@ -72,7 +72,7 @@ class NOInst(Institution):
               "institution.",
         tooltip="Boolean to indicate whether or not to record output to text file.",
         uilabel="Record to Text",
-        default=True
+        default=False
     )
 
     supply_std_dev = ts.Double(
