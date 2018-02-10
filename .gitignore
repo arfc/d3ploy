@@ -1,6 +1,5 @@
 *.h5
 *.json
-*.xml
 *.sqlite
 *.txt
 *.pyc
