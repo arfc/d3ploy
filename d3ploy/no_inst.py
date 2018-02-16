@@ -125,11 +125,20 @@ class NOInst(Institution):
         """
         time = self.context.time
         diff, supply, demand = self.calc_diff(time)
-        if  diff < 0:
+        if  diff < 0: # demand > supply
+            # I feel like this would cause an error if prototypes had different capacities
             proto = random.choice(self.prototypes)
+            # This  REQUIRES initial facility to be non-zero, or it will never
+            # deploy anything.
+            # prod_rate = average commodity supply rate
+            #  
             prod_rate = self.commodity_supply[time] / len(self.children)
+            # number of prototypes to deploy.
+            # This assumes (average production rate = production rate of agent to be deployed)
             number = np.ceil(-1*diff/prod_rate)
             i = 0
+            # How do you that this will satisfy the demand?
+            # How do you take into account the capacity of the prototype you are deploying?
             while i < number:
                 self.context.schedule_build(self, proto)
                 i += 1
