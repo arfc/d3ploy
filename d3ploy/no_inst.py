@@ -127,7 +127,12 @@ class NOInst(Institution):
         diff, supply, demand = self.calc_diff(time)
         if  diff < 0:
             proto = random.choice(self.prototypes)
-            prod_rate = self.commodity_supply[time] / len(self.children)
+            ## This is still not correct. If no facilities are present at the start of the
+            ## simulation prod_rate will still return zero. More complex fix is required.
+            if self.fac_supply[proto]:
+                prod_rate = self.fac_supply[proto]
+            else:
+                print("No facility production rate available for " + proto)                
             number = np.ceil(-1*diff/prod_rate)
             i = 0
             while i < number:
@@ -191,6 +196,7 @@ class NOInst(Institution):
             series.
         """
         self.commodity_supply[time] += value
+        self.fac_supply[agent.prototype] = value
 
     def extract_demand(self, agent, time, value):
         """

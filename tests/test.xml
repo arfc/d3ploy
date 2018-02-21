@@ -72,6 +72,7 @@
           <initial_demand>100000.0</initial_demand>
           <demand_std_dev>1.5</demand_std_dev>
           <steps>1</steps>
+          <record>true</record>
           <calc_method>arma</calc_method>
         </NOInst>
       </config>
