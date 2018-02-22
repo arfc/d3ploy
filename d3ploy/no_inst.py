@@ -118,13 +118,13 @@ class NOInst(Institution):
         lib.TIME_SERIES_LISTENERS[self.supply_commod].append(self.extract_supply)
         lib.TIME_SERIES_LISTENERS[self.demand_commod].append(self.extract_demand)         
 
-    def tock(self):
+    def tick(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.     
         """
         time = self.context.time
-        diff, supply, demand = self.calc_diff(time)
+        diff, supply, demand = self.calc_diff(time-1)
         if  diff < 0:
             proto = random.choice(self.prototypes)
             ## This is still not correct. If no facilities are present at the start of the
@@ -169,8 +169,8 @@ class NOInst(Institution):
         if not self.commodity_demand:
             self.commodity_demand[time] = self.initial_demand
         if self.demand_commod == 'power':
-            demand = self.demand_calc(time+1)
-            self.commodity_demand[time] = demand
+            demand = self.demand_calc(time+2)
+            self.commodity_demand[time+2] = demand
         try:
             demand = CALC_METHODS[self.calc_method](self.commodity_demand, steps = self.steps, 
                                                     std_dev = self.demand_std_dev,
@@ -257,7 +257,7 @@ class NOInst(Institution):
         x = np.average(supply[steps:])
         return x
 
-    def predict_arma(self, ts, steps=1, std_dev = 0, back_steps=5):
+    def predict_arma(self, ts, steps=2, std_dev = 0, back_steps=5):
         """
         Predict the value of supply or demand at a given time step using the 
         currently available time series data. This method impliments an ARMA
@@ -281,7 +281,7 @@ class NOInst(Institution):
         return x
 
     
-    def predict_arch(self, ts, steps=1, std_dev = 0, back_steps=10):
+    def predict_arch(self, ts, steps=2, std_dev = 0, back_steps=10):
         """
         Predict the value of supply or demand at a given time step using the 
         currently available time series data. This method impliments an ARCH
