@@ -1,5 +1,8 @@
 """
-
+This is a mock facility used to demonstrate and test the capabilities 
+of the deploy instutitions in d3ploy. It produces a fixed (or random) 
+amount of psuedo material per time step (the production can also be
+set to every nth time step by the user). 
 """
 
 import random

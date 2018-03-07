@@ -1,5 +1,9 @@
 """
-
+The Non-Optimizing institution uses ARMA and ARCH to determine the 
+supply and demand of a commodity. It uses this information to determine
+the deployment of the supply side agent. Information use to determine the
+deployment is taken from the t-1 time step. This information predicts supply
+and demand of the t+1 time step and the process is done on the t time step.
 """
 
 import random
@@ -125,6 +129,7 @@ class NOInst(Institution):
         """
         time = self.context.time
         diff, supply, demand = self.calc_diff(time-1)
+        print(diff, supply, demand)
         if  diff < 0:
             proto = random.choice(self.prototypes)
             ## This is still not correct. If no facilities are present at the start of the
@@ -140,9 +145,9 @@ class NOInst(Institution):
                 i += 1
         if self.record:
             with open(self.demand_commod+".txt", 'a') as f:
-                f.write("Time " + str(time) + " Deployed " + str(len(self.children)) + 
-                                              " supply " + str(self.commodity_supply[time]) + 
-                                              " demand " +str(self.commodity_demand[time]) + "\n")    
+                f.write("Time " + str(time-1) + " Deployed " + str(len(self.children)) + 
+                                              " supply " + str(self.commodity_supply[time-1]) + 
+                                              " demand " +str(self.commodity_demand[time-1]) + "\n")    
 
     def calc_diff(self, time):
         """
@@ -160,17 +165,22 @@ class NOInst(Institution):
         demand : double
             The calculated demand of the demand commodity at [time]
         """
+        if not self.commodity_demand:
+            self.commodity_demand[time] = self.initial_demand
+        if not self.commodity_supply:
+            self.commodity_supply[time] = self.initial_demand
+        supply_ts = np.array()        
+        while i < time:
+            supply_ts.append(self.supply_commodity[i])                 
         try:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply, steps = self.steps, 
                                                     std_dev = self.supply_std_dev,
                                                     back_steps=self.back_steps)
         except (ValueError, np.linalg.linalg.LinAlgError):
             supply = CALC_METHODS['ma'](self.commodity_supply)
-        if not self.commodity_demand:
-            self.commodity_demand[time] = self.initial_demand
-        if self.demand_commod == 'power':
+        if self.demand_commod == 'POWER':
             demand = self.demand_calc(time+2)
-            self.commodity_demand[time+2] = demand
+            self.commodity_demand[time+1] = demand
         try:
             demand = CALC_METHODS[self.calc_method](self.commodity_demand, steps = self.steps, 
                                                     std_dev = self.demand_std_dev,
