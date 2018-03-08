@@ -64,11 +64,22 @@ input= {
          "initial_feed": 1e4
         }
        }
-       "name": "enrichment"
+       "name": "reactor"
       }
       ],
 
 
+      "facility": [
+      {
+       "config": {
+        "Sink": {
+         "in_commods": ["waste"],
+         "capacity": 1e4
+        }
+       }
+       "name": "sink"
+      }
+      ],
 
       "region": {
        "config": {"NullRegion": "\n      "}, 
@@ -87,7 +98,7 @@ input= {
            "record": True
           }
          }, 
-         "initialfacilitylist": {"entry": {"number": "100", "prototype": "Reactor"}}, 
+         "initialfacilitylist": {"entry": {"number": "1", "prototype": "reactor"}}, 
          "name": "ReactorInst"
         }
        ], 

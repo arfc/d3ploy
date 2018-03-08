@@ -21,7 +21,7 @@
 
 <!-- Facilities Definition -->
 
-
+  <facility>
     <name>source</name>
     <config>
       <Source>
@@ -86,10 +86,10 @@
     <institution>
       <config>
         <NOInst>
-          <supply_commod>power_rx</supply_commod>
-          <demand_commod>power</demand_commod>
+          <supply_commod>power</supply_commod>
+          <demand_commod>uox</demand_commod>
           <growth_rate>0.05</growth_rate>
-          <prototypes><val>Reactor</val></prototypes>
+          <prototypes><val>reactor</val></prototypes>
           <initial_demand>100000.0</initial_demand>
           <demand_std_dev>1.5</demand_std_dev>
           <steps>1</steps>
@@ -98,54 +98,13 @@
       </config>
       <initialfacilitylist>
         <entry>
-          <number>100</number>
+          <number>1</number>
           <prototype>Reactor</prototype>
         </entry>
       </initialfacilitylist>
       <name>ReactorInst</name>
     </institution>
-    <institution>
-      <config>
-        <NOInst>
-          <supply_commod>fuel_en</supply_commod>
-          <demand_commod>fuel_rx</demand_commod>
-          <growth_rate>0.05</growth_rate>
-          <prototypes><val>Enrichment</val></prototypes>
-          <initial_demand>200000.0</initial_demand>
-          <demand_std_dev>1.5</demand_std_dev>
-          <steps>1</steps>
-          <calc_method>arma</calc_method>
-        </NOInst>
-      </config>
-      <initialfacilitylist>
-        <entry>
-          <number>20</number>
-          <prototype>Enrichment</prototype>
-        </entry>
-      </initialfacilitylist>
-      <name>EnrichInst</name>
-    </institution>    
-    <institution>
-      <config>
-        <NOInst>
-          <supply_commod>nat_mine</supply_commod>
-          <demand_commod>nat_en</demand_commod>
-          <growth_rate>0.05</growth_rate>
-          <prototypes><val>Mine</val></prototypes>
-          <initial_demand>4000000.0</initial_demand>
-          <demand_std_dev>1.5</demand_std_dev>
-          <steps>1</steps>
-          <calc_method>arch</calc_method>
-        </NOInst>
-      </config>
-      <initialfacilitylist>
-        <entry>
-          <number>40</number>
-          <prototype>Mine</prototype>
-        </entry>
-      </initialfacilitylist>
-      <name>MineInst</name>
-    </institution>
+    
     <name>SingleRegion</name>
   </region>
 </simulation>
