@@ -1,0 +1,151 @@
+<simulation>
+  <archetypes>
+    <spec> <lib>agents</lib> <name>NullInst</name></spec>
+    <spec> <lib>agents</lib> <name>NullRegion</name></spec>
+    <spec> <lib>cycamore</lib> <name>Source</name></spec>
+    <spec> <lib>cycamore</lib> <name>Sink</name></spec>
+    <spec> <lib>cycamore</lib> <name>Enrichment</name> </spec>
+    <spec> <lib>cycamore</lib> <name>Reactor</name> </spec>
+    <spec> <lib>cycamore</lib> <name>FuelFab</name> </spec>
+    <spec> <lib>cycamore</lib> <name>Separations</name> </spec>
+    <spec><lib>d3ploy.no_inst</lib> <name>NOInst</name>
+    </spec>
+  </archetypes>
+  <control>
+    <duration>50</duration>
+    <startmonth>1</startmonth>
+    <startyear>2000</startyear>
+  </control>
+
+
+
+<!-- Facilities Definition -->
+
+
+    <name>source</name>
+    <config>
+      <Source>
+        <outcommod>natl_u</outcommod>
+        <outrecipe>natl_u</outrecipe>
+        <throughput>1e4</throughput>
+      </Source>
+    </config>
+  </facility>
+
+  <facility>
+    <name>enrichment</name>
+    <config>
+      <Enrichment>
+        <feed_commod>natl_u</feed_commod>
+        <feed_recipe>natl_u</feed_recipe>
+        <product_commod>uox</product_commod>
+        <tails_assay>0.003</tails_assay>
+        <tails_commod>waste</tails_commod>
+        <swu_capacity>1e4</swu_capacity>
+        <initial_feed>1e4</initial_feed>
+      </Enrichment>
+    </config>
+  </facility>
+
+  <facility>
+    <name>reactor</name>
+    <config>
+      <Reactor>
+        <fuel_inrecipes>  <val>fresh_uox</val>  </fuel_inrecipes>
+        <fuel_outrecipes> <val>spent_uox</val>  </fuel_outrecipes>
+        <fuel_incommods>  <val>uox</val>        </fuel_incommods>
+        <fuel_outcommods> <val>spent_uox</val>  </fuel_outcommods>
+
+        <cycle_time>1</cycle_time>
+        <refuel_time>0</refuel_time>
+        <assem_size>1e3</assem_size>
+        <n_assem_core>3</n_assem_core>
+        <n_assem_batch>1</n_assem_batch>
+      </Reactor>
+    </config>
+  </facility>
+
+  <facility>
+    <name>repo</name>
+    <config>
+      <Sink>
+        <in_commods><val>waste</val></in_commods>
+        <capacity>1e4</capacity>
+      </Sink>
+    </config>
+  </facility>
+
+
+<!-- Region Definition -->
+
+  <region>
+    <config>
+      <NullRegion>
+      </NullRegion>
+    </config>
+    <institution>
+      <config>
+        <NOInst>
+          <supply_commod>power_rx</supply_commod>
+          <demand_commod>power</demand_commod>
+          <growth_rate>0.05</growth_rate>
+          <prototypes><val>Reactor</val></prototypes>
+          <initial_demand>100000.0</initial_demand>
+          <demand_std_dev>1.5</demand_std_dev>
+          <steps>1</steps>
+          <calc_method>arma</calc_method>
+        </NOInst>
+      </config>
+      <initialfacilitylist>
+        <entry>
+          <number>100</number>
+          <prototype>Reactor</prototype>
+        </entry>
+      </initialfacilitylist>
+      <name>ReactorInst</name>
+    </institution>
+    <institution>
+      <config>
+        <NOInst>
+          <supply_commod>fuel_en</supply_commod>
+          <demand_commod>fuel_rx</demand_commod>
+          <growth_rate>0.05</growth_rate>
+          <prototypes><val>Enrichment</val></prototypes>
+          <initial_demand>200000.0</initial_demand>
+          <demand_std_dev>1.5</demand_std_dev>
+          <steps>1</steps>
+          <calc_method>arma</calc_method>
+        </NOInst>
+      </config>
+      <initialfacilitylist>
+        <entry>
+          <number>20</number>
+          <prototype>Enrichment</prototype>
+        </entry>
+      </initialfacilitylist>
+      <name>EnrichInst</name>
+    </institution>    
+    <institution>
+      <config>
+        <NOInst>
+          <supply_commod>nat_mine</supply_commod>
+          <demand_commod>nat_en</demand_commod>
+          <growth_rate>0.05</growth_rate>
+          <prototypes><val>Mine</val></prototypes>
+          <initial_demand>4000000.0</initial_demand>
+          <demand_std_dev>1.5</demand_std_dev>
+          <steps>1</steps>
+          <calc_method>arch</calc_method>
+        </NOInst>
+      </config>
+      <initialfacilitylist>
+        <entry>
+          <number>40</number>
+          <prototype>Mine</prototype>
+        </entry>
+      </initialfacilitylist>
+      <name>MineInst</name>
+    </institution>
+    <name>SingleRegion</name>
+  </region>
+</simulation>
