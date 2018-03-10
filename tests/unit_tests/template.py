@@ -1,10 +1,11 @@
 import json
+import re
 import subprocess
 import os
 
-from nose.tools import assert_in
+from nose.tools import assert_in, assert_true, assert_equals
 
-input= {
+input_file = {
     "simulation": {
       "archetypes": {
        "spec": [
@@ -55,8 +56,8 @@ input= {
       {
        "config": {
         "Reactor": {
-         "fuel_inrecipes": ["fresh_uox"],
-         "fuel_outrecipes": ["spent_uox"],
+         "fuel_inrecipes": {"val":"fresh_uox"},
+         "fuel_outrecipes": {"val":"spent_uox"},
          "product_commod": "uox",
          "tails_assay": 0.003,
          "tails_commod": "waste",
@@ -64,11 +65,22 @@ input= {
          "initial_feed": 1e4
         }
        }
-       "name": "enrichment"
+       "name": "reactor"
       }
       ],
 
 
+      "facility": [
+      {
+       "config": {
+        "Sink": {
+         "in_commods": {"val":"spent_uox"},
+         "capacity": 1e4
+        }
+       }
+       "name": "sink"
+      }
+      ],
 
       "region": {
        "config": {"NullRegion": "\n      "}, 
@@ -98,4 +110,12 @@ input= {
 
 
 def test_demand_calc():
-    
+  if os.path.exists('test_results.sqlite'):
+    os.remove('test_results.sqlite')
+  with open('test.json', 'w') as f:
+    json.dump(input_file, f)
+  env = dict(os.environ)
+  env['PYTHONPATH'] = "."
+  s = subprocess.check_output(['cyclus', '-o', 'test_results.sqlite', 'test.json'],
+                              universal_newlines=True, env=env)
+  assert_in("successful", s)
