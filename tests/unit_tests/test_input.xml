@@ -23,7 +23,7 @@
 <!-- Facilities Definition -->
 
   <facility>
-  <name>source</name>
+    <name>source</name>
     <config>
       <Source>
         <outcommod>natl_u</outcommod>
@@ -88,7 +88,7 @@
       <config>
         <NOInst>
           <supply_commod>power</supply_commod>
-          <demand_commod>power_rx</demand_commod>
+          <demand_commod>uox</demand_commod>
           <growth_rate>0.05</growth_rate>
           <prototypes><val>reactor</val></prototypes>
           <initial_demand>100000.0</initial_demand>
@@ -99,7 +99,7 @@
       </config>
       <initialfacilitylist>
         <entry>
-          <number>100</number>
+          <number>1</number>
           <prototype>Reactor</prototype>
         </entry>
       </initialfacilitylist>

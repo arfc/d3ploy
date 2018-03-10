@@ -99,7 +99,7 @@ input_file = {
            "record": True
           }
          }, 
-         "initialfacilitylist": {"entry": {"number": "100", "prototype": "Reactor"}}, 
+         "initialfacilitylist": {"entry": {"number": "1", "prototype": "reactor"}}, 
          "name": "ReactorInst"
         }
        ], 
