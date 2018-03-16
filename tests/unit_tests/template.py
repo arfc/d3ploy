@@ -54,7 +54,10 @@ init_demand = {
   }, 
   "control": {"duration": "3", "startmonth": "1", "startyear": "2000"}, 
   "facility": {
-   "config": {"Source": {"outcommod": "fuel", "outrecipe": "fuel", "throughput": "1"}}, 
+   "config": {"Source": {"outcommod": "fuel",
+                         "outrecipe": "fuel",
+                         "throughput": "1",
+                         "source_record_outcommod": "fuel"}}, 
    "name": "source"
   }, 
   "recipe": {
@@ -68,7 +71,7 @@ init_demand = {
     "config": {
      "NOInst": {
       "calc_method": "arma", 
-      "demand_commod": "fuel_end", 
+      "demand_commod": "POWER", 
       "demand_std_dev": "0.0", 
       "growth_rate": "0.0", 
       "initial_demand": "1", 
@@ -91,6 +94,75 @@ def test1_init_demand():
 
     with open(input_file, 'w') as f:
         json.dump(init_demand, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=env)
+    # check if ran successfully
+    assert("Cyclus run successful!" in s)
+
+    # getting the sqlite file
+    cur = get_cursor(output_file)
+    # check if 10 source facilities were deployed by NOInst
+    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
+                         " AND EnterTime = 1").fetchone()
+    assert(source[0] == 1)
+
+    cleanup()
+
+init_demand_with_init_facilities = {
+ "simulation": {
+  "archetypes": {
+   "spec": [
+    {"lib": "agents", "name": "NullRegion"}, 
+    {"lib": "cycamore", "name": "Source"}, 
+    {"lib": "d3ploy.no_inst", "name": "NOInst"}
+   ]
+  }, 
+  "control": {"duration": "3", "startmonth": "1", "startyear": "2000"}, 
+  "facility": {
+   "config": {"Source": {"outcommod": "fuel",
+                         "outrecipe": "fuel",
+                         "throughput": "1",
+                         "source_record_outcommod": "fuel"}}, 
+   "name": "source"
+  }, 
+  "recipe": {
+   "basis": "mass", 
+   "name": "fuel", 
+   "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
+  }, 
+  "region": {
+   "config": {"NullRegion": "\n      "}, 
+   "institution": {
+    "config": {
+     "NOInst": {
+      "calc_method": "arma", 
+      "demand_commod": "POWER", 
+      "demand_std_dev": "0.0", 
+      "growth_rate": "0.0", 
+      "initial_demand": "2", 
+      "prototypes": {"val": "source"}, 
+      "steps": "1", 
+      "supply_commod": "fuel"
+     }
+    },
+    "initialfacilitylist":{
+        "entry":{"number":1,
+                 "prototype":"source"}
+    }, 
+    "name": "source_inst"
+   }, 
+   "name": "SingleRegion"
+  }
+ }
+}
+
+
+
+def test1_init_demand_with_init_facilities():
+    # tests if NOInst deploys a source given initial demand and no initial facilities
+
+    with open(input_file, 'w') as f:
+        json.dump(init_demand_with_init_facilities, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=env)
     # check if ran successfully
@@ -176,7 +248,86 @@ def test1_increasing_demand():
 
     cleanup()
 
+increasing_demand_with_init_facilities = {
+ "simulation": {
+  "archetypes": {
+   "spec": [
+    {"lib": "agents", "name": "NullRegion"}, 
+    {"lib": "cycamore", "name": "Source"}, 
+    {"lib": "d3ploy.no_inst", "name": "NOInst"}
+   ]
+  }, 
+  "control": {"duration": "3", "startmonth": "1", "startyear": "2000"}, 
+  "facility": {
+   "config": {"Source": {"outcommod": "fuel",
+                         "outrecipe": "fuel",
+                         "throughput": "1",
+                         "source_record_outcommod": "fuel"}}, 
+   "name": "source"
+  }, 
+  "recipe": {
+   "basis": "mass", 
+   "name": "fuel", 
+   "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
+  }, 
+  "region": {
+   "config": {"NullRegion": "\n      "}, 
+   "institution": {
+    "config": {
+     "NOInst": {
+      "calc_method": "arma", 
+      "demand_commod": "POWER", 
+      "demand_std_dev": "0.0", 
+      "growth_rate": "1.0", 
+      "initial_demand": "1", 
+      "prototypes": {"val": "source"}, 
+      "steps": "1", 
+      "supply_commod": "fuel"
+     }
+    }, 
+    "initialfacilitylist":{
+        "entry":{"number":1,
+                 "prototype":"source"}
+    }, 
+    "name": "source_inst"
+   }, 
+   "name": "SingleRegion"
+  }
+ }
+}
 
+
+def test1_increasing_demand_with_init_facilities():
+    # tests if NOInst deploys a source according to increasing demand
+    with open(input_file, 'w') as f:
+        json.dump(increasing_demand, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=env)
+    # check if ran successfully
+    assert("Cyclus run successful!" in s)
+    # getting the sqlite file
+    cur = get_cursor(output_file)
+    # check if 1 source facility was deployed by NOInst in timestep 1
+    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
+                         " AND EnterTime = 1").fetchone()
+    print(source[0])
+    assert(source[0] == 1)
+
+
+    # check if 2 source facility was deployed by NOInst in timestep 2
+    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
+                         " AND EnterTime = 2").fetchone()
+    print(source[0])
+    assert(source[0] == 2)
+
+
+    # check if 4 source facility was deployed by NOInst in timestep 3
+    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
+                         " AND EnterTime = 3").fetchone()
+    print(source[0])
+    assert(source[0] == 4)
+
+    cleanup()
 
 reactor_source_no_growth = {
  "simulation": {
@@ -253,7 +404,7 @@ reactor_source_no_growth = {
        "initial_demand": "1", 
        "prototypes": {"val": "reactor"}, 
        "steps": "1", 
-       "supply_commod": "power"
+       "supply_commod": "POWER"
       }
      }, 
      "initialfacilitylist": "\n      ", 
@@ -264,6 +415,8 @@ reactor_source_no_growth = {
   }
  }
 }
+
+
 
 
 def test1_reactor_source_no_growth():
@@ -367,7 +520,7 @@ reactor_source_growth = {
        "initial_demand": "1", 
        "prototypes": {"val": "reactor"}, 
        "steps": "1", 
-       "supply_commod": "power"
+       "supply_commod": "POWER"
       }
      }, 
      "initialfacilitylist": "\n      ", 
