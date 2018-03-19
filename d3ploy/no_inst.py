@@ -129,12 +129,11 @@ class NOInst(Institution):
         """
         time = self.context.time
         diff, supply, demand = self.calc_diff(time-1)
-        print(diff, supply, demand)
         if  diff < 0:
             proto = random.choice(self.prototypes)
             ## This is still not correct. If no facilities are present at the start of the
-            ## simulation prod_rate will still return zero. More complex fix is required.
-            if self.fac_supply[proto]:
+            ## simulation prod_rate will still return zero. More complex fix is required.            
+            if proto in self.fac_supply:
                 prod_rate = self.fac_supply[proto]
             else:
                 print("No facility production rate available for " + proto)                
@@ -144,10 +143,11 @@ class NOInst(Institution):
                 self.context.schedule_build(self, proto)
                 i += 1
         if self.record:
+            out_text = "Time " + str(time-1) + "Deployed " + str(len(self.children))
+            out_text += " supply " + str(self.commodity_supply[time-1])
+            out_text += " demand " + str(self.commodity_demand[time-1]) + "\n"
             with open(self.demand_commod+".txt", 'a') as f:
-                f.write("Time " + str(time-1) + " Deployed " + str(len(self.children)) + 
-                                              " supply " + str(self.commodity_supply[time-1]) + 
-                                              " demand " +str(self.commodity_demand[time-1]) + "\n")    
+                f.write(out_text)    
 
     def calc_diff(self, time):
         """
@@ -168,10 +168,7 @@ class NOInst(Institution):
         if not self.commodity_demand:
             self.commodity_demand[time] = self.initial_demand
         if not self.commodity_supply:
-            self.commodity_supply[time] = self.initial_demand
-        supply_ts = np.array()        
-        while i < time:
-            supply_ts.append(self.supply_commodity[i])                 
+            self.commodity_supply[time] = self.initial_demand              
         try:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply, steps = self.steps, 
                                                     std_dev = self.supply_std_dev,
@@ -242,7 +239,6 @@ class NOInst(Institution):
         demand = self.initial_demand * ((1.0+self.growth_rate)**(time/3.154e+7))
         return demand
 
-
     def moving_avg(self, ts, steps=1, std_dev = 0, back_steps=5):
         """
         Calculates the moving average of a previous [order] entries in
@@ -290,7 +286,6 @@ class NOInst(Institution):
         x = forecast[0][steps-1] + forecast[1][steps-1]*std_dev
         return x
 
-    
     def predict_arch(self, ts, steps=2, std_dev = 0, back_steps=10):
         """
         Predict the value of supply or demand at a given time step using the 
