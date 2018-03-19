@@ -138,8 +138,7 @@ class NOInst(Institution):
             else:
                 print("No facility production rate available for " + proto)                
             number = np.ceil(-1*diff/prod_rate)
-            i = 0
-            while i < number:
+            for i in range(number):
                 self.context.schedule_build(self, proto)
                 i += 1
         if self.record:

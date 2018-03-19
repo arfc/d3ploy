@@ -4,7 +4,7 @@ import os
 
 from nose.tools import assert_in
 
-input= {
+inputfile = {
     "simulation": {
       "archetypes": {
        "spec": [
@@ -36,14 +36,14 @@ input= {
          "config": {
           "NOInst": {
            "calc_method": "arma", 
-           "demand_commod": "power", 
+           "demand_commod": "POWER", 
            "demand_std_dev": "1.5", 
            "growth_rate": "0.05", 
            "initial_demand": "100000.0", 
            "prototypes": {"val": "Reactor"}, 
            "steps": "1", 
            "supply_commod": "power_rx",
-           "record": True
+           "record": 1
           }
          }, 
          "initialfacilitylist": {"entry": {"number": "100", "prototype": "Reactor"}}, 
@@ -57,4 +57,10 @@ input= {
 
 
 def test_demand_calc():
-    
+    if os.path.exists('dummy.h5'):
+        os.remove('dummy.h5')
+    with open('dummy.json', 'w') as f:
+        json.dump(inputfile, f)
+    env = dict(os.environ)
+    env['PYTHONPATH'] = "."
+    s = subprocess.check_output(['cyclus', '-o', 'dummy.h5', 'dummy.json'], universal_newlines=True, env=env)
