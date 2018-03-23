@@ -95,16 +95,16 @@ class NOInst(Institution):
 
     steps = ts.Int(
         doc="The number of timesteps forward for ARMA or order of the MA",
-        tooltip="Std Dev off mean for ARMA",
-        uilabel="Demand Std Dev",
-        default=1
+        tooltip="The number of predicted steps forward",
+        uilabel="Timesteps for Prediction",
+        default=2
     )
     back_steps = ts.Int(
         doc="This is the number of steps backwards from the current time step" +
             "that will be used to make the prediction. If this is set to '0'" +
             "then the calculation will use all values in the time series.",
         tooltip="",
-        uilabel="",
+        uilabel="Back Steps",
         default=10
     )
 
@@ -120,8 +120,8 @@ class NOInst(Institution):
     def enter_notify(self):
         super().enter_notify()
         lib.TIME_SERIES_LISTENERS[self.supply_commod].append(self.extract_supply)
-        lib.TIME_SERIES_LISTENERS[self.demand_commod].append(self.extract_demand)         
-
+        lib.TIME_SERIES_LISTENERS[self.demand_commod].append(self.extract_demand)   
+  
     def tick(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
@@ -138,11 +138,11 @@ class NOInst(Institution):
             else:
                 print("No facility production rate available for " + proto)                
             number = np.ceil(-1*diff/prod_rate)
-            for i in range(number):
+            for i in range(int(number)):
                 self.context.schedule_build(self, proto)
                 i += 1
         if self.record:
-            out_text = "Time " + str(time-1) + "Deployed " + str(len(self.children))
+            out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
             out_text += " supply " + str(self.commodity_supply[time-1])
             out_text += " demand " + str(self.commodity_demand[time-1]) + "\n"
             with open(self.demand_commod+".txt", 'a') as f:
@@ -164,9 +164,9 @@ class NOInst(Institution):
         demand : double
             The calculated demand of the demand commodity at [time]
         """
-        if not self.commodity_demand:
+        if time not in self.commodity_demand:
             self.commodity_demand[time] = self.initial_demand
-        if not self.commodity_supply:
+        if time not in self.commodity_supply:
             self.commodity_supply[time] = self.initial_demand              
         try:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply, steps = self.steps, 
@@ -176,7 +176,7 @@ class NOInst(Institution):
             supply = CALC_METHODS['ma'](self.commodity_supply)
         if self.demand_commod == 'POWER':
             demand = self.demand_calc(time+2)
-            self.commodity_demand[time+1] = demand
+            self.commodity_demand[time+2] = demand
         try:
             demand = CALC_METHODS[self.calc_method](self.commodity_demand, steps = self.steps, 
                                                     std_dev = self.demand_std_dev,
