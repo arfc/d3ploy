@@ -115,7 +115,7 @@ class NOInst(Institution):
         self.fac_supply = {}
         CALC_METHODS['ma'] = self.moving_avg
         CALC_METHODS['arma'] = self.predict_arma
-        CALC_METHODS['arch'] = self.predict_arch  
+        CALC_METHODS['arch'] = self.predict_arch
 
     def enter_notify(self):
         super().enter_notify()
