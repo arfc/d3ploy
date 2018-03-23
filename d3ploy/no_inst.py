@@ -95,8 +95,8 @@ class NOInst(Institution):
 
     steps = ts.Int(
         doc="The number of timesteps forward for ARMA or order of the MA",
-        tooltip="Std Dev off mean for ARMA",
-        uilabel="Demand Std Dev",
+        tooltip="The number of predicted steps forward",
+        uilabel="Timesteps for Prediction",
         default=2
     )
     back_steps = ts.Int(
@@ -104,7 +104,7 @@ class NOInst(Institution):
             "that will be used to make the prediction. If this is set to '0'" +
             "then the calculation will use all values in the time series.",
         tooltip="",
-        uilabel="",
+        uilabel="Back Steps",
         default=10
     )
 
@@ -122,7 +122,6 @@ class NOInst(Institution):
         lib.TIME_SERIES_LISTENERS[self.supply_commod].append(self.extract_supply)
         lib.TIME_SERIES_LISTENERS[self.demand_commod].append(self.extract_demand)   
   
-
     def tick(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
