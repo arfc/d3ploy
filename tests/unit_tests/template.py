@@ -3,6 +3,7 @@ import re
 import subprocess
 import os
 import sqlite3 as lite
+import copy
 
 from nose.tools import assert_in, assert_true, assert_equals
 
@@ -34,58 +35,87 @@ def cleanup():
     if os.path.exists(input_file):
         os.remove(input_file)
 
-
-
-
+# the template is a dictionary of all simulation parameters
+# except the region-institution definition
+template = {
+ "simulation": {
+  "archetypes": {
+   "spec": [
+    {"lib": "agents", "name": "NullRegion"}, 
+    {"lib": "cycamore", "name": "Source"}, 
+    {"lib": "cycamore", "name": "Reactor"},
+    {"lib": "d3ploy.no_inst", "name": "NOInst"}
+   ]
+  }, 
+  "control": {"duration": "3", "startmonth": "1", "startyear": "2000"}, 
+  "recipe": [
+   {
+    "basis": "mass", 
+    "name": "uox", 
+    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
+   }, 
+   {
+    "basis": "mass", 
+    "name": "spent_uox", 
+    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
+   }
+  ], 
+  "facility": [{
+   "config": {"Source": {"outcommod": "fuel",
+                         "outrecipe": "fuel",
+                         "throughput": "1",
+                         "source_record_outcommod": "fuel"}}, 
+   "name": "source"
+  },
+  {
+   "config": {
+        "Reactor":{
+            "assem_size":"1",
+            "cycle_time": "1", 
+            "fuel_incommods": {"val": "fuel"}, 
+            "fuel_inrecipes": {"val": "fresh_uox"}, 
+            "fuel_outcommods": {"val": "spent_uox"}, 
+            "fuel_outrecipes": {"val": "spent_uox"}, 
+            "n_assem_batch": "1", 
+            "n_assem_core": "1", 
+            "power_cap": "1", 
+            "refuel_time": "0",
+            "reactor_fuel_demand": "fuel_reactor"
+        }
+    },
+    "name": "reactor"
+   }]
+  }
+}
 
 """ test1 refers to if NOInst meets the increased demand by deploying more facilities.
     test2 refers to if NOInst meets the decreased demand by decommissioning existing facilities.
 """
 
 """ Test1 Examples"""
-init_demand = {
- "simulation": {
-  "archetypes": {
-   "spec": [
-    {"lib": "agents", "name": "NullRegion"}, 
-    {"lib": "cycamore", "name": "Source"}, 
-    {"lib": "d3ploy.no_inst", "name": "NOInst"}
-   ]
-  }, 
-  "control": {"duration": "3", "startmonth": "1", "startyear": "2000"}, 
-  "facility": {
-   "config": {"Source": {"outcommod": "fuel",
-                         "outrecipe": "fuel",
-                         "throughput": "1",
-                         "source_record_outcommod": "fuel"}}, 
-   "name": "source"
-  }, 
-  "recipe": {
-   "basis": "mass", 
-   "name": "fuel", 
-   "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-  }, 
-  "region": {
-   "config": {"NullRegion": "\n      "}, 
-   "institution": {
-    "config": {
-     "NOInst": {
-      "calc_method": "arma", 
-      "demand_commod": "POWER", 
-      "demand_std_dev": "0.0", 
-      "growth_rate": "0.0", 
-      "initial_demand": "1", 
-      "prototypes": {"val": "source"}, 
-      "steps": "1", 
-      "supply_commod": "fuel"
-     }
-    }, 
-    "name": "source_inst"
-   }, 
-   "name": "SingleRegion"
-  }
- }
-}
+
+init_demand = copy.deepcopy(template)
+init_demand["simulation"].update({"region":{
+                         "config": {"NullRegion": "\n      "}, 
+                         "institution": {
+                          "config": {
+                           "NOInst": {
+                            "calc_method": "arma", 
+                            "demand_commod": "POWER", 
+                            "demand_std_dev": "0.0", 
+                            "growth_rate": "0.0", 
+                            "initial_demand": "1", 
+                            "prototypes": {"val": "source"}, 
+                            "steps": "1", 
+                            "supply_commod": "fuel"
+                           }
+                          }, 
+                          "name": "source_inst"
+                         }, 
+                         "name": "SingleRegion"
+                         }
+                         }
+                         )
 
 
 
@@ -108,54 +138,33 @@ def test1_init_demand():
 
     cleanup()
 
-init_demand_with_init_facilities = {
- "simulation": {
-  "archetypes": {
-   "spec": [
-    {"lib": "agents", "name": "NullRegion"}, 
-    {"lib": "cycamore", "name": "Source"}, 
-    {"lib": "d3ploy.no_inst", "name": "NOInst"}
-   ]
-  }, 
-  "control": {"duration": "3", "startmonth": "1", "startyear": "2000"}, 
-  "facility": {
-   "config": {"Source": {"outcommod": "fuel",
-                         "outrecipe": "fuel",
-                         "throughput": "1",
-                         "source_record_outcommod": "fuel"}}, 
-   "name": "source"
-  }, 
-  "recipe": {
-   "basis": "mass", 
-   "name": "fuel", 
-   "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-  }, 
-  "region": {
-   "config": {"NullRegion": "\n      "}, 
-   "institution": {
-    "config": {
-     "NOInst": {
-      "calc_method": "arma", 
-      "demand_commod": "POWER", 
-      "demand_std_dev": "0.0", 
-      "growth_rate": "0.0", 
-      "initial_demand": "2", 
-      "prototypes": {"val": "source"}, 
-      "steps": "1", 
-      "supply_commod": "fuel"
-     }
-    },
-    "initialfacilitylist":{
-        "entry":{"number":1,
-                 "prototype":"source"}
-    }, 
-    "name": "source_inst"
-   }, 
-   "name": "SingleRegion"
-  }
- }
-}
 
+init_demand_with_init_facilities = copy.deepcopy(template)
+init_demand_with_init_facilities["simulation"].update({"region":{
+                         "config": {"NullRegion": "\n      "}, 
+                         "institution": {
+                          "config": {
+                           "NOInst": {
+                            "calc_method": "arma", 
+                            "demand_commod": "POWER", 
+                            "demand_std_dev": "0.0", 
+                            "growth_rate": "0.0", 
+                            "initial_demand": "2", 
+                            "prototypes": {"val": "source"}, 
+                            "steps": "1", 
+                            "supply_commod": "fuel"
+                           }
+                          }, 
+                          "initialfacilitylist":{
+                              "entry":{"number":1,
+                                       "prototype":"source"}
+                          }, 
+                          "name": "source_inst"
+                         }, 
+                         "name": "SingleRegion"
+                         }
+                        }
+                        )
 
 
 def test1_init_demand_with_init_facilities():
@@ -177,32 +186,16 @@ def test1_init_demand_with_init_facilities():
 
     cleanup()
 
-increasing_demand = {
- "simulation": {
-  "archetypes": {
-   "spec": [
-    {"lib": "agents", "name": "NullRegion"}, 
-    {"lib": "cycamore", "name": "Source"}, 
-    {"lib": "d3ploy.no_inst", "name": "NOInst"}
-   ]
-  }, 
-  "control": {"duration": "3", "startmonth": "1", "startyear": "2000"}, 
-  "facility": {
-   "config": {"Source": {"outcommod": "fuel", "outrecipe": "fuel", "throughput": "1"}}, 
-   "name": "source"
-  }, 
-  "recipe": {
-   "basis": "mass", 
-   "name": "fuel", 
-   "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-  }, 
-  "region": {
+
+increasing_demand = copy.deepcopy(template)
+increasing_demand['simulation'].update(
+   {"region": {
    "config": {"NullRegion": "\n      "}, 
    "institution": {
     "config": {
      "NOInst": {
       "calc_method": "arma", 
-      "demand_commod": "fuel_end", 
+      "demand_commod": "POWER", 
       "demand_std_dev": "0.0", 
       "growth_rate": "1.0", 
       "initial_demand": "1", 
@@ -215,9 +208,8 @@ increasing_demand = {
    }, 
    "name": "SingleRegion"
   }
- }
-}
-
+  }
+    )
 
 def test1_increasing_demand():
     # tests if NOInst deploys a source according to increasing demand
@@ -248,29 +240,10 @@ def test1_increasing_demand():
 
     cleanup()
 
-increasing_demand_with_init_facilities = {
- "simulation": {
-  "archetypes": {
-   "spec": [
-    {"lib": "agents", "name": "NullRegion"}, 
-    {"lib": "cycamore", "name": "Source"}, 
-    {"lib": "d3ploy.no_inst", "name": "NOInst"}
-   ]
-  }, 
-  "control": {"duration": "3", "startmonth": "1", "startyear": "2000"}, 
-  "facility": {
-   "config": {"Source": {"outcommod": "fuel",
-                         "outrecipe": "fuel",
-                         "throughput": "1",
-                         "source_record_outcommod": "fuel"}}, 
-   "name": "source"
-  }, 
-  "recipe": {
-   "basis": "mass", 
-   "name": "fuel", 
-   "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-  }, 
-  "region": {
+
+increasing_demand_with_init_facilities = copy.deepcopy(template)
+increasing_demand_with_init_facilities['simulation'].update(
+   {  "region": {
    "config": {"NullRegion": "\n      "}, 
    "institution": {
     "config": {
@@ -292,9 +265,8 @@ increasing_demand_with_init_facilities = {
     "name": "source_inst"
    }, 
    "name": "SingleRegion"
-  }
- }
-}
+  }}
+    )
 
 
 def test1_increasing_demand_with_init_facilities():
@@ -329,60 +301,17 @@ def test1_increasing_demand_with_init_facilities():
 
     cleanup()
 
-reactor_source_no_growth = {
- "simulation": {
-  "archetypes": {
-   "spec": [
-    {"lib": "agents", "name": "NullRegion"}, 
-    {"lib": "cycamore", "name": "Source"}, 
-    {"lib": "cycamore", "name": "Reactor"}, 
-    {"lib": "d3ploy.no_inst", "name": "NOInst"}
-   ]
-  }, 
-  "control": {"duration": "3", "startmonth": "1", "startyear": "2000"}, 
-  "facility": [
-   {
-    "config": {"Source": {"outcommod": "uox", "outrecipe": "uox", "throughput": "1"}}, 
-    "name": "source"
-   }, 
-   {
-    "config": {
-     "Reactor": {
-      "assem_size": "1", 
-      "cycle_time": "1", 
-      "fuel_incommods": {"val": "uox"}, 
-      "fuel_inrecipes": {"val": "fresh_uox"}, 
-      "fuel_outcommods": {"val": "spent_uox"}, 
-      "fuel_outrecipes": {"val": "spent_uox"}, 
-      "n_assem_batch": "1", 
-      "n_assem_core": "1", 
-      "power_cap": "1", 
-      "refuel_time": "0"
-     }
-    }, 
-    "name": "reactor"
-   }
-  ], 
-  "recipe": [
-   {
-    "basis": "mass", 
-    "name": "uox", 
-    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-   }, 
-   {
-    "basis": "mass", 
-    "name": "spent_uox", 
-    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
-   }
-  ], 
-  "region": {
+
+reactor_source_no_growth = copy.deepcopy(template)
+reactor_source_no_growth['simulation'].update(
+   {   "region": {
    "config": {"NullRegion": "\n      "}, 
    "institution": [
     {
      "config": {
       "NOInst": {
        "calc_method": "arma", 
-       "demand_commod": "uox", 
+       "demand_commod": "fuel_reactor", 
        "demand_std_dev": "0.0", 
        "growth_rate": "0.0", 
        "initial_demand": "1", 
@@ -391,30 +320,28 @@ reactor_source_no_growth = {
        "supply_commod": "fuel"
       }
      }, 
-     "initialfacilitylist": "\n      ", 
      "name": "source_inst"
     }, 
     {
      "config": {
       "NOInst": {
        "calc_method": "arma", 
-       "demand_commod": "power_end", 
+       "demand_commod": "POWER", 
        "demand_std_dev": "0.0", 
        "growth_rate": "0.0", 
        "initial_demand": "1", 
        "prototypes": {"val": "reactor"}, 
        "steps": "1", 
-       "supply_commod": "POWER"
+       "supply_commod": "fuel_reactor"
       }
-     }, 
-     "initialfacilitylist": "\n      ", 
+     },  
      "name": "reactor_inst"
     }
    ], 
    "name": "SingleRegion"
-  }
- }
-}
+  }}
+    )
+
 
 
 
@@ -443,62 +370,16 @@ def test1_reactor_source_no_growth():
 
     cleanup()
 
-
-
-reactor_source_growth = {
- "simulation": {
-  "archetypes": {
-   "spec": [
-    {"lib": "agents", "name": "NullRegion"}, 
-    {"lib": "cycamore", "name": "Source"}, 
-    {"lib": "cycamore", "name": "Reactor"}, 
-    {"lib": "d3ploy.no_inst", "name": "NOInst"}
-   ]
-  }, 
-  "control": {"duration": "3", "startmonth": "1", "startyear": "2000"}, 
-  "facility": [
-   {
-    "config": {"Source": {"outcommod": "uox", "outrecipe": "uox", "throughput": "1"}}, 
-    "name": "source"
-   }, 
-   {
-    "config": {
-     "Reactor": {
-      "assem_size": "1", 
-      "cycle_time": "1", 
-      "fuel_incommods": {"val": "uox"}, 
-      "fuel_inrecipes": {"val": "fresh_uox"}, 
-      "fuel_outcommods": {"val": "spent_uox"}, 
-      "fuel_outrecipes": {"val": "spent_uox"}, 
-      "n_assem_batch": "1", 
-      "n_assem_core": "1", 
-      "power_cap": "1", 
-      "refuel_time": "0"
-     }
-    }, 
-    "name": "reactor"
-   }
-  ], 
-  "recipe": [
-   {
-    "basis": "mass", 
-    "name": "uox", 
-    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-   }, 
-   {
-    "basis": "mass", 
-    "name": "spent_uox", 
-    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
-   }
-  ], 
-  "region": {
+reactor_source_growth = copy.deepcopy(template)
+reactor_source_growth['simulation'].update(
+   {   "region": {
    "config": {"NullRegion": "\n      "}, 
    "institution": [
     {
      "config": {
       "NOInst": {
        "calc_method": "arma", 
-       "demand_commod": "uox", 
+       "demand_commod": "fuel_reactor", 
        "demand_std_dev": "0.0", 
        "growth_rate": "1.0", 
        "initial_demand": "1", 
@@ -507,30 +388,27 @@ reactor_source_growth = {
        "supply_commod": "fuel"
       }
      }, 
-     "initialfacilitylist": "\n      ", 
      "name": "source_inst"
     }, 
     {
      "config": {
       "NOInst": {
        "calc_method": "arma", 
-       "demand_commod": "power_end", 
+       "demand_commod": "POWER", 
        "demand_std_dev": "0.0", 
        "growth_rate": "1.0", 
        "initial_demand": "1", 
        "prototypes": {"val": "reactor"}, 
        "steps": "1", 
-       "supply_commod": "POWER"
+       "supply_commod": "fuel_reactor"
       }
-     }, 
-     "initialfacilitylist": "\n      ", 
+     },  
      "name": "reactor_inst"
     }
    ], 
    "name": "SingleRegion"
-  }
- }
-}
+  }}
+    )
 
 
 def test1_reactor_source_growth():
@@ -585,39 +463,15 @@ def test1_reactor_source_growth():
 
 """ Test2 examples"""
 
-phaseout = {
- "simulation": {
-  "archetypes": {
-   "spec": [
-    {"lib": "agents", "name": "NullRegion"}, 
-    {"lib": "cycamore", "name": "Source"}, 
-    {"lib": "d3ploy.no_inst", "name": "NOInst"}
-   ]
-  }, 
-  "control": {"duration": "3", "startmonth": "1", "startyear": "2000"}, 
-  "facility": {
-   "config": {"Source": {"outcommod": "uox", "outrecipe": "uox", "throughput": "1"}}, 
-   "name": "source"
-  }, 
-  "recipe": [
-   {
-    "basis": "mass", 
-    "name": "uox", 
-    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-   }, 
-   {
-    "basis": "mass", 
-    "name": "spent_uox", 
-    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
-   }
-  ], 
-  "region": {
+phaseout = copy.deepcopy(template)
+phaseout["simulation"].update(
+                                  {  "region": {
    "config": {"NullRegion": "\n      "}, 
    "institution": {
     "config": {
      "NOInst": {
       "calc_method": "arma", 
-      "demand_commod": "uox", 
+      "demand_commod": "POWER", 
       "demand_std_dev": "0.0", 
       "growth_rate": "-1.0", 
       "initial_demand": "1", 
@@ -626,14 +480,15 @@ phaseout = {
       "supply_commod": "fuel"
      }
     }, 
-    "initialfacilitylist": "\n      ", 
+    "initialfacilitylist":{
+                              "entry":{"number":1,
+                                       "prototype":"source"}
+    },
     "name": "source_inst"
    }, 
    "name": "SingleRegion"
-  }
- }
-}
-
+  }}
+  )
 
 
 def test2_phaseout():
