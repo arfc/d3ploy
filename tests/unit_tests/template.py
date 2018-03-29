@@ -94,6 +94,7 @@ template = {
 
 """ TestA Examples"""
 
+""" Test A_1 """
 init_demand = copy.deepcopy(template)
 init_demand["simulation"].update({"region":{
                          "config": {"NullRegion": "\n      "}, 
@@ -138,7 +139,7 @@ def testA1_init_demand():
 
     cleanup()
 
-
+""" Test A_2 """
 init_demand_with_init_facilities = copy.deepcopy(template)
 init_demand_with_init_facilities["simulation"].update({"region":{
                          "config": {"NullRegion": "\n      "}, 
@@ -186,7 +187,7 @@ def testA2_init_demand_with_init_facilities():
 
     cleanup()
 
-
+""" Test A_3 """
 increasing_demand = copy.deepcopy(template)
 increasing_demand['simulation'].update(
    {"region": {
@@ -240,7 +241,7 @@ def testA3_increasing_demand():
 
     cleanup()
 
-
+""" Test A_4 """
 increasing_demand_with_init_facilities = copy.deepcopy(template)
 increasing_demand_with_init_facilities['simulation'].update(
    {  "region": {
@@ -267,7 +268,6 @@ increasing_demand_with_init_facilities['simulation'].update(
    "name": "SingleRegion"
   }}
     )
-
 
 def testA4_increasing_demand_with_init_facilities():
     # tests if NOInst deploys a source according to increasing demand
@@ -301,7 +301,7 @@ def testA4_increasing_demand_with_init_facilities():
 
     cleanup()
 
-
+""" Test A_5 """
 reactor_source_no_growth = copy.deepcopy(template)
 reactor_source_no_growth['simulation'].update(
    {   "region": {
@@ -365,7 +365,8 @@ def testA5_reactor_source_no_growth():
     assert(source[0] == 1)
 
     cleanup()
-
+    
+""" Test A_5 """
 reactor_source_growth = copy.deepcopy(template)
 reactor_source_growth['simulation'].update(
    {   "region": {
@@ -406,7 +407,7 @@ reactor_source_growth['simulation'].update(
   }}
     )
 
-
+""" Test A_6 """
 def testA6_reactor_source_growth():
     # tests if the reactor and source pair is correctly deployed with increase in demand
     with open(input_file, 'w') as f:
@@ -459,6 +460,7 @@ def testA6_reactor_source_growth():
 
 """ TestB examples"""
 
+""" Test B_1 """
 phaseout = copy.deepcopy(template)
 phaseout["simulation"].update(
                                   {  "region": {
@@ -505,10 +507,7 @@ def testB1_phaseout():
     cleanup()
 
 
-
-
-
-
+""" Test B_2 """
 """
 This is to measure if NOInst behaves correctly with gradual decrease in demand
 However we are unsure that NOInst calculates demand by
