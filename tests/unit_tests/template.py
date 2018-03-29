@@ -252,7 +252,7 @@ increasing_demand_with_init_facilities['simulation'].update(
       "demand_commod": "POWER", 
       "demand_std_dev": "0.0", 
       "growth_rate": "1.0", 
-      "initial_demand": "1", 
+      "initial_demand": "2", 
       "prototypes": {"val": "source"}, 
       "steps": "1", 
       "supply_commod": "fuel"
@@ -341,10 +341,6 @@ reactor_source_no_growth['simulation'].update(
    "name": "SingleRegion"
   }}
     )
-
-
-
-
 
 def testA5_reactor_source_no_growth():
     # tests if the reactor and source pair is correctly deployed in static demand
