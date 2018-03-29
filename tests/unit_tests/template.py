@@ -51,7 +51,7 @@ template = {
   "recipe": [
    {
     "basis": "mass", 
-    "name": "uox", 
+    "name": "fresh_uox", 
     "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
    }, 
    {
@@ -62,7 +62,7 @@ template = {
   ], 
   "facility": [{
    "config": {"Source": {"outcommod": "fuel",
-                         "outrecipe": "fuel",
+                         "outrecipe": "fresh_uox",
                          "throughput": "1",
                          "source_record_outcommod": "fuel"}}, 
    "name": "source"
