@@ -64,7 +64,7 @@ template = {
    "config": {"Source": {"outcommod": "fuel",
                          "outrecipe": "fuel",
                          "throughput": "1",
-                         "source_record_outcommod": "fuel"}}, 
+                         "source_record_supply": "fuel"}}, 
    "name": "source"
   },
   {
