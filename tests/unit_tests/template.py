@@ -253,7 +253,7 @@ increasing_demand_with_init_facilities['simulation'].update(
       "demand_commod": "POWER", 
       "demand_std_dev": "0.0", 
       "growth_rate": "1.0", 
-      "initial_demand": "2", 
+      "initial_demand": "2",  
       "prototypes": {"val": "source"}, 
       "steps": "1", 
       "supply_commod": "fuel"
