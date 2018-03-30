@@ -738,7 +738,7 @@ def testB2_phaseout():
     # getting the sqlite file
     cur = get_cursor(output_file)
     # check if 1 source facility has been decommissioned
-    source = cur.execute("SELECT count(*) FROM agentexit WHERE ExitTime = 2").fetchone()
+    source = cur.execute("SELECT count(*) FROM agentexit WHERE ExitTime = 13").fetchone()
     assert(source[0] == 1)
 
 
