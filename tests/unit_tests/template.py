@@ -507,35 +507,22 @@ def testA7_reactor_source_growth():
                          " AND EnterTime = 1").fetchone()
     assert(reactor[0] == 1)
 
-
-    # check if 2 reactor facilities were deployed by NOInst in timestep 2
+    # check if 1 reactor facility was deployed by NOInst at timestep 13
     reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
-                         " AND EnterTime = 2").fetchone()
-    assert(reactor[0] == 2)
-
-
-    # check if 4 reactor facilities were deployed by NOInst in timestep 3
-    reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
-                         " AND EnterTime = 3").fetchone()
-    assert(reactor[0] == 4)
+                         " AND EnterTime = 13").fetchone()
+    assert(reactor[0] == 1)
 
     # check if 1 source facility was deployed by NOInst at timestep 1
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
                          " AND EnterTime = 1").fetchone()
     assert(source[0] == 1)
 
-
-    # check if 2 source facilities were deployed by NOInst in timestep 2
+    # check if 1 source facility was deployed by NOInst at timestep 13
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 2").fetchone()
-    assert(source[0] == 2)
+                         " AND EnterTime = 13").fetchone()
+    assert(source[0] == 1)
 
-
-    # check if 4 source facilities were deployed by NOInst in timestep 3
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 3").fetchone()
-    assert(source[0] == 4)
-
+""" Test A_8 """
 """
 source_sink_init_demand = copy.deepcopy(template)
 # change in_commod of sink to `fuel`
