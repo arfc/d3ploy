@@ -272,7 +272,7 @@ increasing_demand_with_init_facilities['simulation'].update(
 def testA4_increasing_demand_with_init_facilities():
     # tests if NOInst deploys a source according to increasing demand
     with open(input_file, 'w') as f:
-        json.dump(increasing_demand, f)
+        json.dump(increasing_demand_with_init_facilities, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=env)
     # check if ran successfully
