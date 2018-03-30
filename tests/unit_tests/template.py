@@ -586,7 +586,7 @@ source_sink_init_demand_with_init_facilities['simulation'].update(
        "demand_commod": "fuel_cap", 
        "demand_std_dev": "0.0", 
        "growth_rate": "0.0", 
-       "initial_demand": "1", 
+       "initial_demand": "2", 
        "prototypes": {"val": "source"}, 
        "steps": "1", 
        "supply_commod": "fuel"
@@ -605,7 +605,7 @@ source_sink_init_demand_with_init_facilities['simulation'].update(
        "demand_commod": "POWER",
        "demand_std_dev": "0.0", 
        "growth_rate": "0.0", 
-       "initial_demand": "1", 
+       "initial_demand": "2", 
        "prototypes": {"val": "reactor"}, 
        "steps": "1", 
        "supply_commod": "fuel_cap"
@@ -651,6 +651,52 @@ def testA9_source_sink_init_demand_with_init_facilities():
 """ TestB examples"""
 
 """ Test B_1 """
+phaseout_no_initdemand = copy.deepcopy(template)
+phaseout_no_initdemand["simulation"].update(
+                                  {  "region": {
+   "config": {"NullRegion": "\n      "}, 
+   "institution": {
+    "config": {
+     "NOInst": {
+      "calc_method": "arma", 
+      "demand_commod": "POWER", 
+      "demand_std_dev": "0.0", 
+      "growth_rate": "0", 
+      "initial_demand": "0", 
+      "prototypes": {"val": "source"}, 
+      "steps": "1", 
+      "supply_commod": "fuel"
+     }
+    }, 
+    "initialfacilitylist":{
+                              "entry":{"number":1,
+                                       "prototype":"source"}
+    },
+    "name": "source_inst"
+   }, 
+   "name": "SingleRegion"
+  }}
+  )
+
+
+def testB1_phaseout_no_initdemand():
+    # tests if NOInst decomissions all deployed facilities with demand going to zero.
+    output_file = 'phaseout_no_initdemand.sqlite'
+    with open(input_file, 'w') as f:
+        json.dump(phaseout_no_initdemand, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=env)
+    # check if ran successfully
+    assert("Cyclus run successful!" in s)
+
+    # getting the sqlite file
+    cur = get_cursor(output_file)
+    # check if 1 source facility has been decommissioned
+    source = cur.execute("SELECT count(*) FROM agentexit WHERE ExitTime = 2").fetchone()
+    assert(source[0] == 1)
+
+
+""" Test B_2 """
 phaseout = copy.deepcopy(template)
 phaseout["simulation"].update(
                                   {  "region": {
@@ -679,7 +725,7 @@ phaseout["simulation"].update(
   )
 
 
-def testB1_phaseout():
+def testB2_phaseout():
     # tests if NOInst decomissions all deployed facilities with demand going to zero.
     output_file = 'phaseout.sqlite'
     with open(input_file, 'w') as f:
@@ -697,7 +743,7 @@ def testB1_phaseout():
 
 
 
-""" Test B_2 """
+""" Test B_3 """
 """
 This is to measure if NOInst behaves correctly with gradual decrease in demand
 However we are unsure that NOInst calculates demand by
@@ -757,7 +803,7 @@ decreasing_demand = {
 
 
 
-def testB2_decreasing_demand():
+def testB3_decreasing_demand():
     # tests if NOInst deploys a source given initial demand and no initial facilities
 
     with open(input_file, 'w') as f:
