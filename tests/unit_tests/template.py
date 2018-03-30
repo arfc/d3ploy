@@ -51,7 +51,7 @@ template = {
   "recipe": [
    {
     "basis": "mass", 
-    "name": "uox", 
+    "name": "fresh_uox", 
     "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
    }, 
    {
@@ -62,7 +62,7 @@ template = {
   ], 
   "facility": [{
    "config": {"Source": {"outcommod": "fuel",
-                         "outrecipe": "fuel",
+                         "outrecipe": "fresh_uox",
                          "throughput": "1",
                          "source_record_supply": "fuel"}}, 
    "name": "source"
@@ -88,12 +88,13 @@ template = {
   }
 }
 
-""" test1 refers to if NOInst meets the increased demand by deploying more facilities.
-    test2 refers to if NOInst meets the decreased demand by decommissioning existing facilities.
+""" testA refers to if NOInst meets the increased demand by deploying more facilities.
+    testB refers to if NOInst meets the decreased demand by decommissioning existing facilities.
 """
 
-""" Test1 Examples"""
+""" TestA Examples"""
 
+""" Test A_1 """
 init_demand = copy.deepcopy(template)
 init_demand["simulation"].update({"region":{
                          "config": {"NullRegion": "\n      "}, 
@@ -119,7 +120,7 @@ init_demand["simulation"].update({"region":{
 
 
 
-def test1_init_demand():
+def testA1_init_demand():
     # tests if NOInst deploys a source given initial demand and no initial facilities
 
     with open(input_file, 'w') as f:
@@ -138,7 +139,7 @@ def test1_init_demand():
 
     cleanup()
 
-
+""" Test A_2 """
 init_demand_with_init_facilities = copy.deepcopy(template)
 init_demand_with_init_facilities["simulation"].update({"region":{
                          "config": {"NullRegion": "\n      "}, 
@@ -167,7 +168,7 @@ init_demand_with_init_facilities["simulation"].update({"region":{
                         )
 
 
-def test1_init_demand_with_init_facilities():
+def testA2_init_demand_with_init_facilities():
     # tests if NOInst deploys a source given initial demand and no initial facilities
 
     with open(input_file, 'w') as f:
@@ -186,7 +187,7 @@ def test1_init_demand_with_init_facilities():
 
     cleanup()
 
-
+""" Test A_3 """
 increasing_demand = copy.deepcopy(template)
 increasing_demand['simulation'].update(
    {"region": {
@@ -211,7 +212,7 @@ increasing_demand['simulation'].update(
   }
     )
 
-def test1_increasing_demand():
+def testA3_increasing_demand():
     # tests if NOInst deploys a source according to increasing demand
     with open(input_file, 'w') as f:
         json.dump(increasing_demand, f)
@@ -240,7 +241,7 @@ def test1_increasing_demand():
 
     cleanup()
 
-
+""" Test A_4 """
 increasing_demand_with_init_facilities = copy.deepcopy(template)
 increasing_demand_with_init_facilities['simulation'].update(
    {  "region": {
@@ -252,7 +253,7 @@ increasing_demand_with_init_facilities['simulation'].update(
       "demand_commod": "POWER", 
       "demand_std_dev": "0.0", 
       "growth_rate": "1.0", 
-      "initial_demand": "1", 
+      "initial_demand": "2",  
       "prototypes": {"val": "source"}, 
       "steps": "1", 
       "supply_commod": "fuel"
@@ -268,8 +269,7 @@ increasing_demand_with_init_facilities['simulation'].update(
   }}
     )
 
-
-def test1_increasing_demand_with_init_facilities():
+def testA4_increasing_demand_with_init_facilities():
     # tests if NOInst deploys a source according to increasing demand
     with open(input_file, 'w') as f:
         json.dump(increasing_demand, f)
@@ -301,7 +301,7 @@ def test1_increasing_demand_with_init_facilities():
 
     cleanup()
 
-
+""" Test A_5 """
 reactor_source_no_growth = copy.deepcopy(template)
 reactor_source_no_growth['simulation'].update(
    {   "region": {
@@ -342,11 +342,7 @@ reactor_source_no_growth['simulation'].update(
   }}
     )
 
-
-
-
-
-def test1_reactor_source_no_growth():
+def testA5_reactor_source_no_growth():
     # tests if the reactor and source pair is correctly deployed in static demand
     with open(input_file, 'w') as f:
         json.dump(reactor_source_no_growth, f)
@@ -369,7 +365,8 @@ def test1_reactor_source_no_growth():
     assert(source[0] == 1)
 
     cleanup()
-
+    
+""" Test A_5 """
 reactor_source_growth = copy.deepcopy(template)
 reactor_source_growth['simulation'].update(
    {   "region": {
@@ -410,8 +407,8 @@ reactor_source_growth['simulation'].update(
   }}
     )
 
-
-def test1_reactor_source_growth():
+""" Test A_6 """
+def testA6_reactor_source_growth():
     # tests if the reactor and source pair is correctly deployed with increase in demand
     with open(input_file, 'w') as f:
         json.dump(reactor_source_growth, f)
@@ -461,8 +458,9 @@ def test1_reactor_source_growth():
 
 
 
-""" Test2 examples"""
+""" TestB examples"""
 
+""" Test B_1 """
 phaseout = copy.deepcopy(template)
 phaseout["simulation"].update(
                                   {  "region": {
@@ -491,7 +489,7 @@ phaseout["simulation"].update(
   )
 
 
-def test2_phaseout():
+def testB1_phaseout():
     # tests if NOInst decomissions all deployed facilities with demand going to zero.
     with open(input_file, 'w') as f:
         json.dump(phaseout, f)
@@ -509,10 +507,7 @@ def test2_phaseout():
     cleanup()
 
 
-
-
-
-
+""" Test B_2 """
 """
 This is to measure if NOInst behaves correctly with gradual decrease in demand
 However we are unsure that NOInst calculates demand by
@@ -572,7 +567,7 @@ decreasing_demand = {
 
 
 
-def test2_decreasing_demand():
+def testB2_decreasing_demand():
     # tests if NOInst deploys a source given initial demand and no initial facilities
 
     with open(input_file, 'w') as f:
