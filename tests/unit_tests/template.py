@@ -44,10 +44,11 @@ template = {
     {"lib": "agents", "name": "NullRegion"}, 
     {"lib": "cycamore", "name": "Source"}, 
     {"lib": "cycamore", "name": "Reactor"},
+    {"lib": "cycamore", "name": "Sink"},
     {"lib": "d3ploy.no_inst", "name": "NOInst"}
    ]
   }, 
-  "control": {"duration": "30", "startmonth": "1", "startyear": "2000"}, 
+  "control": {"duration": "15", "startmonth": "1", "startyear": "2000"}, 
   "recipe": [
    {
     "basis": "mass", 
@@ -66,6 +67,12 @@ template = {
                          "throughput": "1",
                          "source_record_supply": "fuel"}}, 
    "name": "source"
+  },
+  {
+   "config": {"Sink": {"in_commods": {"val":"spent_uox"},
+                       "max_inv_size": 1,
+                       "sink_record_demand": "fuel_cap"}}, 
+   "name": "sink"
   },
   {
    "config": {
@@ -395,7 +402,7 @@ reactor_source_init_demand_with_init_facilites['simulation'].update(
      "config": {
       "NOInst": {
        "calc_method": "arma", 
-       "demand_commod": "POWER", 
+       "demand_commod": "power", 
        "demand_std_dev": "0.0", 
        "growth_rate": "0.0", 
        "initial_demand": "2", 
@@ -529,7 +536,147 @@ def testA7_reactor_source_growth():
                          " AND EnterTime = 3").fetchone()
     assert(source[0] == 4)
 
+"""
+source_sink_init_demand = copy.deepcopy(template)
+# change in_commod of sink to `fuel`
+source_sink_init_demand['simulation']['facility'][1]['config']['Sink']['in_commods']['val'] = 'fuel'
+source_sink_init_demand['simulation'].update(
+   {   "region": {
+   "config": {"NullRegion": "\n      "}, 
+   "institution": [
+    {
+     "config": {
+      "NOInst": {
+       "calc_method": "arma", 
+       "demand_commod": "fuel_cap", 
+       "demand_std_dev": "0.0", 
+       "growth_rate": "0.0", 
+       "initial_demand": "1", 
+       "prototypes": {"val": "source"}, 
+       "steps": "1", 
+       "supply_commod": "fuel"
+      }
+     }, 
+     "name": "source_inst"
+    }, 
+    {
+     "config": {
+      "NOInst": {
+       "calc_method": "arma", 
+       "demand_commod": "POWER",
+       "demand_std_dev": "0.0", 
+       "growth_rate": "0.0", 
+       "initial_demand": "1", 
+       "prototypes": {"val": "reactor"}, 
+       "steps": "1", 
+       "supply_commod": "fuel_cap"
+      }
+     },  
+     "name": "sink_inst"
+    }
+   ], 
+   "name": "SingleRegion"
+  }}
+    )
 
+def testA8_source_sink_init_demand():
+    # tests if the reactor and source pair is correctly deployed in static demand
+    output_file = 'source_sink_init_demand.sqlite'
+    with open(input_file, 'w') as f:
+        json.dump(source_sink_init_demand, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=env)
+    # check if ran successfully
+    assert("Cyclus run successful!" in s)
+
+    # getting the sqlite file
+    cur = get_cursor(output_file)
+
+    # check if 10 reactor facilities were deployed by NOInst
+    reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
+                         " AND EnterTime = 1").fetchone()
+    assert(reactor[0] == 1)
+
+    # check if 10 source facilities were deployed by NOInst
+    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
+                         " AND EnterTime = 1").fetchone()
+    assert(source[0] == 1)
+
+
+source_sink_init_demand_with_init_facilities = copy.deepcopy(template)
+# change in_commod of sink to `fuel`
+source_sink_init_demand_with_init_facilities['simulation']['facility'][1]['config']['Sink']['in_commods']['val'] = 'fuel'
+source_sink_init_demand_with_init_facilities['simulation'].update(
+   {   "region": {
+   "config": {"NullRegion": "\n      "}, 
+   "institution": [
+    {
+     "config": {
+      "NOInst": {
+       "calc_method": "arma", 
+       "demand_commod": "fuel_cap", 
+       "demand_std_dev": "0.0", 
+       "growth_rate": "0.0", 
+       "initial_demand": "1", 
+       "prototypes": {"val": "source"}, 
+       "steps": "1", 
+       "supply_commod": "fuel"
+      }
+     }, 
+     "initialfacilitylist":{
+                              "entry":{"number":1,
+                                       "prototype":"source"}
+                          },
+     "name": "source_inst"
+    }, 
+    {
+     "config": {
+      "NOInst": {
+       "calc_method": "arma", 
+       "demand_commod": "POWER",
+       "demand_std_dev": "0.0", 
+       "growth_rate": "0.0", 
+       "initial_demand": "1", 
+       "prototypes": {"val": "reactor"}, 
+       "steps": "1", 
+       "supply_commod": "fuel_cap"
+      }
+     },  
+     "initialfacilitylist":{
+                              "entry":{"number":1,
+                                       "prototype":"sink"}
+                          },
+     "name": "sink_inst"
+    }
+   ], 
+   "name": "SingleRegion"
+  }}
+    )
+
+def testA9_source_sink_init_demand_with_init_facilities():
+    # tests if the reactor and source pair is correctly deployed in static demand
+    output_file = 'source_sink_init_demand_with_init_facilities.sqlite'
+    with open(input_file, 'w') as f:
+        json.dump(source_sink_init_demand_with_init_facilities, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=env)
+    # check if ran successfully
+    assert("Cyclus run successful!" in s)
+
+    # getting the sqlite file
+    cur = get_cursor(output_file)
+
+    # check if 10 reactor facilities were deployed by NOInst
+    reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
+                         " AND EnterTime = 1").fetchone()
+    assert(reactor[0] == 1)
+
+    # check if 10 source facilities were deployed by NOInst
+    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
+                         " AND EnterTime = 1").fetchone()
+    assert(source[0] == 1)
+
+"""
 
 
 """ TestB examples"""
