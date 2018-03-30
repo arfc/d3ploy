@@ -561,12 +561,12 @@ def testA8_source_sink_init_demand():
     # getting the sqlite file
     cur = get_cursor(output_file)
 
-    # check if 10 reactor facilities were deployed by NOInst
+    # check if 1 sink facilities were deployed by NOInst
     reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
                          " AND EnterTime = 1").fetchone()
     assert(reactor[0] == 1)
 
-    # check if 10 source facilities were deployed by NOInst
+    # check if 1 sink facilities were deployed by NOInst
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
                          " AND EnterTime = 1").fetchone()
     assert(source[0] == 1)
