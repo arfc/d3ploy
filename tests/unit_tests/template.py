@@ -232,19 +232,10 @@ def testA3_increasing_demand():
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
                          " AND EnterTime = 1").fetchone()
     assert(source[0] == 1)
-
-
-    # check if 2 source facility was deployed by NOInst in timestep 2
+    # check if 1 source facility was deployed by NOInst in timestep 13
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 2").fetchone()
-    assert(source[0] == 2)
-
-
-    # check if 4 source facility was deployed by NOInst in timestep 3
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 3").fetchone()
-    assert(source[0] == 4)
-
+                         " AND EnterTime = 13").fetchone()
+    assert(source[0] == 1)
 
 """ Test A_4 """
 increasing_demand_with_init_facilities = copy.deepcopy(template)
