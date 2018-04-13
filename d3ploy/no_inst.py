@@ -125,7 +125,7 @@ class NOInst(Institution):
         """
         time = self.context.time
         diff, supply, demand = self.calc_diff(time)
-        if  diff < 0: 
+        if  diff < 0:
             proto = random.choice(self.prototypes)
             prod_rate = self.commodity_supply[time] / len(self.children)
             number = np.ceil(-1*diff/prod_rate)
