@@ -7,10 +7,13 @@ import copy
 
 from nose.tools import assert_in, assert_true, assert_equals
 
+direc = os.listdir('./')
+for item in direc:
+    if item.endswith('.sqlite') or item.endswith('.json'):
+        os.remove(os.path.join('./', item))
+
 env = dict(os.environ)
 env['PYTHONPATH'] = "."
-output_file = 'test_results.sqlite'
-input_file = 'test.json'
 
 def get_cursor(file_name):
     """ Connects and returns a cursor to an sqlite output file
@@ -130,6 +133,7 @@ init_demand["simulation"].update({"region":{
 def testA1_init_demand():
     # tests if NOInst deploys a source given initial demand and no initial facilities
     output_file = 'init_file.sqlite'
+    input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(init_demand, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
@@ -177,6 +181,7 @@ init_demand_with_init_facilities["simulation"].update({"region":{
 def testA2_init_demand_with_init_facilities():
     # tests if NOInst deploys a source given initial demand and no initial facilities
     output_file = 'init_demand_init_fac.sqlite'
+    input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(init_demand_with_init_facilities, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
@@ -220,6 +225,7 @@ increasing_demand['simulation'].update(
 def testA3_increasing_demand():
     # tests if NOInst deploys a source according to increasing demand
     output_file = 'increasing_demand.sqlite'
+    input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(increasing_demand, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
@@ -231,10 +237,10 @@ def testA3_increasing_demand():
     # check if 1 source facility was deployed by NOInst in timestep 1
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
                          " AND EnterTime = 1").fetchone()
-    assert(source[0] == 1)
+    assert(source[0] == 2)
     # check if 1 source facility was deployed by NOInst in timestep 13
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 13").fetchone()
+                         " AND EnterTime = 12").fetchone()
     assert(source[0] == 1)
 
 """ Test A_4 """
@@ -249,7 +255,7 @@ increasing_demand_with_init_facilities['simulation'].update(
       "demand_commod": "POWER", 
       "demand_std_dev": "0.0", 
       "growth_rate": "1.0", 
-      "initial_demand": "2",  
+      "initial_demand": "1",  
       "prototypes": {"val": "source"}, 
       "steps": "1", 
       "supply_commod": "fuel"
@@ -268,6 +274,7 @@ increasing_demand_with_init_facilities['simulation'].update(
 def testA4_increasing_demand_with_init_facilities():
     # tests if NOInst deploys a source according to increasing demand
     output_file = 'increasing_demand_with_init_facilites.sqlite'
+    input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(increasing_demand_with_init_facilities, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
@@ -283,7 +290,7 @@ def testA4_increasing_demand_with_init_facilities():
     assert(source[0] == 1)
     # check if 1 source facility was deployed by NOInst in timestep 13
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 13").fetchone()
+                         " AND EnterTime = 12").fetchone()
     print(source[0])
     assert(source[0] == 1)
 
@@ -332,6 +339,7 @@ reactor_source_init_demand['simulation'].update(
 def testA5_reactor_source_init_demand():
     # tests if the reactor and source pair is correctly deployed in static demand
     output_file = 'reactor_source_init_demand.sqlite'
+    input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(reactor_source_init_demand, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
@@ -351,7 +359,6 @@ def testA5_reactor_source_init_demand():
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
                          " AND EnterTime = 1").fetchone()
     assert(source[0] == 1)
-
 
 
 
@@ -408,6 +415,7 @@ reactor_source_init_demand_with_init_facilites['simulation'].update(
 def testA6_reactor_source_init_demand_with_init_facilities():
     # tests if the reactor and source pair is correctly deployed in static demand
     output_file = 'reactor_source_init_demand_with_init_facilities.sqlite'
+    input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(reactor_source_init_demand_with_init_facilites, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
@@ -474,6 +482,7 @@ reactor_source_growth['simulation'].update(
 def testA7_reactor_source_growth():
     # tests if the reactor and source pair is correctly deployed with increase in demand
     output_file = 'reactor_source_growth.sqlite'
+    input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(reactor_source_growth, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
@@ -682,6 +691,7 @@ phaseout_no_initdemand["simulation"].update(
 def testB1_phaseout_no_initdemand():
     # tests if NOInst decomissions all deployed facilities with demand going to zero.
     output_file = 'phaseout_no_initdemand.sqlite'
+    input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(phaseout_no_initdemand, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
@@ -728,6 +738,7 @@ phaseout["simulation"].update(
 def testB2_phaseout():
     # tests if NOInst decomissions all deployed facilities with demand going to zero.
     output_file = 'phaseout.sqlite'
+    input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(phaseout, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
