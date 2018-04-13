@@ -232,19 +232,10 @@ def testA3_increasing_demand():
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
                          " AND EnterTime = 1").fetchone()
     assert(source[0] == 1)
-
-
-    # check if 2 source facility was deployed by NOInst in timestep 2
+    # check if 1 source facility was deployed by NOInst in timestep 13
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 2").fetchone()
-    assert(source[0] == 2)
-
-
-    # check if 4 source facility was deployed by NOInst in timestep 3
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 3").fetchone()
-    assert(source[0] == 4)
-
+                         " AND EnterTime = 13").fetchone()
+    assert(source[0] == 1)
 
 """ Test A_4 """
 increasing_demand_with_init_facilities = copy.deepcopy(template)
@@ -290,20 +281,11 @@ def testA4_increasing_demand_with_init_facilities():
                          " AND EnterTime = 1").fetchone()
     print(source[0])
     assert(source[0] == 1)
-
-
-    # check if 2 source facility was deployed by NOInst in timestep 2
+    # check if 1 source facility was deployed by NOInst in timestep 13
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 2").fetchone()
+                         " AND EnterTime = 13").fetchone()
     print(source[0])
-    assert(source[0] == 2)
-
-
-    # check if 4 source facility was deployed by NOInst in timestep 3
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 3").fetchone()
-    print(source[0])
-    assert(source[0] == 4)
+    assert(source[0] == 1)
 
 
 """ Test A_5 """
@@ -507,35 +489,22 @@ def testA7_reactor_source_growth():
                          " AND EnterTime = 1").fetchone()
     assert(reactor[0] == 1)
 
-
-    # check if 2 reactor facilities were deployed by NOInst in timestep 2
+    # check if 1 reactor facility was deployed by NOInst at timestep 13
     reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
-                         " AND EnterTime = 2").fetchone()
-    assert(reactor[0] == 2)
-
-
-    # check if 4 reactor facilities were deployed by NOInst in timestep 3
-    reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
-                         " AND EnterTime = 3").fetchone()
-    assert(reactor[0] == 4)
+                         " AND EnterTime = 13").fetchone()
+    assert(reactor[0] == 1)
 
     # check if 1 source facility was deployed by NOInst at timestep 1
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
                          " AND EnterTime = 1").fetchone()
     assert(source[0] == 1)
 
-
-    # check if 2 source facilities were deployed by NOInst in timestep 2
+    # check if 1 source facility was deployed by NOInst at timestep 13
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 2").fetchone()
-    assert(source[0] == 2)
+                         " AND EnterTime = 13").fetchone()
+    assert(source[0] == 1)
 
-
-    # check if 4 source facilities were deployed by NOInst in timestep 3
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 3").fetchone()
-    assert(source[0] == 4)
-
+""" Test A_8 """
 """
 source_sink_init_demand = copy.deepcopy(template)
 # change in_commod of sink to `fuel`
@@ -592,12 +561,12 @@ def testA8_source_sink_init_demand():
     # getting the sqlite file
     cur = get_cursor(output_file)
 
-    # check if 10 reactor facilities were deployed by NOInst
+    # check if 1 sink facilities were deployed by NOInst
     reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
                          " AND EnterTime = 1").fetchone()
     assert(reactor[0] == 1)
 
-    # check if 10 source facilities were deployed by NOInst
+    # check if 1 sink facilities were deployed by NOInst
     source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
                          " AND EnterTime = 1").fetchone()
     assert(source[0] == 1)
@@ -617,7 +586,7 @@ source_sink_init_demand_with_init_facilities['simulation'].update(
        "demand_commod": "fuel_cap", 
        "demand_std_dev": "0.0", 
        "growth_rate": "0.0", 
-       "initial_demand": "1", 
+       "initial_demand": "2", 
        "prototypes": {"val": "source"}, 
        "steps": "1", 
        "supply_commod": "fuel"
@@ -636,7 +605,7 @@ source_sink_init_demand_with_init_facilities['simulation'].update(
        "demand_commod": "POWER",
        "demand_std_dev": "0.0", 
        "growth_rate": "0.0", 
-       "initial_demand": "1", 
+       "initial_demand": "2", 
        "prototypes": {"val": "reactor"}, 
        "steps": "1", 
        "supply_commod": "fuel_cap"
@@ -682,6 +651,52 @@ def testA9_source_sink_init_demand_with_init_facilities():
 """ TestB examples"""
 
 """ Test B_1 """
+phaseout_no_initdemand = copy.deepcopy(template)
+phaseout_no_initdemand["simulation"].update(
+                                  {  "region": {
+   "config": {"NullRegion": "\n      "}, 
+   "institution": {
+    "config": {
+     "NOInst": {
+      "calc_method": "arma", 
+      "demand_commod": "POWER", 
+      "demand_std_dev": "0.0", 
+      "growth_rate": "0", 
+      "initial_demand": "0", 
+      "prototypes": {"val": "source"}, 
+      "steps": "1", 
+      "supply_commod": "fuel"
+     }
+    }, 
+    "initialfacilitylist":{
+                              "entry":{"number":1,
+                                       "prototype":"source"}
+    },
+    "name": "source_inst"
+   }, 
+   "name": "SingleRegion"
+  }}
+  )
+
+
+def testB1_phaseout_no_initdemand():
+    # tests if NOInst decomissions all deployed facilities with demand going to zero.
+    output_file = 'phaseout_no_initdemand.sqlite'
+    with open(input_file, 'w') as f:
+        json.dump(phaseout_no_initdemand, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=env)
+    # check if ran successfully
+    assert("Cyclus run successful!" in s)
+
+    # getting the sqlite file
+    cur = get_cursor(output_file)
+    # check if 1 source facility has been decommissioned
+    source = cur.execute("SELECT count(*) FROM agentexit WHERE ExitTime = 2").fetchone()
+    assert(source[0] == 1)
+
+
+""" Test B_2 """
 phaseout = copy.deepcopy(template)
 phaseout["simulation"].update(
                                   {  "region": {
@@ -710,7 +725,7 @@ phaseout["simulation"].update(
   )
 
 
-def testB1_phaseout():
+def testB2_phaseout():
     # tests if NOInst decomissions all deployed facilities with demand going to zero.
     output_file = 'phaseout.sqlite'
     with open(input_file, 'w') as f:
@@ -723,12 +738,12 @@ def testB1_phaseout():
     # getting the sqlite file
     cur = get_cursor(output_file)
     # check if 1 source facility has been decommissioned
-    source = cur.execute("SELECT count(*) FROM agentexit WHERE ExitTime = 2").fetchone()
+    source = cur.execute("SELECT count(*) FROM agentexit WHERE ExitTime = 13").fetchone()
     assert(source[0] == 1)
 
 
 
-""" Test B_2 """
+""" Test B_3 """
 """
 This is to measure if NOInst behaves correctly with gradual decrease in demand
 However we are unsure that NOInst calculates demand by
@@ -788,7 +803,7 @@ decreasing_demand = {
 
 
 
-def testB2_decreasing_demand():
+def testB3_decreasing_demand():
     # tests if NOInst deploys a source given initial demand and no initial facilities
 
     with open(input_file, 'w') as f:
