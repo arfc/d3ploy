@@ -8,6 +8,7 @@ import glob
 
 from nose.tools import assert_in, assert_true, assert_equals
 
+# Delete previously generated files
 direc = os.listdir('./')
 hit_list = glob.glob('*.sqlite') + glob.glob('*.json')
 for file in hit_list:
@@ -40,9 +41,9 @@ def cleanup():
     if os.path.exists(input_file):
         os.remove(input_file)
 
-# the template is a dictionary of all simulation parameters
+# the TEMPLATE is a dictionary of all simulation parameters
 # except the region-institution definition
-template = {
+TEMPLATE = {
  "simulation": {
   "archetypes": {
    "spec": [
@@ -100,15 +101,15 @@ template = {
   }
 }
 
-""" testA refers to if NOInst meets the increased demand by deploying more facilities.
-    testB refers to if NOInst meets the decreased demand by decommissioning existing facilities.
-"""
+# testA refers to if NOInst meets the increased demand by deploying more facilities.
+# testB refers to if NOInst meets the decreased demand by decommissioning existing facilities.
 
-""" TestA Examples"""
 
-""" Test A_1 """
-init_demand = copy.deepcopy(template)
-init_demand["simulation"].update({"region":{
+# TestA Examples
+
+# Test A_1
+INIT_DEMAND = copy.deepcopy(TEMPLATE)
+INIT_DEMAND["simulation"].update({"region":{
                          "config": {"NullRegion": "\n      "}, 
                          "institution": {
                           "config": {
@@ -137,7 +138,7 @@ def testA1_init_demand():
     output_file = 'init_file.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
-        json.dump(init_demand, f)
+        json.dump(INIT_DEMAND, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=env)
     # check if ran successfully
@@ -151,9 +152,9 @@ def testA1_init_demand():
     assert(source[0] == 1)
 
 
-""" Test A_2 """
-init_demand_with_init_facilities = copy.deepcopy(template)
-init_demand_with_init_facilities["simulation"].update({"region":{
+# Test A_2 
+INIT_DEMAND_WITH_INIT_FACILITIES = copy.deepcopy(TEMPLATE)
+INIT_DEMAND_WITH_INIT_FACILITIES["simulation"].update({"region":{
                          "config": {"NullRegion": "\n      "}, 
                          "institution": {
                           "config": {
@@ -185,7 +186,7 @@ def testA2_init_demand_with_init_facilities():
     output_file = 'init_demand_init_fac.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
-        json.dump(init_demand_with_init_facilities, f)
+        json.dump(INIT_DEMAND_WITH_INIT_FACILITIES, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=env)
     # check if ran successfully
@@ -199,9 +200,9 @@ def testA2_init_demand_with_init_facilities():
     assert(source[0] == 1)
 
 
-""" Test A_3 """
-increasing_demand = copy.deepcopy(template)
-increasing_demand['simulation'].update(
+# Test A_3 
+INCREASING_DEMAND = copy.deepcopy(TEMPLATE)
+INCREASING_DEMAND['simulation'].update(
    {"region": {
    "config": {"NullRegion": "\n      "}, 
    "institution": {
@@ -229,7 +230,7 @@ def testA3_increasing_demand():
     output_file = 'increasing_demand.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
-        json.dump(increasing_demand, f)
+        json.dump(INCREASING_DEMAND, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=env)
     # check if ran successfully
@@ -245,9 +246,9 @@ def testA3_increasing_demand():
                          " AND EnterTime = 12").fetchone()
     assert(source[0] == 1)
 
-""" Test A_4 """
-increasing_demand_with_init_facilities = copy.deepcopy(template)
-increasing_demand_with_init_facilities['simulation'].update(
+# Test A_4 
+INCREASING_DEMAND_WITH_INIT_FACILITIES = copy.deepcopy(TEMPLATE)
+INCREASING_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
    {  "region": {
    "config": {"NullRegion": "\n      "}, 
    "institution": {
@@ -278,7 +279,7 @@ def testA4_increasing_demand_with_init_facilities():
     output_file = 'increasing_demand_with_init_facilites.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
-        json.dump(increasing_demand_with_init_facilities, f)
+        json.dump(INCREASING_DEMAND_WITH_INIT_FACILITIES, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=env)
     # check if ran successfully
@@ -297,9 +298,9 @@ def testA4_increasing_demand_with_init_facilities():
     assert(source[0] == 1)
 
 
-""" Test A_5 """
-reactor_source_init_demand = copy.deepcopy(template)
-reactor_source_init_demand['simulation'].update(
+# Test A_5 
+REACTOR_SOURCE_INIT_DEMAND = copy.deepcopy(TEMPLATE)
+REACTOR_SOURCE_INIT_DEMAND['simulation'].update(
    {   "region": {
    "config": {"NullRegion": "\n      "}, 
    "institution": [
@@ -343,7 +344,7 @@ def testA5_reactor_source_init_demand():
     output_file = 'reactor_source_init_demand.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
-        json.dump(reactor_source_init_demand, f)
+        json.dump(REACTOR_SOURCE_INIT_DEMAND, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=env)
     # check if ran successfully
@@ -364,9 +365,9 @@ def testA5_reactor_source_init_demand():
 
 
 
-""" Test A_6 """
-reactor_source_init_demand_with_init_facilites = copy.deepcopy(template)
-reactor_source_init_demand_with_init_facilites['simulation'].update(
+# Test A_6 
+REACTOR_SOURCE_INIT_DEMAND_WITH_INIT_FACILITIES = copy.deepcopy(TEMPLATE)
+REACTOR_SOURCE_INIT_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
    {   "region": {
    "config": {"NullRegion": "\n      "}, 
    "institution": [
@@ -419,7 +420,7 @@ def testA6_reactor_source_init_demand_with_init_facilities():
     output_file = 'reactor_source_init_demand_with_init_facilities.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
-        json.dump(reactor_source_init_demand_with_init_facilites, f)
+        json.dump(REACTOR_SOURCE_INIT_DEMAND_WITH_INIT_FACILITIES, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=env)
     # check if ran successfully
@@ -439,9 +440,9 @@ def testA6_reactor_source_init_demand_with_init_facilities():
     assert(source[0] == 1)
 
     
-""" Test A_7 """
-reactor_source_growth = copy.deepcopy(template)
-reactor_source_growth['simulation'].update(
+# Test A_7 
+REACTOR_SOURCE_GROWTH = copy.deepcopy(TEMPLATE)
+REACTOR_SOURCE_GROWTH['simulation'].update(
    {   "region": {
    "config": {"NullRegion": "\n      "}, 
    "institution": [
@@ -480,13 +481,13 @@ reactor_source_growth['simulation'].update(
   }}
     )
 
-""" Test A_7 """
+# Test A_7 
 def testA7_reactor_source_growth():
     # tests if the reactor and source pair is correctly deployed with increase in demand
     output_file = 'reactor_source_growth.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
-        json.dump(reactor_source_growth, f)
+        json.dump(REACTOR_SOURCE_GROWTH, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=env)
     # check if ran successfully
@@ -515,155 +516,12 @@ def testA7_reactor_source_growth():
                          " AND EnterTime = 13").fetchone()
     assert(source[0] == 1)
 
-""" Test A_8 """
-"""
-source_sink_init_demand = copy.deepcopy(template)
-# change in_commod of sink to `fuel`
-source_sink_init_demand['simulation']['facility'][1]['config']['Sink']['in_commods']['val'] = 'fuel'
-source_sink_init_demand['simulation'].update(
-   {   "region": {
-   "config": {"NullRegion": "\n      "}, 
-   "institution": [
-    {
-     "config": {
-      "NOInst": {
-       "calc_method": "arma", 
-       "demand_commod": "fuel_cap", 
-       "demand_std_dev": "0.0", 
-       "growth_rate": "0.0", 
-       "initial_demand": "1", 
-       "prototypes": {"val": "source"}, 
-       "steps": "1", 
-       "supply_commod": "fuel"
-      }
-     }, 
-     "name": "source_inst"
-    }, 
-    {
-     "config": {
-      "NOInst": {
-       "calc_method": "arma", 
-       "demand_commod": "POWER",
-       "demand_std_dev": "0.0", 
-       "growth_rate": "0.0", 
-       "initial_demand": "1", 
-       "prototypes": {"val": "reactor"}, 
-       "steps": "1", 
-       "supply_commod": "fuel_cap"
-      }
-     },  
-     "name": "sink_inst"
-    }
-   ], 
-   "name": "SingleRegion"
-  }}
-    )
 
-def testA8_source_sink_init_demand():
-    # tests if the reactor and source pair is correctly deployed in static demand
-    output_file = 'source_sink_init_demand.sqlite'
-    with open(input_file, 'w') as f:
-        json.dump(source_sink_init_demand, f)
-    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=env)
-    # check if ran successfully
-    assert("Cyclus run successful!" in s)
+# TestB examples
 
-    # getting the sqlite file
-    cur = get_cursor(output_file)
-
-    # check if 1 sink facilities were deployed by NOInst
-    reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
-                         " AND EnterTime = 1").fetchone()
-    assert(reactor[0] == 1)
-
-    # check if 1 sink facilities were deployed by NOInst
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 1").fetchone()
-    assert(source[0] == 1)
-
-
-source_sink_init_demand_with_init_facilities = copy.deepcopy(template)
-# change in_commod of sink to `fuel`
-source_sink_init_demand_with_init_facilities['simulation']['facility'][1]['config']['Sink']['in_commods']['val'] = 'fuel'
-source_sink_init_demand_with_init_facilities['simulation'].update(
-   {   "region": {
-   "config": {"NullRegion": "\n      "}, 
-   "institution": [
-    {
-     "config": {
-      "NOInst": {
-       "calc_method": "arma", 
-       "demand_commod": "fuel_cap", 
-       "demand_std_dev": "0.0", 
-       "growth_rate": "0.0", 
-       "initial_demand": "2", 
-       "prototypes": {"val": "source"}, 
-       "steps": "1", 
-       "supply_commod": "fuel"
-      }
-     }, 
-     "initialfacilitylist":{
-                              "entry":{"number":1,
-                                       "prototype":"source"}
-                          },
-     "name": "source_inst"
-    }, 
-    {
-     "config": {
-      "NOInst": {
-       "calc_method": "arma", 
-       "demand_commod": "POWER",
-       "demand_std_dev": "0.0", 
-       "growth_rate": "0.0", 
-       "initial_demand": "2", 
-       "prototypes": {"val": "reactor"}, 
-       "steps": "1", 
-       "supply_commod": "fuel_cap"
-      }
-     },  
-     "initialfacilitylist":{
-                              "entry":{"number":1,
-                                       "prototype":"sink"}
-                          },
-     "name": "sink_inst"
-    }
-   ], 
-   "name": "SingleRegion"
-  }}
-    )
-
-def testA9_source_sink_init_demand_with_init_facilities():
-    # tests if the reactor and source pair is correctly deployed in static demand
-    output_file = 'source_sink_init_demand_with_init_facilities.sqlite'
-    with open(input_file, 'w') as f:
-        json.dump(source_sink_init_demand_with_init_facilities, f)
-    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=env)
-    # check if ran successfully
-    assert("Cyclus run successful!" in s)
-
-    # getting the sqlite file
-    cur = get_cursor(output_file)
-
-    # check if 10 reactor facilities were deployed by NOInst
-    reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
-                         " AND EnterTime = 1").fetchone()
-    assert(reactor[0] == 1)
-
-    # check if 10 source facilities were deployed by NOInst
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 1").fetchone()
-    assert(source[0] == 1)
-
-"""
-
-
-""" TestB examples"""
-
-""" Test B_1 """
-phaseout_no_initdemand = copy.deepcopy(template)
-phaseout_no_initdemand["simulation"].update(
+# Test B_1
+PHASEOUT_NO_INITDEMAND = copy.deepcopy(TEMPLATE)
+PHASEOUT_NO_INITDEMAND["simulation"].update(
                                   {  "region": {
    "config": {"NullRegion": "\n      "}, 
    "institution": {
@@ -695,7 +553,7 @@ def testB1_phaseout_no_initdemand():
     output_file = 'phaseout_no_initdemand.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
-        json.dump(phaseout_no_initdemand, f)
+        json.dump(PHASEOUT_NO_INITDEMAND, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=env)
     # check if ran successfully
@@ -708,9 +566,9 @@ def testB1_phaseout_no_initdemand():
     assert(source[0] == 1)
 
 
-""" Test B_2 """
-phaseout = copy.deepcopy(template)
-phaseout["simulation"].update(
+# Test B_2 
+PHASEOUT = copy.deepcopy(TEMPLATE)
+PHASEOUT["simulation"].update(
                                   {  "region": {
    "config": {"NullRegion": "\n      "}, 
    "institution": {
@@ -742,7 +600,7 @@ def testB2_phaseout():
     output_file = 'phaseout.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
-        json.dump(phaseout, f)
+        json.dump(PHASEOUT, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=env)
     # check if ran successfully
@@ -754,83 +612,3 @@ def testB2_phaseout():
     source = cur.execute("SELECT count(*) FROM agentexit WHERE ExitTime = 13").fetchone()
     assert(source[0] == 1)
 
-
-
-""" Test B_3 """
-"""
-This is to measure if NOInst behaves correctly with gradual decrease in demand
-However we are unsure that NOInst calculates demand by
-D = D_0 (1+growth_rate)**(time / seconds_in_a_year)
-why is it like this?
-What happens when demand/(throughput per facility) is not an integer??
-
-
-decreasing_demand = {
- "simulation": {
-  "archetypes": {
-   "spec": [
-    {"lib": "agents", "name": "NullRegion"}, 
-    {"lib": "cycamore", "name": "Source"}, 
-    {"lib": "d3ploy.no_inst", "name": "NOInst"}
-   ]
-  }, 
-  "control": {"duration": "3", "startmonth": "1", "startyear": "2000"}, 
-  "facility": {
-   "config": {"Source": {"outcommod": "uox", "outrecipe": "uox", "throughput": "1"}}, 
-   "name": "source"
-  }, 
-  "recipe": [
-   {
-    "basis": "mass", 
-    "name": "uox", 
-    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-   }, 
-   {
-    "basis": "mass", 
-    "name": "spent_uox", 
-    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
-   }
-  ], 
-  "region": {
-   "config": {"NullRegion": "\n      "}, 
-   "institution": {
-    "config": {
-     "NOInst": {
-      "calc_method": "arma", 
-      "demand_commod": "uox", 
-      "demand_std_dev": "0.0", 
-      "growth_rate": "-0.5", 
-      "initial_demand": "10", 
-      "prototypes": {"val": "source"}, 
-      "steps": "1", 
-      "supply_commod": "fuel"
-     }
-    }, 
-    "initialfacilitylist": "\n      ", 
-    "name": "source_inst"
-   }, 
-   "name": "SingleRegion"
-  }
- }
-}
-
-
-
-def testB3_decreasing_demand():
-    # tests if NOInst deploys a source given initial demand and no initial facilities
-
-    with open(input_file, 'w') as f:
-        json.dump(decreasing_demand, f)
-    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=env)
-    # check if ran successfully
-    assert("Cyclus run successful!" in s)
-
-    # getting the sqlite file
-    cur = get_cursor(output_file)
-    # check if 1 source facility has been decommissioned
-    source = cur.execute("SELECT count(*) FROM agentexit WHERE ExitTime = 2").fetchone()
-    assert(source[0] == 1)
-
-    cleanup()
-"""
