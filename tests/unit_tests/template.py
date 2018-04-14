@@ -4,13 +4,15 @@ import subprocess
 import os
 import sqlite3 as lite
 import copy
+import glob
 
 from nose.tools import assert_in, assert_true, assert_equals
 
 direc = os.listdir('./')
-for item in direc:
-    if item.endswith('.sqlite') or item.endswith('.json'):
-        os.remove(os.path.join('./', item))
+hit_list = glob.glob('*.sqlite') + glob.glob('*.json')
+for file in hit_list:
+    os.remove(file)
+
 
 env = dict(os.environ)
 env['PYTHONPATH'] = "."
