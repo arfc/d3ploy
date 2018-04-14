@@ -133,14 +133,14 @@ INIT_DEMAND["simulation"].update({"region":{
 
 
 
-def testA1_init_demand():
+def test_a1_init_demand():
     # tests if NOInst deploys a source given initial demand and no initial facilities
     output_file = 'init_file.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(INIT_DEMAND, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=env)
+                                universal_newlines=True, env=ENV)
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
@@ -181,14 +181,14 @@ INIT_DEMAND_WITH_INIT_FACILITIES["simulation"].update({"region":{
                         )
 
 
-def testA2_init_demand_with_init_facilities():
+def test_a2_init_demand_with_init_facilities():
     # tests if NOInst deploys a source given initial demand and no initial facilities
     output_file = 'init_demand_init_fac.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(INIT_DEMAND_WITH_INIT_FACILITIES, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=env)
+                                universal_newlines=True, env=ENV)
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
@@ -225,14 +225,14 @@ INCREASING_DEMAND['simulation'].update(
   }
     )
 
-def testA3_increasing_demand():
+def test_a3_increasing_demand():
     # tests if NOInst deploys a source according to increasing demand
     output_file = 'increasing_demand.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(INCREASING_DEMAND, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=env)
+                                universal_newlines=True, env=ENV)
     # check if ran successfully
     assert("Cyclus run successful!" in s)
     # getting the sqlite file
@@ -274,14 +274,14 @@ INCREASING_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
   }}
     )
 
-def testA4_increasing_demand_with_init_facilities():
+def test_a4_increasing_demand_with_init_facilities():
     # tests if NOInst deploys a source according to increasing demand
     output_file = 'increasing_demand_with_init_facilites.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(INCREASING_DEMAND_WITH_INIT_FACILITIES, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=env)
+                                universal_newlines=True, env=ENV)
     # check if ran successfully
     assert("Cyclus run successful!" in s)
     # getting the sqlite file
@@ -339,14 +339,14 @@ REACTOR_SOURCE_INIT_DEMAND['simulation'].update(
   }}
     )
 
-def testA5_reactor_source_init_demand():
+def test_a5_reactor_source_init_demand():
     # tests if the reactor and source pair is correctly deployed in static demand
     output_file = 'reactor_source_init_demand.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(REACTOR_SOURCE_INIT_DEMAND, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=env)
+                                universal_newlines=True, env=ENV)
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
@@ -415,14 +415,14 @@ REACTOR_SOURCE_INIT_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
   }}
     )
 
-def testA6_reactor_source_init_demand_with_init_facilities():
+def test_a6_reactor_source_init_demand_with_init_facilities():
     # tests if the reactor and source pair is correctly deployed in static demand
     output_file = 'reactor_source_init_demand_with_init_facilities.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(REACTOR_SOURCE_INIT_DEMAND_WITH_INIT_FACILITIES, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=env)
+                                universal_newlines=True, env=ENV)
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
@@ -482,14 +482,14 @@ REACTOR_SOURCE_GROWTH['simulation'].update(
     )
 
 # Test A_7 
-def testA7_reactor_source_growth():
+def test_a7_reactor_source_growth():
     # tests if the reactor and source pair is correctly deployed with increase in demand
     output_file = 'reactor_source_growth.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(REACTOR_SOURCE_GROWTH, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=env)
+                                universal_newlines=True, env=ENV)
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
@@ -548,14 +548,14 @@ PHASEOUT_NO_INITDEMAND["simulation"].update(
   )
 
 
-def testB1_phaseout_no_initdemand():
+def test_b1_phaseout_no_initdemand():
     # tests if NOInst decomissions all deployed facilities with demand going to zero.
     output_file = 'phaseout_no_initdemand.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(PHASEOUT_NO_INITDEMAND, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=env)
+                                universal_newlines=True, env=ENV)
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
@@ -595,14 +595,14 @@ PHASEOUT["simulation"].update(
   )
 
 
-def testB2_phaseout():
+def test_b2_phaseout():
     # tests if NOInst decomissions all deployed facilities with demand going to zero.
     output_file = 'phaseout.sqlite'
     input_file = output_file.replace('.sqlite','.json')
     with open(input_file, 'w') as f:
         json.dump(PHASEOUT, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=env)
+                                universal_newlines=True, env=ENV)
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
