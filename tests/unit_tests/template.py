@@ -14,8 +14,8 @@ for file in hit_list:
     os.remove(file)
 
 
-env = dict(os.environ)
-env['PYTHONPATH'] = "."
+ENV = dict(os.environ)
+ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 
 def get_cursor(file_name):
     """ Connects and returns a cursor to an sqlite output file
