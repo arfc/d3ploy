@@ -200,6 +200,8 @@ def test_a2_init_demand_with_init_facilities():
 
 
 def test_deployment():
+    output_file = 'init_demand_init_fac.sqlite'
+    cur = get_cursor(output_file)
     at_least_one = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'").fetchone()
     assert(at_least_one[0] >= 2)
 
