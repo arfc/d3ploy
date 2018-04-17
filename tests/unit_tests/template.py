@@ -180,7 +180,6 @@ INIT_DEMAND_WITH_INIT_FACILITIES["simulation"].update({"region":{
                         }
                         )
 
-
 def test_a2_init_demand_with_init_facilities():
     # tests if NOInst deploys a source given initial demand and no initial facilities
     output_file = 'init_demand_init_fac.sqlite'
@@ -199,6 +198,10 @@ def test_a2_init_demand_with_init_facilities():
                          " AND EnterTime = 1").fetchone()
     assert(source[0] == 1)
 
+
+def test_deployment():
+    at_least_one = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'").fetchone()
+    assert(at_least_one[0] >= 2)
 
 # Test A_3 
 INCREASING_DEMAND = copy.deepcopy(TEMPLATE)
