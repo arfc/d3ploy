@@ -496,7 +496,7 @@ def test_a6_reactor_source_init_demand_with_init_facilities():
 
 
 @pytest.mark.exact
-def test_a6_reactor_source_init_demand_with_init_facilities():
+def test_a6_reactor_source_init_demand_with_init_facilities_exact():
     output_file = 'reactor_source_init_demand_with_init_facilities.sqlite'
     cur = get_cursor(output_file)
     reactor_exact = cur.execute(query.replace('source', 'reactor') + " AND EnterTime = 1").fetchone()
