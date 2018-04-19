@@ -3,6 +3,7 @@ import re
 import subprocess
 import os
 import sqlite3 as lite
+import pytest
 import copy
 import glob
 import sys
@@ -678,7 +679,7 @@ PHASEOUT["simulation"].update(
 
 
 def test_b2_phaseout():
-    # tests if NOInst decomissions all deployed 
+    # tests if NOInst decomissions all deployed
     # facilities with demand going to zero.
     output_file = 'phaseout.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
