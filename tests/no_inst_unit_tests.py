@@ -5,6 +5,7 @@ import os
 import sqlite3 as lite
 import copy
 import glob
+import sys
 
 from nose.tools import assert_in, assert_true, assert_equals
 
@@ -16,6 +17,7 @@ for file in hit_list:
 
 # set error tolerance. 1 means 1 source capacity
 tol = 1
+
 
 ENV = dict(os.environ)
 ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
@@ -134,7 +136,7 @@ INIT_DEMAND["simulation"].update({"region":{
                          )
 
 
-
+@pytest.mark.base
 def test_a1_init_demand():
     # tests if NOInst deploys a source given initial demand and no initial facilities
     output_file = 'init_file.sqlite'
@@ -154,6 +156,11 @@ def test_a1_init_demand():
     source_base = cur.execute(query).fetchone()
     assert( 1 <= source_base[0] <= (1 + tol) )
 
+
+@pytest.mark.exact
+def test_a1_init_demand_exact():
+    output_file = 'init_file.sqlite'
+    cur = get.cursor(output_file)
     # check exact solution
     source_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact[0] == 1)
@@ -186,7 +193,7 @@ INIT_DEMAND_WITH_INIT_FACILITIES["simulation"].update({"region":{
                          }
                         }
                         )
-
+@pytest.mark.base
 def test_a2_init_demand_with_init_facilities():
     # tests if NOInst deploys a source given initial demand and no initial facilities
     output_file = 'init_demand_init_fac.sqlite'
@@ -205,6 +212,11 @@ def test_a2_init_demand_with_init_facilities():
     source_base = cur.execute(query).fetchone()
     assert(2 <= source_base[0] <= (2 + tol))
 
+
+@pytest.mark.exact
+def test_a2_init_demand_with_init_facilities_exact():
+    output_file = 'init_demand_init_fac.sqlite'
+    cur = get_cursor(outputfile)
     source_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact[0] == 1)
 
@@ -233,6 +245,7 @@ INCREASING_DEMAND['simulation'].update(
   }
     )
 
+@pytest.mark.base
 def test_a3_increasing_demand():
     # tests if NOInst deploys a source according to increasing demand
     output_file = 'increasing_demand.sqlite'
@@ -251,6 +264,10 @@ def test_a3_increasing_demand():
     assert(3 <= source_base[0] <= (3 + tol))
 
 
+@pytest.mark.exact
+def test_a3_increasing_demand_exact():
+    output_file = 'increasing_demand.sqlite'
+    cur = get_cursor(output_file)
     source_exact1 = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact1[0] == 2)
     source_exact2 = cur.execute(query + " AND EnterTime = 12").fetchone()
@@ -284,6 +301,7 @@ INCREASING_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
   }}
     )
 
+@pytest.mark.base
 def test_a4_increasing_demand_with_init_facilities():
     # tests if NOInst deploys a source according to increasing demand
     output_file = 'increasing_demand_with_init_facilites.sqlite'
@@ -301,6 +319,11 @@ def test_a4_increasing_demand_with_init_facilities():
     source_base = cur.execute(query).fetchone()
     assert(3 <= source_base[0] <= (3 + tol))
 
+
+@pytest.mark.exact
+def test_a4_increasing_demand_with_init_facilities_exact():
+    output_file = 'increasing_demand_with_init_facilites.sqlite'
+    cur = get_cursor(output_file)
     source_exact1 = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact1[0] == 2)
     source_exact2 = cur.execute(query + " AND EnterTime = 12").fetchone()
@@ -348,6 +371,7 @@ REACTOR_SOURCE_INIT_DEMAND['simulation'].update(
   }}
     )
 
+@pytest.mark.base
 def test_a5_reactor_source_init_demand():
     # tests if the reactor and source pair is correctly deployed in static demand
     output_file = 'reactor_source_init_demand.sqlite'
@@ -368,6 +392,11 @@ def test_a5_reactor_source_init_demand():
     source_base = cur.execute(query.replace('reactor', 'source')).fetchone()
     assert(1 <= source_base[0] <= 1 + tol)
 
+
+@pytest.mark.exact
+def test_a5_reactor_source_init_demand_exact():
+    output_file = 'reactor_source_init_demand.sqlite'
+    cur = get_cursor(output_file)
     reactor_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(reactor_exact[0] == 1)
     source_exact = cur.execute(query.replace('reactor','source') + " AND EnterTime = 1").fetchone()
@@ -425,6 +454,7 @@ REACTOR_SOURCE_INIT_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
   }}
     )
 
+@pytest.mark.base
 def test_a6_reactor_source_init_demand_with_init_facilities():
     # tests if the reactor and source pair is correctly deployed in static demand
     output_file = 'reactor_source_init_demand_with_init_facilities.sqlite'
@@ -445,6 +475,11 @@ def test_a6_reactor_source_init_demand_with_init_facilities():
     source_base = cur.execute(query.replace('reactor', 'source')).fetchone()
     assert(1 <= source_base[0] <= 1 + tol)
 
+
+@pytest.mark.exact
+def test_a6_reactor_source_init_demand_with_init_facilities():
+    output_file = 'reactor_source_init_demand_with_init_facilities.sqlite'
+    cur = get_cursor(output_file)
     reactor_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(reactor_exact[0] == 1)
     source_exact = cur.execute(query.replace('reactor','source') + " AND EnterTime = 1").fetchone()
@@ -493,6 +528,7 @@ REACTOR_SOURCE_GROWTH['simulation'].update(
     )
 
 # Test A_7 
+@pytest.mark.base
 def test_a7_reactor_source_growth():
     # tests if the reactor and source pair is correctly deployed with increase in demand
     output_file = 'reactor_source_growth.sqlite'
@@ -513,6 +549,11 @@ def test_a7_reactor_source_growth():
     reactor_base = cur.execute(query.replace('source', 'reactor')).fetchon()
     assert(3 <= reactor_base[0] <= (3 + tol))
 
+
+@pytest.mark.exact
+def test_a7_reactor_source_growth_exact():
+    output_file = 'reactor_source_growth.sqlite'
+    cur = get_cursor(output_file)
     source_exact1 = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact1[0] == 2)
     source_exact2 = cur.execute(query + " AND EnterTime = 12").fetchone()
