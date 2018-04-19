@@ -202,9 +202,11 @@ def test_a2_init_demand_with_init_facilities():
     cur = get_cursor(output_file)
     query = 'SELECT count(*) FROM agententry WHERE Prototype = "source"'
 
+    # check base solution
     source_base = cur.execute(query).fetchone()
     assert(2 <= source_base[0] <= (2 + tol))
 
+    # check exact solution
     source_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact[0] == 1)
 
@@ -243,14 +245,16 @@ def test_a3_increasing_demand():
                                 universal_newlines=True, env=ENV)
     # check if ran successfully
     assert("Cyclus run successful!" in s)
+
     # getting the sqlite file
     cur = get_cursor(output_file)
     query = "SELECT count(*) FROM agententry WHERE Prototype = 'source'"
 
+    # check base solution
     source_base = cur.execute(query).fetchone()
     assert(3 <= source_base[0] <= (3 + tol))
 
-
+    # check exact solution
     source_exact1 = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact1[0] == 2)
     source_exact2 = cur.execute(query + " AND EnterTime = 12").fetchone()
@@ -292,15 +296,19 @@ def test_a4_increasing_demand_with_init_facilities():
         json.dump(INCREASING_DEMAND_WITH_INIT_FACILITIES, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
+    
     # check if ran successfully
     assert("Cyclus run successful!" in s)
+    
     # getting the sqlite file
     cur = get_cursor(output_file)
     query = "SELECT count(*) FROM agententry WHERE Prototype = 'source'"
 
+    # check base solution
     source_base = cur.execute(query).fetchone()
     assert(3 <= source_base[0] <= (3 + tol))
 
+    # check exact solution
     source_exact1 = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact1[0] == 2)
     source_exact2 = cur.execute(query + " AND EnterTime = 12").fetchone()
@@ -363,11 +371,13 @@ def test_a5_reactor_source_init_demand():
     cur = get_cursor(output_file)
     query = "SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
 
+    # check base solution
     reactor_base = cur.execute(query).fetchone()
     assert(1 <= reactor_base[0] <= 1 + tol)
     source_base = cur.execute(query.replace('reactor', 'source')).fetchone()
     assert(1 <= source_base[0] <= 1 + tol)
 
+    # check exact solution
     reactor_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(reactor_exact[0] == 1)
     source_exact = cur.execute(query.replace('reactor','source') + " AND EnterTime = 1").fetchone()
@@ -440,11 +450,13 @@ def test_a6_reactor_source_init_demand_with_init_facilities():
     cur = get_cursor(output_file)
     query = "SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
 
+    # check base solution
     reactor_base = cur.execute(query).fetchone()
     assert(1 <= reactor_base[0] <= 1 + tol)
     source_base = cur.execute(query.replace('reactor', 'source')).fetchone()
     assert(1 <= source_base[0] <= 1 + tol)
 
+    # check exact solution
     reactor_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(reactor_exact[0] == 1)
     source_exact = cur.execute(query.replace('reactor','source') + " AND EnterTime = 1").fetchone()
@@ -508,11 +520,13 @@ def test_a7_reactor_source_growth():
     cur = get_cursor(output_file)
     query = "SELECT count(*) FROM agententry WHERE Prototype = 'source'"
 
+    # check base solution
     source_base = cur.execute(query).fetchone()
     assert(3 <= source_base[0] <= (3 + tol))
     reactor_base = cur.execute(query.replace('source', 'reactor')).fetchon()
     assert(3 <= reactor_base[0] <= (3 + tol))
 
+    # check exact solution
     source_exact1 = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact1[0] == 2)
     source_exact2 = cur.execute(query + " AND EnterTime = 12").fetchone()
