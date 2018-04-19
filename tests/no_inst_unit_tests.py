@@ -19,6 +19,7 @@ for file in hit_list:
 # set error tolerance. 1 means 1 source capacity
 tol = 1
 
+query = 'SELECT count(*) FROM agententry WHERE Prototype = "source"'
 
 ENV = dict(os.environ)
 ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
@@ -141,8 +142,6 @@ INIT_DEMAND["simulation"].update({"region": {
 }
 )
 
-
-query = 'SELECT count(*) FROM agententry WHERE Prototype = "source"'
 
 @pytest.mark.base
 def test_a1_init_demand():
