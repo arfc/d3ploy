@@ -142,6 +142,8 @@ INIT_DEMAND["simulation"].update({"region": {
 )
 
 
+query = 'SELECT count(*) FROM agententry WHERE Prototype = "source"'
+
 @pytest.mark.base
 def test_a1_init_demand():
     # tests if NOInst deploys a source
@@ -157,7 +159,6 @@ def test_a1_init_demand():
 
     # getting the sqlite file
     cur = get_cursor(output_file)
-    query = 'SELECT count(*) FROM agententry WHERE Prototype = "source"'
 
     # check base solution
     source_base = cur.execute(query).fetchone()
@@ -167,7 +168,7 @@ def test_a1_init_demand():
 @pytest.mark.exact
 def test_a1_init_demand_exact():
     output_file = 'init_file.sqlite'
-    cur = get.cursor(output_file)
+    cur = get_cursor(output_file)
     # check exact solution
     source_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact[0] == 1)
@@ -201,7 +202,6 @@ INIT_DEMAND_WITH_INIT_FACILITIES["simulation"].update({"region": {
 }
 )
 
-
 @pytest.mark.base
 def test_a2_init_demand_with_init_facilities():
     # tests if NOInst deploys a source given
@@ -215,9 +215,8 @@ def test_a2_init_demand_with_init_facilities():
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
-    # getting the sqlite file
+    # getting the sqlite ffile
     cur = get_cursor(output_file)
-    query = 'SELECT count(*) FROM agententry WHERE Prototype = "source"'
 
     # check base solution
     source_base = cur.execute(query).fetchone()
@@ -227,7 +226,7 @@ def test_a2_init_demand_with_init_facilities():
 @pytest.mark.exact
 def test_a2_init_demand_with_init_facilities_exact():
     output_file = 'init_demand_init_fac.sqlite'
-    cur = get_cursor(outputfile)
+    cur = get_cursor(output_file)
     source_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact[0] == 1)
 
@@ -257,7 +256,6 @@ INCREASING_DEMAND['simulation'].update(
     }
 )
 
-
 @pytest.mark.base
 def test_a3_increasing_demand():
     # tests if NOInst deploys a source according to increasing demand
@@ -272,7 +270,6 @@ def test_a3_increasing_demand():
 
     # getting the sqlite file
     cur = get_cursor(output_file)
-    query = "SELECT count(*) FROM agententry WHERE Prototype = 'source'"
 
     # check base solution
     source_base = cur.execute(query).fetchone()
@@ -333,7 +330,6 @@ def test_a4_increasing_demand_with_init_facilities():
 
     # getting the sqlite file
     cur = get_cursor(output_file)
-    query = "SELECT count(*) FROM agententry WHERE Prototype = 'source'"
 
     # check base solution
     source_base = cur.execute(query).fetchone()
@@ -407,12 +403,11 @@ def test_a5_reactor_source_init_demand():
 
     # getting the sqlite file
     cur = get_cursor(output_file)
-    query = "SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
-
+    
     # check base solution
-    reactor_base = cur.execute(query).fetchone()
+    reactor_base = cur.execute(query.replace('source', 'reactor')).fetchone()
     assert(1 <= reactor_base[0] <= 1 + tol)
-    source_base = cur.execute(query.replace('reactor', 'source')).fetchone()
+    source_base = cur.execute(query).fetchone()
     assert(1 <= source_base[0] <= 1 + tol)
 
 
@@ -420,10 +415,9 @@ def test_a5_reactor_source_init_demand():
 def test_a5_reactor_source_init_demand_exact():
     output_file = 'reactor_source_init_demand.sqlite'
     cur = get_cursor(output_file)
-    reactor_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
+    reactor_exact = cur.execute(query.replace('source', 'reactor') + " AND EnterTime = 1").fetchone()
     assert(reactor_exact[0] == 1)
-    source_exact = cur.execute(query.replace(
-        'reactor', 'source') + " AND EnterTime = 1").fetchone()
+    source_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact[0] == 1)
 
 
@@ -494,12 +488,11 @@ def test_a6_reactor_source_init_demand_with_init_facilities():
 
     # getting the sqlite file
     cur = get_cursor(output_file)
-    query = "SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
 
     # check base solution
-    reactor_base = cur.execute(query).fetchone()
+    reactor_base = cur.execute(query.replace('source', 'reactor')).fetchone()
     assert(1 <= reactor_base[0] <= 1 + tol)
-    source_base = cur.execute(query.replace('reactor', 'source')).fetchone()
+    source_base = cur.execute(query).fetchone()
     assert(1 <= source_base[0] <= 1 + tol)
 
 
@@ -507,10 +500,9 @@ def test_a6_reactor_source_init_demand_with_init_facilities():
 def test_a6_reactor_source_init_demand_with_init_facilities():
     output_file = 'reactor_source_init_demand_with_init_facilities.sqlite'
     cur = get_cursor(output_file)
-    reactor_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
+    reactor_exact = cur.execute(query.replace('source', 'reactor') + " AND EnterTime = 1").fetchone()
     assert(reactor_exact[0] == 1)
-    source_exact = cur.execute(query.replace(
-        'reactor', 'source') + " AND EnterTime = 1").fetchone()
+    source_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact[0] == 1)
 
 
@@ -573,7 +565,6 @@ def test_a7_reactor_source_growth():
 
     # getting the sqlite file
     cur = get_cursor(output_file)
-    query = "SELECT count(*) FROM agententry WHERE Prototype = 'source'"
 
     # check base solution
     source_base = cur.execute(query).fetchone()
