@@ -14,6 +14,8 @@ hit_list = glob.glob('*.sqlite') + glob.glob('*.json')
 for file in hit_list:
     os.remove(file)
 
+# set error tolerance. 1 means 1 source capacity
+tol = 1
 
 ENV = dict(os.environ)
 ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
@@ -146,10 +148,15 @@ def test_a1_init_demand():
 
     # getting the sqlite file
     cur = get_cursor(output_file)
-    # check if 10 source facilities were deployed by NOInst
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 1").fetchone()
-    assert(source[0] == 1)
+    query = 'SELECT count(*) FROM agententry WHERE Prototype = "source"'
+    
+    # check base solution
+    source_base = cur.execute(query).fetchone()
+    assert( 1 <= source_base[0] <= (1 + tol) )
+
+    # check exact solution
+    source_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
+    assert(source_exact[0] == 1)
 
 
 # Test A_2 
@@ -193,17 +200,13 @@ def test_a2_init_demand_with_init_facilities():
 
     # getting the sqlite file
     cur = get_cursor(output_file)
-    # check if 10 source facilities were deployed by NOInst
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 1").fetchone()
-    assert(source[0] == 1)
+    query = 'SELECT count(*) FROM agententry WHERE Prototype = "source"'
 
+    source_base = cur.execute(query).fetchone()
+    assert(2 <= source_base[0] <= (2 + tol))
 
-def test_deployment():
-    output_file = 'init_demand_init_fac.sqlite'
-    cur = get_cursor(output_file)
-    at_least_one = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'").fetchone()
-    assert(at_least_one[0] >= 2)
+    source_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
+    assert(source_exact[0] == 1)
 
 # Test A_3 
 INCREASING_DEMAND = copy.deepcopy(TEMPLATE)
@@ -242,14 +245,16 @@ def test_a3_increasing_demand():
     assert("Cyclus run successful!" in s)
     # getting the sqlite file
     cur = get_cursor(output_file)
-    # check if 1 source facility was deployed by NOInst in timestep 1
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 1").fetchone()
-    assert(source[0] == 2)
-    # check if 1 source facility was deployed by NOInst in timestep 13
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 12").fetchone()
-    assert(source[0] == 1)
+    query = "SELECT count(*) FROM agententry WHERE Prototype = 'source'"
+
+    source_base = cur.execute(query).fetchone()
+    assert(3 <= source_base[0] <= (3 + tol))
+
+
+    source_exact1 = cur.execute(query + " AND EnterTime = 1").fetchone()
+    assert(source_exact1[0] == 2)
+    source_exact2 = cur.execute(query + " AND EnterTime = 12").fetchone()
+    assert(source_exact2[0] == 1)
 
 # Test A_4 
 INCREASING_DEMAND_WITH_INIT_FACILITIES = copy.deepcopy(TEMPLATE)
@@ -291,16 +296,15 @@ def test_a4_increasing_demand_with_init_facilities():
     assert("Cyclus run successful!" in s)
     # getting the sqlite file
     cur = get_cursor(output_file)
-    # check if 1 source facility was deployed by NOInst in timestep 1
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 1").fetchone()
-    print(source[0])
-    assert(source[0] == 1)
-    # check if 1 source facility was deployed by NOInst in timestep 13
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 12").fetchone()
-    print(source[0])
-    assert(source[0] == 1)
+    query = "SELECT count(*) FROM agententry WHERE Prototype = 'source'"
+
+    source_base = cur.execute(query).fetchone()
+    assert(3 <= source_base[0] <= (3 + tol))
+
+    source_exact1 = cur.execute(query + " AND EnterTime = 1").fetchone()
+    assert(source_exact1[0] == 2)
+    source_exact2 = cur.execute(query + " AND EnterTime = 12").fetchone()
+    assert(source_exact2[0] == 1)
 
 
 # Test A_5 
@@ -357,16 +361,17 @@ def test_a5_reactor_source_init_demand():
 
     # getting the sqlite file
     cur = get_cursor(output_file)
+    query = "SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
 
-    # check if 10 reactor facilities were deployed by NOInst
-    reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
-                         " AND EnterTime = 1").fetchone()
-    assert(reactor[0] == 1)
+    reactor_base = cur.exectue(query).fetchone()
+    assert(1 <= reactor_base[0] <= 1 + tol)
+    source_base = cur.execute(query.replace('reactor', 'source')).fetchone()
+    assert(1 <= source_base[0] <= 1 + tol)
 
-    # check if 10 source facilities were deployed by NOInst
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 1").fetchone()
-    assert(source[0] == 1)
+    reactor_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
+    assert(reactor_exact[0] == 1)
+    source_exact = cur.execute(query.replace('reactor','source') + " AND EnterTime = 1").fetchone()
+    assert(source_exact[0] == 1)
 
 
 
@@ -433,16 +438,17 @@ def test_a6_reactor_source_init_demand_with_init_facilities():
 
     # getting the sqlite file
     cur = get_cursor(output_file)
+    query = "SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
 
-    # check if 10 reactor facilities were deployed by NOInst
-    reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
-                         " AND EnterTime = 1").fetchone()
-    assert(reactor[0] == 1)
+    reactor_base = cur.exectue(query).fetchone()
+    assert(1 <= reactor_base[0] <= 1 + tol)
+    source_base = cur.execute(query.replace('reactor', 'source')).fetchone()
+    assert(1 <= source_base[0] <= 1 + tol)
 
-    # check if 10 source facilities were deployed by NOInst
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 1").fetchone()
-    assert(source[0] == 1)
+    reactor_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
+    assert(reactor_exact[0] == 1)
+    source_exact = cur.execute(query.replace('reactor','source') + " AND EnterTime = 1").fetchone()
+    assert(source_exact[0] == 1)
 
     
 # Test A_7 
@@ -500,27 +506,21 @@ def test_a7_reactor_source_growth():
 
     # getting the sqlite file
     cur = get_cursor(output_file)
+    query = "SELECT count(*) FROM agententry WHERE Prototype = 'source'"
 
-    # check if 1 reactor facility was deployed by NOInst at timestep 1
-    reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
-                         " AND EnterTime = 1").fetchone()
-    assert(reactor[0] == 1)
+    source_base = cur.execute(query).fetchone()
+    assert(3 <= source_base[0] <= (3 + tol))
+    reactor_base = cur.execute(query.replace('source', 'reactor')).fetchon()
+    assert(3 <= reactor_base[0] <= (3 + tol))
 
-    # check if 1 reactor facility was deployed by NOInst at timestep 13
-    reactor = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
-                         " AND EnterTime = 13").fetchone()
-    assert(reactor[0] == 1)
-
-    # check if 1 source facility was deployed by NOInst at timestep 1
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 1").fetchone()
-    assert(source[0] == 1)
-
-    # check if 1 source facility was deployed by NOInst at timestep 13
-    source = cur.execute("SELECT count(*) FROM agententry WHERE Prototype = 'source'"
-                         " AND EnterTime = 13").fetchone()
-    assert(source[0] == 1)
-
+    source_exact1 = cur.execute(query + " AND EnterTime = 1").fetchone()
+    assert(source_exact1[0] == 2)
+    source_exact2 = cur.execute(query + " AND EnterTime = 12").fetchone()
+    assert(source_exact2[0] == 1)
+    source_exact1 = cur.execute(query.replace('source', 'reactor') + " AND EnterTime = 1").fetchone()
+    assert(source_exact1[0] == 2)
+    source_exact2 = cur.execute(query.replace('source', 'reactor') + " AND EnterTime = 12").fetchone()
+    assert(source_exact2[0] == 1)
 
 # TestB examples
 
