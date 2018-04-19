@@ -363,7 +363,7 @@ def test_a5_reactor_source_init_demand():
     cur = get_cursor(output_file)
     query = "SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
 
-    reactor_base = cur.exectue(query).fetchone()
+    reactor_base = cur.execute(query).fetchone()
     assert(1 <= reactor_base[0] <= 1 + tol)
     source_base = cur.execute(query.replace('reactor', 'source')).fetchone()
     assert(1 <= source_base[0] <= 1 + tol)
@@ -440,7 +440,7 @@ def test_a6_reactor_source_init_demand_with_init_facilities():
     cur = get_cursor(output_file)
     query = "SELECT count(*) FROM agententry WHERE Prototype = 'reactor'"
 
-    reactor_base = cur.exectue(query).fetchone()
+    reactor_base = cur.execute(query).fetchone()
     assert(1 <= reactor_base[0] <= 1 + tol)
     source_base = cur.execute(query.replace('reactor', 'source')).fetchone()
     assert(1 <= source_base[0] <= 1 + tol)
