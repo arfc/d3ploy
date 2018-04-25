@@ -1,5 +1,8 @@
 """
-
+This is a mock facility used to demonstrate and test the capabilities 
+of the deploy instutitions in d3ploy. It produces a fixed (or random) 
+amount of psuedo material per time step (the production can also be
+set to every nth time step by the user). 
 """
 
 import random
@@ -81,12 +84,12 @@ class DemandFac(Facility):
         self.supply_t += 1
         supply_rate = random.uniform(self.supply_rate_min, self.supply_rate_max)
         demand_rate = random.uniform(self.demand_rate_min, self.demand_rate_max)
-        if self.supply_t == -1 or self.supply_t is self.supply_ts:
+        if self.supply_t == -1 or self.supply_t == self.supply_ts:
             lib.record_time_series(self.supply_commod, self, supply_rate)
             self.supply_t = 0
         else:
             lib.record_time_series(self.supply_commod, self, 0.)
-        if self.demand_t == -1 or self.demand_t is self.demand_ts:
+        if self.demand_t == -1 or self.demand_t == self.demand_ts:
             lib.record_time_series(self.demand_commod, self, demand_rate)
             self.demand_t = 0
         else:
