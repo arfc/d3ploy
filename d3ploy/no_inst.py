@@ -116,28 +116,50 @@ class NOInst(Institution):
     def enter_notify(self):
         super().enter_notify()
         lib.TIME_SERIES_LISTENERS[self.supply_commod].append(self.extract_supply)
-        lib.TIME_SERIES_LISTENERS[self.demand_commod].append(self.extract_demand)         
+        lib.TIME_SERIES_LISTENERS[self.demand_commod].append(self.extract_demand)
+
+    def write(self, string):
+        with open('log.txt', 'a') as f:
+            f.write(string)
 
     def tock(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.     
         """
+
         time = self.context.time
         diff, supply, demand = self.calc_diff(time)
+        self.write('At timestep %i : Diff(%f), Supply(%f), Demand(%f) \n' %(self.context.time, diff, supply, demand))
         if  diff < 0:
             proto = random.choice(self.prototypes)
             prod_rate = self.commodity_supply[time] / len(self.children)
             number = np.ceil(-1*diff/prod_rate)
             i = 0
             while i < number:
+                self.write('We build one in timestep %i \n' %self.context.time)
                 self.context.schedule_build(self, proto)
+                i += 1
+        if diff > 0:
+            proto = random.choice(self.prototypes)
+            prod_rate = self.commodity_supply[time] / len(self.children)
+            number = np.floor(diff / prod_rate)
+            i = 0
+            while i < number:
+                self.write('We decommission in timestep %i \n' %self.context.time)
+                children = self.children
+                for child in children:
+                    if True:
+                        self.write(child.prototype + 'child!!!\n \n \n')
+                        child.decomission()
+                        self.write('FUCKKK!!!\n \n \n')
+                        break
                 i += 1
         if self.record:
             with open(self.demand_commod+".txt", 'a') as f:
                 f.write("Time " + str(time) + " Deployed " + str(len(self.children)) + 
                                               " supply " + str(self.commodity_supply[time]) + 
-                                              " demand " +str(self.commodity_demand[time]) + "\n")    
+                                              " demand " +str(self.commodity_demand[time]) + "\n")
 
     def calc_diff(self, time):
         """
@@ -155,23 +177,8 @@ class NOInst(Institution):
         demand : double
             The calculated demand of the demand commodity at [time]
         """
-        try:
-            supply = CALC_METHODS[self.calc_method](self.commodity_supply, steps = self.steps, 
-                                                    std_dev = self.supply_std_dev,
-                                                    back_steps=self.back_steps)
-        except (ValueError, np.linalg.linalg.LinAlgError):
-            supply = CALC_METHODS['ma'](self.commodity_supply)
-        if not self.commodity_demand:
-            self.commodity_demand[time] = self.initial_demand
-        if self.demand_commod == 'power':
-            demand = self.demand_calc(time+1)
-            self.commodity_demand[time] = demand
-        try:
-            demand = CALC_METHODS[self.calc_method](self.commodity_demand, steps = self.steps, 
-                                                    std_dev = self.demand_std_dev,
-                                                    back_steps=self.back_steps)
-        except (np.linalg.linalg.LinAlgError, ValueError):
-            demand = CALC_METHODS['ma'](self.commodity_demand)
+        supply = self.commodity_supply[time]
+        demand = self.demand_calc(time+1)
         diff = supply - demand
         return diff, supply, demand
 
