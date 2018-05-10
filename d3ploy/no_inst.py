@@ -1,5 +1,9 @@
 """
-
+The Non-Optimizing institution uses ARMA and ARCH to determine the 
+supply and demand of a commodity. It uses this information to determine
+the deployment of the supply side agent. Information use to determine the
+deployment is taken from the t-1 time step. This information predicts supply
+and demand of the t+1 time step and the process is done on the t time step.
 """
 
 import random
@@ -91,16 +95,16 @@ class NOInst(Institution):
 
     steps = ts.Int(
         doc="The number of timesteps forward for ARMA or order of the MA",
-        tooltip="Std Dev off mean for ARMA",
-        uilabel="Demand Std Dev",
-        default=1
+        tooltip="The number of predicted steps forward",
+        uilabel="Timesteps for Prediction",
+        default=2
     )
     back_steps = ts.Int(
         doc="This is the number of steps backwards from the current time step" +
             "that will be used to make the prediction. If this is set to '0'" +
             "then the calculation will use all values in the time series.",
         tooltip="",
-        uilabel="",
+        uilabel="Back Steps",
         default=10
     )
 
@@ -116,28 +120,28 @@ class NOInst(Institution):
     def enter_notify(self):
         super().enter_notify()
         lib.TIME_SERIES_LISTENERS[self.supply_commod].append(self.extract_supply)
-        lib.TIME_SERIES_LISTENERS[self.demand_commod].append(self.extract_demand)
-
-    def write(self, string):
-        with open('log.txt', 'a') as f:
-            f.write(string)
-
-    def tock(self):
+        lib.TIME_SERIES_LISTENERS[self.demand_commod].append(self.extract_demand)   
+  
+    def tick(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.     
         """
 
         time = self.context.time
-        diff, supply, demand = self.calc_diff(time)
-        self.write('At timestep %i : Diff(%f), Supply(%f), Demand(%f) \n' %(self.context.time, diff, supply, demand))
+        diff, supply, demand = self.calc_diff(time-1)
+
         if  diff < 0:
             proto = random.choice(self.prototypes)
-            prod_rate = self.commodity_supply[time] / len(self.children)
+            ## This is still not correct. If no facilities are present at the start of the
+            ## simulation prod_rate will still return zero. More complex fix is required.            
+            if proto in self.fac_supply:
+                prod_rate = self.fac_supply[proto]
+            else:
+                print("No facility production rate available for " + proto)                
             number = np.ceil(-1*diff/prod_rate)
-            i = 0
-            while i < number:
-                self.write('We build one in timestep %i \n' %self.context.time)
+            for i in range(int(number)):
+
                 self.context.schedule_build(self, proto)
                 i += 1
         if diff > 0:
@@ -156,10 +160,11 @@ class NOInst(Institution):
                         break
                 i += 1
         if self.record:
+            out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
+            out_text += " supply " + str(self.commodity_supply[time-1])
+            out_text += " demand " + str(self.commodity_demand[time-1]) + "\n"
             with open(self.demand_commod+".txt", 'a') as f:
-                f.write("Time " + str(time) + " Deployed " + str(len(self.children)) + 
-                                              " supply " + str(self.commodity_supply[time]) + 
-                                              " demand " +str(self.commodity_demand[time]) + "\n")
+                f.write(out_text)    
 
     def calc_diff(self, time):
         """
@@ -177,8 +182,25 @@ class NOInst(Institution):
         demand : double
             The calculated demand of the demand commodity at [time]
         """
-        supply = self.commodity_supply[time]
-        demand = self.demand_calc(time+1)
+        if time not in self.commodity_demand:
+            self.commodity_demand[time] = self.initial_demand
+        if time not in self.commodity_supply:
+            self.commodity_supply[time] = self.initial_demand              
+        try:
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply, steps = self.steps, 
+                                                    std_dev = self.supply_std_dev,
+                                                    back_steps=self.back_steps)
+        except (ValueError, np.linalg.linalg.LinAlgError):
+            supply = CALC_METHODS['ma'](self.commodity_supply)
+        if self.demand_commod == 'POWER':
+            demand = self.demand_calc(time+2)
+            self.commodity_demand[time+2] = demand
+        try:
+            demand = CALC_METHODS[self.calc_method](self.commodity_demand, steps = self.steps, 
+                                                    std_dev = self.demand_std_dev,
+                                                    back_steps=self.back_steps)
+        except (np.linalg.linalg.LinAlgError, ValueError):
+            demand = CALC_METHODS['ma'](self.commodity_demand)
         diff = supply - demand
         return diff, supply, demand
 
@@ -198,6 +220,7 @@ class NOInst(Institution):
             series.
         """
         self.commodity_supply[time] += value
+        self.fac_supply[agent.prototype] = value
 
     def extract_demand(self, agent, time, value):
         """
@@ -233,7 +256,6 @@ class NOInst(Institution):
         demand = self.initial_demand * ((1.0+self.growth_rate)**(time/3.154e+7))
         return demand
 
-
     def moving_avg(self, ts, steps=1, std_dev = 0, back_steps=5):
         """
         Calculates the moving average of a previous [order] entries in
@@ -258,7 +280,7 @@ class NOInst(Institution):
         x = np.average(supply[steps:])
         return x
 
-    def predict_arma(self, ts, steps=1, std_dev = 0, back_steps=5):
+    def predict_arma(self, ts, steps=2, std_dev = 0, back_steps=5):
         """
         Predict the value of supply or demand at a given time step using the 
         currently available time series data. This method impliments an ARMA
@@ -281,8 +303,7 @@ class NOInst(Institution):
         x = forecast[0][steps-1] + forecast[1][steps-1]*std_dev
         return x
 
-    
-    def predict_arch(self, ts, steps=1, std_dev = 0, back_steps=10):
+    def predict_arch(self, ts, steps=2, std_dev = 0, back_steps=10):
         """
         Predict the value of supply or demand at a given time step using the 
         currently available time series data. This method impliments an ARCH
