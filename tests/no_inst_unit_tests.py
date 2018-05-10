@@ -116,9 +116,8 @@ TEMPLATE = {
 # decommissioning existing facilities.
 
 
-# TestA Examples
 
-# Test A_1
+# Test A-const-1
 INIT_DEMAND = copy.deepcopy(TEMPLATE)
 INIT_DEMAND["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
@@ -144,7 +143,7 @@ INIT_DEMAND["simulation"].update({"region": {
 
 
 @pytest.mark.base
-def test_a1_init_demand():
+def test_a_const_1():
     # tests if NOInst deploys a source
     # given initial demand and no initial facilities
     output_file = 'init_file.sqlite'
@@ -165,7 +164,7 @@ def test_a1_init_demand():
 
 
 @pytest.mark.exact
-def test_a1_init_demand_exact():
+def test_a_const_1_exact():
     output_file = 'init_file.sqlite'
     cur = get_cursor(output_file)
     # check exact solution
@@ -173,7 +172,7 @@ def test_a1_init_demand_exact():
     assert(source_exact[0] == 1)
 
 
-# Test A_2
+# Test A-const-2
 INIT_DEMAND_WITH_INIT_FACILITIES = copy.deepcopy(TEMPLATE)
 INIT_DEMAND_WITH_INIT_FACILITIES["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
@@ -202,7 +201,7 @@ INIT_DEMAND_WITH_INIT_FACILITIES["simulation"].update({"region": {
 )
 
 @pytest.mark.base
-def test_a2_init_demand_with_init_facilities():
+def test_a_const_2():
     # tests if NOInst deploys a source given
     # initial demand and no initial facilities
     output_file = 'init_demand_init_fac.sqlite'
@@ -223,14 +222,14 @@ def test_a2_init_demand_with_init_facilities():
 
 
 @pytest.mark.exact
-def test_a2_init_demand_with_init_facilities_exact():
+def test_a_const_2_exact():
     output_file = 'init_demand_init_fac.sqlite'
     cur = get_cursor(output_file)
     source_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact[0] == 1)
 
 
-# Test A_3
+# Test A-grow-1
 INCREASING_DEMAND = copy.deepcopy(TEMPLATE)
 INCREASING_DEMAND['simulation'].update(
     {"region": {
@@ -256,7 +255,7 @@ INCREASING_DEMAND['simulation'].update(
 )
 
 @pytest.mark.base
-def test_a3_increasing_demand():
+def test_a_grow_1():
     # tests if NOInst deploys a source according to increasing demand
     output_file = 'increasing_demand.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
@@ -276,7 +275,7 @@ def test_a3_increasing_demand():
 
 
 @pytest.mark.exact
-def test_a3_increasing_demand_exact():
+def test_a_grow_1_exact():
     output_file = 'increasing_demand.sqlite'
     cur = get_cursor(output_file)
     source_exact1 = cur.execute(query + " AND EnterTime = 1").fetchone()
@@ -284,8 +283,7 @@ def test_a3_increasing_demand_exact():
     source_exact2 = cur.execute(query + " AND EnterTime = 12").fetchone()
     assert(source_exact2[0] == 1)
 
-
-# Test A_4
+# Test A-grow-2
 INCREASING_DEMAND_WITH_INIT_FACILITIES = copy.deepcopy(TEMPLATE)
 INCREASING_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
     {"region": {
@@ -315,7 +313,7 @@ INCREASING_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
 
 
 @pytest.mark.base
-def test_a4_increasing_demand_with_init_facilities():
+def test_a_grow_2():
     # tests if NOInst deploys a source according to increasing demand
     output_file = 'increasing_demand_with_init_facilites.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
@@ -336,7 +334,7 @@ def test_a4_increasing_demand_with_init_facilities():
 
 
 @pytest.mark.exact
-def test_a4_increasing_demand_with_init_facilities_exact():
+def test_a_grow_2_exact():
     output_file = 'increasing_demand_with_init_facilites.sqlite'
     cur = get_cursor(output_file)
     source_exact1 = cur.execute(query + " AND EnterTime = 1").fetchone()
@@ -345,7 +343,78 @@ def test_a4_increasing_demand_with_init_facilities_exact():
     assert(source_exact2[0] == 1)
 
 
-# Test A_5
+
+
+def test_a_const_3():
+    # tests if NOInst decomissions all deployed
+    # facilities with demand going to zero.
+    output_file = 'phaseout_no_initdemand.sqlite'
+    input_file = output_file.replace('.sqlite', '.json')
+    with open(input_file, 'w') as f:
+        json.dump(PHASEOUT_NO_INITDEMAND, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=ENV)
+    # check if ran successfully
+    assert("Cyclus run successful!" in s)
+
+    # getting the sqlite file
+    cur = get_cursor(output_file)
+    # check if 1 source facility has been decommissioned
+    source = cur.execute(
+        "SELECT count(*) FROM agentexit WHERE ExitTime = 2").fetchone()
+    assert(source[0] == 1)
+
+
+# Test A-decl-1
+PHASEOUT = copy.deepcopy(TEMPLATE)
+PHASEOUT["simulation"].update(
+    {"region": {
+        "config": {"NullRegion": "\n      "},
+        "institution": {
+            "config": {
+                "NOInst": {
+                    "calc_method": "arma",
+                    "demand_commod": "POWER",
+                    "demand_std_dev": "0.0",
+                    "growth_rate": "-1.0",
+                    "initial_demand": "1",
+                    "prototypes": {"val": "source"},
+                    "steps": "1",
+                    "supply_commod": "fuel"
+                }
+            },
+            "initialfacilitylist": {
+                "entry": {"number": 1,
+                          "prototype": "source"}
+            },
+            "name": "source_inst"
+        },
+        "name": "SingleRegion"
+    }}
+)
+
+
+def test_a_decl_1():
+    # tests if NOInst decomissions all deployed
+    # facilities with demand going to zero.
+    output_file = 'phaseout.sqlite'
+    input_file = output_file.replace('.sqlite', '.json')
+    with open(input_file, 'w') as f:
+        json.dump(PHASEOUT, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=ENV)
+    # check if ran successfully
+    assert("Cyclus run successful!" in s)
+
+    # getting the sqlite file
+    cur = get_cursor(output_file)
+    # check if 1 source facility has been decommissioned
+    source = cur.execute(
+        "SELECT count(*) FROM agentexit WHERE ExitTime = 13").fetchone()
+    assert(source[0] == 1)
+
+
+# Test B-const-1
 REACTOR_SOURCE_INIT_DEMAND = copy.deepcopy(TEMPLATE)
 REACTOR_SOURCE_INIT_DEMAND['simulation'].update(
     {"region": {
@@ -388,7 +457,7 @@ REACTOR_SOURCE_INIT_DEMAND['simulation'].update(
 
 
 @pytest.mark.base
-def test_a5_reactor_source_init_demand():
+def test_b_const_1():
     # tests if the reactor and source pair is
     # correctly deployed in static demand
     output_file = 'reactor_source_init_demand.sqlite'
@@ -411,7 +480,7 @@ def test_a5_reactor_source_init_demand():
 
 
 @pytest.mark.exact
-def test_a5_reactor_source_init_demand_exact():
+def test_b_const_1_exact():
     output_file = 'reactor_source_init_demand.sqlite'
     cur = get_cursor(output_file)
     reactor_exact = cur.execute(query.replace('source', 'reactor') + " AND EnterTime = 1").fetchone()
@@ -421,7 +490,7 @@ def test_a5_reactor_source_init_demand_exact():
 
 
 
-# Test A_6
+# Test B-const-2
 REACTOR_SOURCE_INIT_DEMAND_WITH_INIT_FACILITIES = copy.deepcopy(TEMPLATE)
 REACTOR_SOURCE_INIT_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
     {"region": {
@@ -473,7 +542,7 @@ REACTOR_SOURCE_INIT_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
 
 
 @pytest.mark.base
-def test_a6_reactor_source_init_demand_with_init_facilities():
+def test_b_const_2():
     # tests if the reactor and source pair is correctly
     # deployed in static demand
     output_file = 'reactor_source_init_demand_with_init_facilities.sqlite'
@@ -496,7 +565,7 @@ def test_a6_reactor_source_init_demand_with_init_facilities():
 
 
 @pytest.mark.exact
-def test_a6_reactor_source_init_demand_with_init_facilities_exact():
+def test_b_const_2_exact():
     output_file = 'reactor_source_init_demand_with_init_facilities.sqlite'
     cur = get_cursor(output_file)
     reactor_exact = cur.execute(query.replace('source', 'reactor') + " AND EnterTime = 1").fetchone()
@@ -505,7 +574,7 @@ def test_a6_reactor_source_init_demand_with_init_facilities_exact():
     assert(source_exact[0] == 1)
 
 
-# Test A_7
+# Test B-grow-1
 REACTOR_SOURCE_GROWTH = copy.deepcopy(TEMPLATE)
 REACTOR_SOURCE_GROWTH['simulation'].update(
     {"region": {
@@ -550,7 +619,7 @@ REACTOR_SOURCE_GROWTH['simulation'].update(
 
 
 @pytest.mark.base
-def test_a7_reactor_source_growth():
+def test_b_grow_1():
     # tests if the reactor and source pair is correctly
     # deployed with increase in demand
     output_file = 'reactor_source_growth.sqlite'
@@ -573,7 +642,7 @@ def test_a7_reactor_source_growth():
 
 
 @pytest.mark.exact
-def test_a7_reactor_source_growth_exact():
+def test_b_grow_1_exact():
     output_file = 'reactor_source_growth.sqlite'
     cur = get_cursor(output_file)
     source_exact1 = cur.execute(query + " AND EnterTime = 1").fetchone()
@@ -587,10 +656,9 @@ def test_a7_reactor_source_growth_exact():
         'source', 'reactor') + " AND EnterTime = 12").fetchone()
     assert(source_exact2[0] == 1)
 
-# TestB examples
 
 
-# Test B_1
+# Test A-const-3
 PHASEOUT_NO_INITDEMAND = copy.deepcopy(TEMPLATE)
 PHASEOUT_NO_INITDEMAND["simulation"].update(
     {"region": {
@@ -617,72 +685,3 @@ PHASEOUT_NO_INITDEMAND["simulation"].update(
         "name": "SingleRegion"
     }}
 )
-
-
-def test_b1_phaseout_no_initdemand():
-    # tests if NOInst decomissions all deployed
-    # facilities with demand going to zero.
-    output_file = 'phaseout_no_initdemand.sqlite'
-    input_file = output_file.replace('.sqlite', '.json')
-    with open(input_file, 'w') as f:
-        json.dump(PHASEOUT_NO_INITDEMAND, f)
-    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=ENV)
-    # check if ran successfully
-    assert("Cyclus run successful!" in s)
-
-    # getting the sqlite file
-    cur = get_cursor(output_file)
-    # check if 1 source facility has been decommissioned
-    source = cur.execute(
-        "SELECT count(*) FROM agentexit WHERE ExitTime = 2").fetchone()
-    assert(source[0] == 1)
-
-
-# Test B_2
-PHASEOUT = copy.deepcopy(TEMPLATE)
-PHASEOUT["simulation"].update(
-    {"region": {
-        "config": {"NullRegion": "\n      "},
-        "institution": {
-            "config": {
-                "NOInst": {
-                    "calc_method": "arma",
-                    "demand_commod": "POWER",
-                    "demand_std_dev": "0.0",
-                    "growth_rate": "-1.0",
-                    "initial_demand": "1",
-                    "prototypes": {"val": "source"},
-                    "steps": "1",
-                    "supply_commod": "fuel"
-                }
-            },
-            "initialfacilitylist": {
-                "entry": {"number": 1,
-                          "prototype": "source"}
-            },
-            "name": "source_inst"
-        },
-        "name": "SingleRegion"
-    }}
-)
-
-
-def test_b2_phaseout():
-    # tests if NOInst decomissions all deployed
-    # facilities with demand going to zero.
-    output_file = 'phaseout.sqlite'
-    input_file = output_file.replace('.sqlite', '.json')
-    with open(input_file, 'w') as f:
-        json.dump(PHASEOUT, f)
-    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=ENV)
-    # check if ran successfully
-    assert("Cyclus run successful!" in s)
-
-    # getting the sqlite file
-    cur = get_cursor(output_file)
-    # check if 1 source facility has been decommissioned
-    source = cur.execute(
-        "SELECT count(*) FROM agentexit WHERE ExitTime = 13").fetchone()
-    assert(source[0] == 1)
