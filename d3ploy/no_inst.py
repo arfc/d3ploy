@@ -127,10 +127,8 @@ class NOInst(Institution):
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.     
         """
-
         time = self.context.time
         diff, supply, demand = self.calc_diff(time-1)
-
         if  diff < 0:
             proto = random.choice(self.prototypes)
             ## This is still not correct. If no facilities are present at the start of the
@@ -141,23 +139,7 @@ class NOInst(Institution):
                 print("No facility production rate available for " + proto)                
             number = np.ceil(-1*diff/prod_rate)
             for i in range(int(number)):
-
                 self.context.schedule_build(self, proto)
-                i += 1
-        if diff > 0:
-            proto = random.choice(self.prototypes)
-            prod_rate = self.commodity_supply[time] / len(self.children)
-            number = np.floor(diff / prod_rate)
-            i = 0
-            while i < number:
-                self.write('We decommission in timestep %i \n' %self.context.time)
-                children = self.children
-                for child in children:
-                    if True:
-                        self.write(child.prototype + 'child!!!\n \n \n')
-                        child.decomission()
-                        self.write('FUCKKK!!!\n \n \n')
-                        break
                 i += 1
         if self.record:
             out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
