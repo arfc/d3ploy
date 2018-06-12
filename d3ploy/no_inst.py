@@ -44,16 +44,11 @@ class NOInst(Institution):
         default="0.02"    
     )
     
-    supply_commod = ts.String(
-        doc="The commodity this institution will be monitoring for supply growth.",
-        tooltip="Supply commodity",
-        uilabel="Supply Commodity"
-    )
-    
-    demand_commod = ts.String(
-        doc="The commodity this institution will be monitoring for demand growth.",
-        tooltip="Growth commodity",
-        uilabel="Growth Commodity"
+    commod_to_fac = ts.MapStringVectorDouble(
+        alias=["commods", "commod",["protos", "val"]], 
+        doc="",
+        tooltip="",
+        uilabel=""
     )
 
     initial_demand = ts.Double(
@@ -79,26 +74,13 @@ class NOInst(Institution):
         default=False
     )
 
-    supply_std_dev = ts.Double(
-        doc="The number of standard deviations off mean for ARMA predictions",
-        tooltip="Std Dev off mean for ARMA",
-        uilabel="Supple Std Dev",
-        default=0.
-    )
-
-    demand_std_dev = ts.Double(
-        doc="The number of standard deviations off mean for ARMA predictions",
-        tooltip="Std Dev off mean for ARMA",
-        uilabel="Demand Std Dev",
-        default=0.
-    )
-
     steps = ts.Int(
         doc="The number of timesteps forward for ARMA or order of the MA",
         tooltip="The number of predicted steps forward",
         uilabel="Timesteps for Prediction",
         default=2
     )
+
     back_steps = ts.Int(
         doc="This is the number of steps backwards from the current time step" +
             "that will be used to make the prediction. If this is set to '0'" +
@@ -110,8 +92,8 @@ class NOInst(Institution):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.commodity_supply = defaultdict(float)
-        self.commodity_demand = defaultdict(float)
+        self.commodity_supply = {}
+        self.commodity_demand = {}
         self.fac_supply = {}
         CALC_METHODS['ma'] = self.moving_avg
         CALC_METHODS['arma'] = self.predict_arma
@@ -119,36 +101,43 @@ class NOInst(Institution):
 
     def enter_notify(self):
         super().enter_notify()
-        lib.TIME_SERIES_LISTENERS[self.supply_commod].append(self.extract_supply)
-        lib.TIME_SERIES_LISTENERS[self.demand_commod].append(self.extract_demand)   
-  
+        for key, value in self.commod_to_fac.items():
+            lib.TIME_SERIES_LISTENERS["supply"+key].append(self.extract_supply)
+            lib.TIME_SERIES_LISTENERS["demand"+key].append(self.extract_demand) 
+            self.commodity_supply[key] = defaultdict(float)  
+            self.commodity_demand[key] = defaultdict(float)
+            for i in range(len(value)):            
+                value[i] = self.prototypes[int(value[i])]
+                self.fac_supply[key] = {}
+
     def tick(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.     
         """
         time = self.context.time
-        diff, supply, demand = self.calc_diff(time-1)
-        if  diff < 0:
-            proto = random.choice(self.prototypes)
-            ## This is still not correct. If no facilities are present at the start of the
-            ## simulation prod_rate will still return zero. More complex fix is required.            
-            if proto in self.fac_supply:
-                prod_rate = self.fac_supply[proto]
-            else:
-                print("No facility production rate available for " + proto)                
-            number = np.ceil(-1*diff/prod_rate)
-            for i in range(int(number)):
-                self.context.schedule_build(self, proto)
-                i += 1
-        if self.record:
-            out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
-            out_text += " supply " + str(self.commodity_supply[time-1])
-            out_text += " demand " + str(self.commodity_demand[time-1]) + "\n"
-            with open(self.demand_commod+".txt", 'a') as f:
-                f.write(out_text)    
+        for commod, value in self.commod_to_fac.items():
+            diff, supply, demand = self.calc_diff(key, time-1)
+            if  diff < 0:
+                proto = random.choice(self.commod_to_fac[commod])
+                ## This is still not correct. If no facilities are present at the start of the
+                ## simulation prod_rate will still return zero. More complex fix is required.            
+                if proto in self.fac_supply[commod]:
+                    prod_rate = self.fac_supply[commod][proto]
+                else:
+                    print("No facility production rate available for " + proto)                
+                number = np.ceil(-1*diff/prod_rate)
+                for i in range(int(number)):
+                    self.context.schedule_build(self, proto)
+                    i += 1
+            if self.record:
+                out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
+                out_text += " supply " + str(self.commodity_supply[commod][time-1])
+                out_text += " demand " + str(self.commodity_demand[commod][time-1]) + "\n"
+                with open(self.demand_commod[commod]+".txt", 'a') as f:
+                    f.write(out_text)
 
-    def calc_diff(self, time):
+    def calc_diff(self, commod, time):
         """
         This function calculates the different in supply and demand for a given facility
         Parameters
@@ -165,20 +154,22 @@ class NOInst(Institution):
             The calculated demand of the demand commodity at [time]
         """
         if time not in self.commodity_demand:
-            self.commodity_demand[time] = self.initial_demand
+            self.commodity_demand[commod][time] = self.initial_demand
         if time not in self.commodity_supply:
-            self.commodity_supply[time] = self.initial_demand              
+            self.commodity_supply[commod][time] = self.initial_demand              
         try:
-            supply = CALC_METHODS[self.calc_method](self.commodity_supply, steps = self.steps, 
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod], 
+                                                    steps = self.steps, 
                                                     std_dev = self.supply_std_dev,
                                                     back_steps=self.back_steps)
         except (ValueError, np.linalg.linalg.LinAlgError):
-            supply = CALC_METHODS['ma'](self.commodity_supply)
-        if self.demand_commod == 'POWER':
+            supply = CALC_METHODS['ma'](self.commodity_supply[commod])
+        if key == 'POWER':
             demand = self.demand_calc(time+2)
-            self.commodity_demand[time+2] = demand
+            self.commodity_demand[commod][time+2] = demand
         try:
-            demand = CALC_METHODS[self.calc_method](self.commodity_demand, steps = self.steps, 
+            demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod], 
+                                                    steps = self.steps, 
                                                     std_dev = self.demand_std_dev,
                                                     back_steps=self.back_steps)
         except (np.linalg.linalg.LinAlgError, ValueError):
@@ -186,7 +177,7 @@ class NOInst(Institution):
         diff = supply - demand
         return diff, supply, demand
 
-    def extract_supply(self, agent, time, value):
+    def extract_supply(self, agent, time, value, commod):
         """
         Gather information on the available supply of a commodity over the
         lifetime of the simulation. 
@@ -201,10 +192,10 @@ class NOInst(Institution):
             This is the value of the object being recorded in the time
             series.
         """
-        self.commodity_supply[time] += value
-        self.fac_supply[agent.prototype] = value
+        self.commodity_supply[commod][time] += value
+        self.fac_supply[commod][agent.prototype] = value
 
-    def extract_demand(self, agent, time, value):
+    def extract_demand(self, agent, time, value, commod):
         """
         Gather information on the demand of a commodity over the
         lifetime of the simulation.
@@ -218,8 +209,9 @@ class NOInst(Institution):
         value : object
             This is the value of the object being recorded in the time
             series.
-        """       
-        self.commodity_demand[time] += value
+        """      
+        self.commodity_demand[commod][time] += value
+
 
     def demand_calc(self, time):
         """
