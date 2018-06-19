@@ -5,3 +5,4 @@
 *.pyc
 build
 d3ploy/__pycache__
+.pytest_cache
