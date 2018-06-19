@@ -28,11 +28,10 @@ class NOInst(Institution):
     Non Optimizing (NO) methods. 
     """
 
-    prototypes = ts.VectorString(
-        doc="A list of prototypes that the institution will draw upon to fit" +
-              "the demand curve",
-        tooltip="List of prototypes the institution can use to meet demand",
-        uilabel="Prototypes",
+    commodities = ts.VectorString(
+        doc="A list of commodities that the institution will manage.",
+        tooltip="List of commodities in the institution.",
+        uilabel="Commodities",
         uitype="oneOrMore"    
     )
 
@@ -42,13 +41,6 @@ class NOInst(Institution):
         tooltip="Growth rate of growth commodity",
         uilabel="Growth Rate",
         default="0.02"    
-    )
-    
-    commod_to_fac = ts.MapStringVectorDouble(
-        alias=["commods", "commod",["protos", "val"]], 
-        doc="",
-        tooltip="",
-        uilabel=""
     )
 
     initial_demand = ts.Double(
@@ -90,8 +82,23 @@ class NOInst(Institution):
         default=10
     )
 
+    supply_std_dev = ts.Double(
+        doc="The standard deviation adjustment for the supple side.",
+        tooltip="The standard deviation adjustment for the supple side.",
+        uilabel="Supply Std Dev",
+        default=0
+    )
+
+    demand_std_dev = ts.Double(
+        doc="The standard deviation adjustment for the demand side.",
+        tooltip="The standard deviation adjustment for the demand side.",
+        uilabel="Demand Std Dev",
+        default=0
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.commod_to_fac = {}
         self.commodity_supply = {}
         self.commodity_demand = {}
         self.fac_supply = {}
@@ -101,14 +108,13 @@ class NOInst(Institution):
 
     def enter_notify(self):
         super().enter_notify()
-        for key, value in self.commod_to_fac.items():
-            lib.TIME_SERIES_LISTENERS["supply"+key].append(self.extract_supply)
-            lib.TIME_SERIES_LISTENERS["demand"+key].append(self.extract_demand) 
-            self.commodity_supply[key] = defaultdict(float)  
-            self.commodity_demand[key] = defaultdict(float)
-            for i in range(len(value)):            
-                value[i] = self.prototypes[int(value[i])]
-                self.fac_supply[key] = {}
+        for commod in self.commodities:
+            lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
+            lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand) 
+            self.commodity_supply[commod] = defaultdict(float)  
+            self.commodity_demand[commod] = defaultdict(float)
+            self.fac_supply[commod] = {}
+            self.commod_to_fac[commod] = []
 
     def tick(self):
         """
@@ -117,7 +123,7 @@ class NOInst(Institution):
         """
         time = self.context.time
         for commod, value in self.commod_to_fac.items():
-            diff, supply, demand = self.calc_diff(key, time-1)
+            diff, supply, demand = self.calc_diff(commod, time-1)
             if  diff < 0:
                 proto = random.choice(self.commod_to_fac[commod])
                 ## This is still not correct. If no facilities are present at the start of the
@@ -134,7 +140,7 @@ class NOInst(Institution):
                 out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
                 out_text += " supply " + str(self.commodity_supply[commod][time-1])
                 out_text += " demand " + str(self.commodity_demand[commod][time-1]) + "\n"
-                with open(self.demand_commod[commod]+".txt", 'a') as f:
+                with open(commod +".txt", 'a') as f:
                     f.write(out_text)
 
     def calc_diff(self, commod, time):
@@ -153,9 +159,9 @@ class NOInst(Institution):
         demand : double
             The calculated demand of the demand commodity at [time]
         """
-        if time not in self.commodity_demand:
+        if time not in self.commodity_demand[commod]:
             self.commodity_demand[commod][time] = self.initial_demand
-        if time not in self.commodity_supply:
+        if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = self.initial_demand              
         try:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod], 
@@ -164,7 +170,7 @@ class NOInst(Institution):
                                                     back_steps=self.back_steps)
         except (ValueError, np.linalg.linalg.LinAlgError):
             supply = CALC_METHODS['ma'](self.commodity_supply[commod])
-        if key == 'POWER':
+        if commod == 'POWER':
             demand = self.demand_calc(time+2)
             self.commodity_demand[commod][time+2] = demand
         try:
@@ -173,7 +179,7 @@ class NOInst(Institution):
                                                     std_dev = self.demand_std_dev,
                                                     back_steps=self.back_steps)
         except (np.linalg.linalg.LinAlgError, ValueError):
-            demand = CALC_METHODS['ma'](self.commodity_demand)
+            demand = CALC_METHODS['ma'](self.commodity_demand[commod])
         diff = supply - demand
         return diff, supply, demand
 
@@ -192,8 +198,11 @@ class NOInst(Institution):
             This is the value of the object being recorded in the time
             series.
         """
+        commod = commod[6:]
         self.commodity_supply[commod][time] += value
         self.fac_supply[commod][agent.prototype] = value
+        if agent.prototype not in self.commod_to_fac[commod]:
+            self.commod_to_fac[commod].append(agent.prototype)
 
     def extract_demand(self, agent, time, value, commod):
         """
@@ -210,6 +219,7 @@ class NOInst(Institution):
             This is the value of the object being recorded in the time
             series.
         """      
+        commod = commod[6:]
         self.commodity_demand[commod][time] += value
 
 
