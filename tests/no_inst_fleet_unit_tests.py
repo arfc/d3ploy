@@ -23,8 +23,6 @@ hit_list = glob.glob('*.sqlite') + glob.glob('*.json')
 for file in hit_list:
     os.remove(file)
 
-query = 'SELECT count(*) FROM agententry WHERE Prototype = "source"'
-
 ENV = dict(os.environ)
 ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 
@@ -89,7 +87,7 @@ TEMPLATE = {
         },
             {
             "config": {"Sink": {"in_commods": {"val": "spent_uox"},
-                                "max_inv_size": 1e9,
+                                "max_inv_size": "1e9",
                                 "sink_record_demand": "fuel_cap"}},
             "name": "sink"
         },
@@ -150,7 +148,7 @@ test_a_const_1_temp["simulation"].update({"region": {
                 "demand_commod": "POWER",
                 "demand_std_dev": "0.0",
                 "growth_rate": "0.0",
-                "initial_demand": "1",
+                "initial_demand": "1000",
                                   "prototypes": {"val": "source"},
                                   "steps": "1",
                                   "supply_commod": "fuel"
@@ -178,3 +176,7 @@ def test_a_const_1():
     cur = get_cursor(output_file)
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
+    fuel_demand = cur.execute("select time, sum(value) from timeseriesdemandfuel group by time").fetchall()
+    fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
+    for x in range(0,14): 
+        for time in 
