@@ -18,11 +18,11 @@ import sys
 from nose.tools import assert_in, assert_true, assert_equals
 
 # Delete previously generated files
-direc = os.listdir('./')
-hit_list = glob.glob('*.sqlite') + glob.glob('*.json')
-for file in hit_list:
-    os.remove(file)
-    
+#direc = os.listdir('./')
+#hit_list = glob.glob('*.sqlite') + glob.glob('*.json')
+#for file in hit_list:
+#    os.remove(file)
+
 
 def get_cursor(file_name):
     """ Connects and returns a cursor to an sqlite output file
@@ -39,14 +39,6 @@ def get_cursor(file_name):
     con = lite.connect(file_name)
     con.row_factory = lite.Row
     return con.cursor()
-
-
-def cleanup():
-    """ Removes the generated input file and output sqlite database file."""
-    if os.path.exists(output_file):
-        os.remove(output_file)
-    if os.path.exists(input_file):
-        os.remove(input_file)
 
 
 
@@ -135,26 +127,30 @@ catchup_tolerance = 12
 facility_tolerance = 1
 
 # demand curve function 
-def demand_curve(m,b,x_point):
-    y_point = m*x_point + b
+
+def demand_curve(initial_demand,growth_rate,x_point):
+    y_point = initial_demand*(1+growth_rate)**(x_point/12)
     return y_point 
 
-
-# Test a-const-1 
+""" Test a-const-1 
+        - a: only source facility 
+        - const: constant demand of fuel commodity that drives deployment 
+        - 1: first test of a-const type 
+"""
+# Configuring it for this test instance 
 test_a_const_1_temp = copy.deepcopy(TEMPLATE)
 test_a_const_1_temp["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
         "config": {
             "NOInst": {
-                "calc_method": "arma",
-                "demand_commod": "POWER",
-                "demand_std_dev": "0.0",
-                "growth_rate": "0.0",
-                "initial_demand": "1000",
-                                  "prototypes": {"val": "source"},
-                                  "steps": "1",
-                                  "supply_commod": "fuel"
+                "calc_method": "arma", 
+                "commodities": {"val": ["fuel"]}, 
+                "demand_std_dev": "0.0", 
+                "growth_rate": "1.0", 
+                "initial_demand": "1000", 
+                "record": "1", 
+                "steps": "1"
             }
         },
         "name": "source_inst"
@@ -164,19 +160,19 @@ test_a_const_1_temp["simulation"].update({"region": {
 }
 )
 
-
+# actual test part
 def test_a_const_1():
     output_file = 'test_a_const_1_file.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
     with open(input_file, 'w') as f:
         json.dump(test_a_const_1_temp, f)
-    #s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-    #                            universal_newlines=True, env=ENV)
-    # check if ran successfully
-    #assert("Cyclus run successful!" in s)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=ENV)
+     check if ran successfully
+    assert("Cyclus run successful!" in s)
 
     # getting the sqlite file
-    cur = get_cursor('cyclus.sqlite')
+    cur = get_cursor('test_a_const_1_file.sqlite')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
     fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
@@ -185,7 +181,129 @@ def test_a_const_1():
     for pt in range(catchup_tolerance,len(fuel_supply)):
         fuel_supply_point = fuel_supply[pt][1]
         time_point = fuel_supply[pt][0]
-        if ((fuel_supply_point-demand_curve(0,1000,time_point))>(facility_tolerance*100)):
+        # if supply curve value is larger/smaller than demand curve by facility_tolerance 
+        # at any timestep (larger than catch up tolerance) the num counter will be larger 
+        # than 1 and the test will fail
+        if ((fuel_supply_point-demand_curve(1000,0,time_point))>(facility_tolerance*100)):
+            num = num + 1
+        else: 
+            num = num+0 
+
+    assert(num == 0)
+
+
+""" Test a-grow-1 
+        - a: only source facility 
+        - grow: growing demand of fuel commodity that drives deployment 
+        - 1: first test of a-const type 
+"""
+# Configuring it for this test instance 
+test_a_grow_1_temp = copy.deepcopy(TEMPLATE)
+test_a_grow_1_temp["simulation"].update({"region": {
+    "config": {"NullRegion": "\n      "},
+    "institution": {
+        "config": {
+            "NOInst": {
+                "calc_method": "arma", 
+                "commodities": {"val": ["fuel"]}, 
+                "demand_std_dev": "0.0", 
+                "growth_rate": "1.0", 
+                "initial_demand": "1000", 
+                "record": "1", 
+                "steps": "1"
+            }
+        },
+        "name": "source_inst"
+    },
+    "name": "SingleRegion"
+}
+}
+)
+
+# actual test part
+def test_a_grow_1():
+    output_file = 'test_a_grow_1_file.sqlite'
+    input_file = output_file.replace('.sqlite', '.json')
+    with open(input_file, 'w') as f:
+        json.dump(test_a_const_1_temp, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=ENV)
+     check if ran successfully
+    assert("Cyclus run successful!" in s)
+
+    # getting the sqlite file
+    cur = get_cursor('test_a_grow_1_file.sqlite')
+
+    # check if supply of fuel is within facility_tolerance & catchup_tolerance
+    fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
+    
+    num = 0
+    for pt in range(catchup_tolerance,len(fuel_supply)):
+        fuel_supply_point = fuel_supply[pt][1]
+        time_point = fuel_supply[pt][0]
+        # if supply curve value is larger/smaller than demand curve by facility_tolerance 
+        # at any timestep (larger than catch up tolerance) the num counter will be larger 
+        # than 1 and the test will fail
+        if ((fuel_supply_point-demand_curve(1000,1,time_point))>(facility_tolerance*100)):
+            num = num + 1
+        else: 
+            num = num+0 
+
+    assert(num == 0)
+
+    """ Test a-grow-2 
+        - a: only source facility 
+        - grow: growing demand of fuel commodity that drives deployment 
+        - 2: 2nd test of a-const type (it has no initial demand)
+"""
+# Configuring it for this test instance 
+test_a_grow_2_temp = copy.deepcopy(TEMPLATE)
+test_a_grow_2_temp["simulation"].update({"region": {
+    "config": {"NullRegion": "\n      "},
+    "institution": {
+        "config": {
+            "NOInst": {
+                "calc_method": "arma", 
+                "commodities": {"val": ["fuel"]}, 
+                "demand_std_dev": "0.0", 
+                "growth_rate": "1.0", 
+                "initial_demand": "0", 
+                "record": "1", 
+                "steps": "1"
+            }
+        },
+        "name": "source_inst"
+    },
+    "name": "SingleRegion"
+}
+}
+)
+
+# actual test part
+def test_a_grow_2():
+    output_file = 'test_a_grow_1_file.sqlite'
+    input_file = output_file.replace('.sqlite', '.json')
+    with open(input_file, 'w') as f:
+        json.dump(test_a_const_1_temp, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=ENV)
+     check if ran successfully
+    assert("Cyclus run successful!" in s)
+
+    # getting the sqlite file
+    cur = get_cursor('test_a_grow_2_file.sqlite')
+
+    # check if supply of fuel is within facility_tolerance & catchup_tolerance
+    fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
+    
+    num = 0
+    for pt in range(catchup_tolerance,len(fuel_supply)):
+        fuel_supply_point = fuel_supply[pt][1]
+        time_point = fuel_supply[pt][0]
+        # if supply curve value is larger/smaller than demand curve by facility_tolerance 
+        # at any timestep (larger than catch up tolerance) the num counter will be larger 
+        # than 1 and the test will fail
+        if ((fuel_supply_point-demand_curve(0,1,time_point))>(facility_tolerance*100)):
             num = num + 1
         else: 
             num = num+0 
