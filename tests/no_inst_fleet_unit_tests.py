@@ -22,10 +22,7 @@ direc = os.listdir('./')
 hit_list = glob.glob('*.sqlite') + glob.glob('*.json')
 for file in hit_list:
     os.remove(file)
-
-ENV = dict(os.environ)
-ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
-
+    
 
 def get_cursor(file_name):
     """ Connects and returns a cursor to an sqlite output file
@@ -50,6 +47,7 @@ def cleanup():
         os.remove(output_file)
     if os.path.exists(input_file):
         os.remove(input_file)
+
 
 
 # the TEMPLATE is a dictionary of all simulation parameters
@@ -95,7 +93,7 @@ TEMPLATE = {
             "config": {
                 "Reactor": {
                     "assem_size": "100",
-                    "cycle_time": "1",
+                    "cycle_time": "10",
                     "fuel_incommods": {"val": "fuel"},
                     "fuel_inrecipes": {"val": "fresh_uox"},
                     "fuel_outcommods": {"val": "spent_uox"},
@@ -136,6 +134,11 @@ catchup_tolerance = 12
 # No. of facility throughputs for acceptable diff btwn of supply and demand
 facility_tolerance = 1
 
+# demand curve function 
+def demand_curve(m,b,x_point):
+    y_point = m*x_point + b
+    return y_point 
+
 
 # Test a-const-1 
 test_a_const_1_temp = copy.deepcopy(TEMPLATE)
@@ -167,16 +170,24 @@ def test_a_const_1():
     input_file = output_file.replace('.sqlite', '.json')
     with open(input_file, 'w') as f:
         json.dump(test_a_const_1_temp, f)
-    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                universal_newlines=True, env=ENV)
+    #s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+    #                            universal_newlines=True, env=ENV)
     # check if ran successfully
-    assert("Cyclus run successful!" in s)
+    #assert("Cyclus run successful!" in s)
 
     # getting the sqlite file
-    cur = get_cursor(output_file)
+    cur = get_cursor('cyclus.sqlite')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    fuel_demand = cur.execute("select time, sum(value) from timeseriesdemandfuel group by time").fetchall()
     fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
-    for x in range(0,14): 
-        for time in 
+    
+    num = 0
+    for pt in range(catchup_tolerance,len(fuel_supply)):
+        fuel_supply_point = fuel_supply[pt][1]
+        time_point = fuel_supply[pt][0]
+        if ((fuel_supply_point-demand_curve(0,1000,time_point))>(facility_tolerance*100)):
+            num = num + 1
+        else: 
+            num = num+0 
+
+    assert(num == 0)
