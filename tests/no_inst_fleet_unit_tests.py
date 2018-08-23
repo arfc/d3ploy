@@ -168,7 +168,7 @@ def test_a_const_1():
         json.dump(test_a_const_1_temp, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
-     check if ran successfully
+    # check if ran successfully
     assert("Cyclus run successful!" in s)
 
     # getting the sqlite file
@@ -228,7 +228,7 @@ def test_a_grow_1():
         json.dump(test_a_const_1_temp, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
-     check if ran successfully
+    # check if ran successfully
     assert("Cyclus run successful!" in s)
 
     # getting the sqlite file
@@ -287,7 +287,7 @@ def test_a_grow_2():
         json.dump(test_a_const_1_temp, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
-     check if ran successfully
+    # check if ran successfully
     assert("Cyclus run successful!" in s)
 
     # getting the sqlite file
