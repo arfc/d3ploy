@@ -125,7 +125,7 @@ catchup_tolerance = 12
 facility_tolerance = 10 #[%]
 
 
-def demand_curve(initial_demand,growth_rate,time_list):
+def demand_curve(initial_demand,growth_rate,time_point):
     """ Uses initial demand, growth rate and list of timesteps to 
     output the corresponding demand curve points 
 
@@ -133,16 +133,16 @@ def demand_curve(initial_demand,growth_rate,time_list):
     ----------
     initial_demand : int, initial demand of demand-driving commodity 
     growth_rate : int, growth rate of demand-driving commodity 
-    time_list: list, list of time steps in the simulation  
+    time_point: int, a time step in the simulation  
 
     Returns
     -------
-    demand_values : list, list of demand points corresponding to time_list 
+    demand_values : int, demand point corresponding to time_point  
     """
-    demand_values = initial_demand*(1+growth_rate)**(time_list/12)
-    return demand_values
+    demand_point = initial_demand*(1+growth_rate)**(time_point/12)
+    return demand_point
 
-
+#######################TEST_A_Constant_1####################################
 """ 
 Test A-Constant-1 
         - A: facility - source, demand-driving commodity - fresh fuel 
@@ -188,7 +188,6 @@ def test_a_const_1():
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
     fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
-    
     num = 0
     for pt in range(catchup_tolerance,len(fuel_supply)):
         fuel_supply_point = fuel_supply[pt][1]
@@ -203,7 +202,10 @@ def test_a_const_1():
 
     assert(num == 0)
 
+##############################################################################
 
+
+############################TEST_A_Grow_1#####################################
 """ Test a-grow-1 
         - a: only source facility 
         - grow: growing demand of fuel commodity that drives deployment 
@@ -263,6 +265,9 @@ def test_a_grow_1():
 
     assert(num == 0)
 
+######################################################################################
+
+#################################TEST_A_Grow_2########################################
     """ Test a-grow-2 
         - a: only source facility 
         - grow: growing demand of fuel commodity that drives deployment 
@@ -321,3 +326,5 @@ def test_a_grow_2():
             num = num+0 
 
     assert(num == 0)
+
+#######################################################################################    
