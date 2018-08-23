@@ -53,7 +53,7 @@ TEMPLATE = {
                 {"lib": "d3ploy.no_inst", "name": "NOInst"}
             ]
         },
-        "control": {"duration": "120", "startmonth": "1", "startyear": "2000"},
+        "control": {"duration": "1000", "startmonth": "1", "startyear": "2000"},
         "recipe": [
             {
                 "basis": "mass",
@@ -67,31 +67,29 @@ TEMPLATE = {
             }
         ],
         "facility": [{
-            "config": {"Source": {"outcommod": "fuel",
+            "config": {"Source": {"outcommod": "fresh_fuel",
                                   "outrecipe": "fresh_uox",
-                                  "throughput": "100",
-                                  "source_record_supply": "fuel"}},
+                                  "throughput": "1000"}},
             "name": "source"
         },
             {
-            "config": {"Sink": {"in_commods": {"val": "spent_uox"},
-                                "max_inv_size": "1e9",
-                                "sink_record_demand": "fuel_cap"}},
+            "config": {"Sink": {"in_commods": {"val": "spent_fuel"},
+                                "max_inv_size": "1e6"}},
             "name": "sink"
         },
             {
             "config": {
                 "Reactor": {
-                    "assem_size": "100",
-                    "cycle_time": "10",
-                    "fuel_incommods": {"val": "fuel"},
+                    "assem_size": "1000",
+                    "cycle_time": "18",
+                    "fuel_incommods": {"val": "fresh_fuel"},
                     "fuel_inrecipes": {"val": "fresh_uox"},
-                    "fuel_outcommods": {"val": "spent_uox"},
+                    "fuel_outcommods": {"val": "spent_fuel"},
                     "fuel_outrecipes": {"val": "spent_uox"},
                     "n_assem_batch": "1",
-                    "n_assem_core": "1",
-                    "power_cap": "1",
-                    "refuel_time": "0",
+                    "n_assem_core": "3",
+                    "power_cap": "1000",
+                    "refuel_time": "1",
                     "reactor_fuel_demand": "fuel_reactor"
                 }
             },
@@ -106,15 +104,15 @@ Test naming convention
 
 Test-[Alphabet]-[Demand]-[Numbering]
 [Alphabet]
-  - [A]: only source facility 
-  - [B]: source and reactor facilities 
-  - [C]: source, reactor and sink facilties 
+  - [A]: facility - source, demand-driving commodity - fresh fuel 
+  - [B]: facility - source and reactor, demand-driving commodity - power
+  - [C]: facility - source, reactor and sink , demand-driving commodity - power
 Demand
   - [Constant]: constant demand of commodity that drives deployment
   - [Growth]: growing demand of commodity that drives deployment
   - [Decline]: declining demand of commodity that drives deployment
 Numbering
-  - If test falls under same Alphabet and Demand category, they
+  - If test falls under same Alphabet and Demand category, they 
     are numbered 
 """
 
@@ -145,14 +143,15 @@ def demand_curve(initial_demand,growth_rate,time_list):
     return demand_values
 
 
-""" Test a-const-1 
-        - a: only source facility 
-        - const: constant demand of fuel commodity that drives deployment 
-        - 1: first test of a-const type 
+""" 
+Test A-Constant-1 
+        - A: facility - source, demand-driving commodity - fresh fuel 
+        - Constant: constant demand of fuel commodity that drives deployment 
+        - 1: first test of A-Constant type 
 """
-# Configuring it for this test instance 
-test_a_const_1_temp = copy.deepcopy(TEMPLATE)
-test_a_const_1_temp["simulation"].update({"region": {
+# Configuring the simulation template for this test instance 
+test_a_const_1_template = copy.deepcopy(TEMPLATE)
+test_a_const_1_template["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
         "config": {
@@ -178,7 +177,7 @@ def test_a_const_1():
     output_file = 'test_a_const_1_file.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
     with open(input_file, 'w') as f:
-        json.dump(test_a_const_1_temp, f)
+        json.dump(test_a_const_1_template, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
     # check if ran successfully
@@ -238,7 +237,7 @@ def test_a_grow_1():
     output_file = 'test_a_grow_1_file.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
     with open(input_file, 'w') as f:
-        json.dump(test_a_const_1_temp, f)
+        json.dump(test_a_grow_1_template, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
     # check if ran successfully
@@ -297,7 +296,7 @@ def test_a_grow_2():
     output_file = 'test_a_grow_1_file.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
     with open(input_file, 'w') as f:
-        json.dump(test_a_const_1_temp, f)
+        json.dump(test_a_grow_2_template, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
     # check if ran successfully
