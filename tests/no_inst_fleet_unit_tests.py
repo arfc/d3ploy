@@ -4,7 +4,6 @@ archetype.
 
 """
 
-
 import json
 import re
 import subprocess
@@ -18,10 +17,10 @@ import sys
 from nose.tools import assert_in, assert_true, assert_equals
 
 # Delete previously generated files
-#direc = os.listdir('./')
-#hit_list = glob.glob('*.sqlite') + glob.glob('*.json')
-#for file in hit_list:
-#    os.remove(file)
+direc = os.listdir('./')
+hit_list = glob.glob('*.sqlite') + glob.glob('*.json')
+for file in hit_list:
+    os.remove(file)
 
 
 def get_cursor(file_name):
@@ -41,9 +40,8 @@ def get_cursor(file_name):
     return con.cursor()
 
 
-
-# the TEMPLATE is a dictionary of all simulation parameters
-# except the region-institution definition
+# The TEMPLATE is a dictionary of all simulation parameters
+# except the region-institution definition which is unique for each test 
 TEMPLATE = {
     "simulation": {
         "archetypes": {
@@ -103,18 +101,20 @@ TEMPLATE = {
 }
 
 
-""" Test naming convention: 
-Test-[alphabet]-[changetype]-[numbering]
-alphabet
-  - a: only source facility 
-  - b: source and reactor facilities 
-  - c: source, reactor and sink facilties 
-change type 
-  - const: constant demand of commodity that drives deployment
-  - growth: growing demand of commodity that drives deployment
-  - decl: declining demand of commodity that drives deployment
-numbering 
-  - if test falls under same alphabet and change type category, they
+""" 
+Test naming convention
+
+Test-[Alphabet]-[Demand]-[Numbering]
+[Alphabet]
+  - [A]: only source facility 
+  - [B]: source and reactor facilities 
+  - [C]: source, reactor and sink facilties 
+Demand
+  - [Constant]: constant demand of commodity that drives deployment
+  - [Growth]: growing demand of commodity that drives deployment
+  - [Decline]: declining demand of commodity that drives deployment
+Numbering
+  - If test falls under same Alphabet and Demand category, they
     are numbered 
 """
 
@@ -123,14 +123,27 @@ numbering
 # No. of timesteps accepted for supply to catch up with initial demand
 catchup_tolerance = 12 
 
-# No. of facility throughputs for acceptable diff btwn of supply and demand
-facility_tolerance = 1
+# Acceptable percentage difference diff btwn supply and demand
+facility_tolerance = 10 #[%]
 
-# demand curve function 
 
-def demand_curve(initial_demand,growth_rate,x_point):
-    y_point = initial_demand*(1+growth_rate)**(x_point/12)
-    return y_point 
+def demand_curve(initial_demand,growth_rate,time_list):
+    """ Uses initial demand, growth rate and list of timesteps to 
+    output the corresponding demand curve points 
+
+    Parameters
+    ----------
+    initial_demand : int, initial demand of demand-driving commodity 
+    growth_rate : int, growth rate of demand-driving commodity 
+    time_list: list, list of time steps in the simulation  
+
+    Returns
+    -------
+    demand_values : list, list of demand points corresponding to time_list 
+    """
+    demand_values = initial_demand*(1+growth_rate)**(time_list/12)
+    return demand_values
+
 
 """ Test a-const-1 
         - a: only source facility 
