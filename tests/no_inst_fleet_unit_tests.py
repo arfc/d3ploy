@@ -142,12 +142,35 @@ def demand_curve(initial_demand,growth_rate,time_point):
     demand_point = initial_demand*(1+growth_rate)**(time_point/12)
     return demand_point
 
+
+def supply_within_demand_range(sql_file):  
+    # getting the sqlite file
+    cur = get_cursor('test_a_const_1_file.sqlite')
+
+    # check if supply of fuel is within facility_tolerance & catchup_tolerance
+    fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
+    num = 0
+    for pt in range(catchup_tolerance,len(fuel_supply)):
+        fuel_supply_point = fuel_supply[pt][1]
+        time_point = fuel_supply[pt][0]
+        # if supply curve value is larger/smaller than demand curve by facility_tolerance percentage
+        # at any timestep (larger than catch up tolerance) the num counter will be larger 
+        # than 1 and the test will fail
+        fuel_demand_point = demand_curve(1000,0,time_point)
+        percentage_diff = abs((fuel_supply_point - fuel_demand_point)/fuel_demand_point)*100
+        if percentage_diff>facility_tolerance:
+            num = num + 1
+        else: 
+            num = num+0 
+    return num 
+
+
 #######################TEST_A_Constant_1####################################
 """ 
 Test A-Constant-1 
-        - A: facility - source, demand-driving commodity - fresh fuel 
-        - Constant: constant demand of fuel commodity that drives deployment 
-        - 1: first test of A-Constant type 
+        - [A]: facility - source, demand-driving commodity - fresh fuel 
+        - [Constant]: constant demand of fuel commodity that drives deployment 
+        - [1]: first test of A-Constant type 
 """
 # Configuring the simulation template for this test instance 
 test_a_const_1_template = copy.deepcopy(TEMPLATE)
@@ -183,33 +206,18 @@ def test_a_const_1():
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
-    # getting the sqlite file
-    cur = get_cursor('test_a_const_1_file.sqlite')
-
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
-    num = 0
-    for pt in range(catchup_tolerance,len(fuel_supply)):
-        fuel_supply_point = fuel_supply[pt][1]
-        time_point = fuel_supply[pt][0]
-        # if supply curve value is larger/smaller than demand curve by facility_tolerance 
-        # at any timestep (larger than catch up tolerance) the num counter will be larger 
-        # than 1 and the test will fail
-        if ((fuel_supply_point-demand_curve(1000,0,time_point))>(facility_tolerance*100)):
-            num = num + 1
-        else: 
-            num = num+0 
-
-    assert(num == 0)
+    number_within_tolerance = supply_within_demand_range('test_a_const_1_file.sqlite')
+    assert(number_within_tolerance == 0)
 
 ##############################################################################
 
 
 ############################TEST_A_Grow_1#####################################
-""" Test a-grow-1 
-        - a: only source facility 
-        - grow: growing demand of fuel commodity that drives deployment 
-        - 1: first test of a-const type 
+""" Test a-growth-1 
+        - [A]: facility - source, demand-driving commodity - fresh fuel 
+        - [Growth]: growing demand of commodity that drives deployment
+        - [1]: first test of a-growth type 
 """
 # Configuring it for this test instance 
 test_a_grow_1_temp = copy.deepcopy(TEMPLATE)
@@ -222,7 +230,7 @@ test_a_grow_1_temp["simulation"].update({"region": {
                 "commodities": {"val": ["fuel"]}, 
                 "demand_std_dev": "0.0", 
                 "growth_rate": "1.0", 
-                "initial_demand": "1000", 
+                "initial_demand": "10000", 
                 "record": "1", 
                 "steps": "1"
             }
@@ -245,33 +253,17 @@ def test_a_grow_1():
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
-    # getting the sqlite file
-    cur = get_cursor('test_a_grow_1_file.sqlite')
-
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
-    
-    num = 0
-    for pt in range(catchup_tolerance,len(fuel_supply)):
-        fuel_supply_point = fuel_supply[pt][1]
-        time_point = fuel_supply[pt][0]
-        # if supply curve value is larger/smaller than demand curve by facility_tolerance 
-        # at any timestep (larger than catch up tolerance) the num counter will be larger 
-        # than 1 and the test will fail
-        if ((fuel_supply_point-demand_curve(1000,1,time_point))>(facility_tolerance*100)):
-            num = num + 1
-        else: 
-            num = num+0 
-
-    assert(num == 0)
+    number_within_tolerance = supply_within_demand_range('test_a_grow_1_file.sqlite')
+    assert(number_within_tolerance == 0)
 
 ######################################################################################
 
 #################################TEST_A_Grow_2########################################
-    """ Test a-grow-2 
-        - a: only source facility 
-        - grow: growing demand of fuel commodity that drives deployment 
-        - 2: 2nd test of a-const type (it has no initial demand)
+""" Test a-grow-2 
+    - [A]: facility - source, demand-driving commodity - fresh fuel 
+    - [Growth]: growing demand of commodity that drives deployment
+    - [2]: second test of a-growth type 
 """
 # Configuring it for this test instance 
 test_a_grow_2_temp = copy.deepcopy(TEMPLATE)
@@ -307,24 +299,8 @@ def test_a_grow_2():
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
-    # getting the sqlite file
-    cur = get_cursor('test_a_grow_2_file.sqlite')
-
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
-    
-    num = 0
-    for pt in range(catchup_tolerance,len(fuel_supply)):
-        fuel_supply_point = fuel_supply[pt][1]
-        time_point = fuel_supply[pt][0]
-        # if supply curve value is larger/smaller than demand curve by facility_tolerance 
-        # at any timestep (larger than catch up tolerance) the num counter will be larger 
-        # than 1 and the test will fail
-        if ((fuel_supply_point-demand_curve(0,1,time_point))>(facility_tolerance*100)):
-            num = num + 1
-        else: 
-            num = num+0 
-
-    assert(num == 0)
+    number_within_tolerance = supply_within_demand_range('test_a_grow_1_file.sqlite')
+    assert(number_within_tolerance == 0)
 
 #######################################################################################    
