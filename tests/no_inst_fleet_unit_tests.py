@@ -181,7 +181,7 @@ test_a_const_1_template["simulation"].update({"region": {
             "NOInst": {
                 "calc_method": "arma", 
                 "commodities": {"val": ["fuel"]}, 
-                "demand_std_dev": "0.0", 
+                "demand_std_dev": "1.0", 
                 "growth_rate": "1.0", 
                 "initial_demand": "1000", 
                 "record": "1", 
@@ -228,7 +228,7 @@ test_a_grow_1_temp["simulation"].update({"region": {
             "NOInst": {
                 "calc_method": "arma", 
                 "commodities": {"val": ["fuel"]}, 
-                "demand_std_dev": "0.0", 
+                "demand_std_dev": "1.0", 
                 "growth_rate": "1.0", 
                 "initial_demand": "10000", 
                 "record": "1", 
@@ -274,7 +274,7 @@ test_a_grow_2_temp["simulation"].update({"region": {
             "NOInst": {
                 "calc_method": "arma", 
                 "commodities": {"val": ["fuel"]}, 
-                "demand_std_dev": "0.0", 
+                "demand_std_dev": "1.0", 
                 "growth_rate": "1.0", 
                 "initial_demand": "0", 
                 "record": "1", 
