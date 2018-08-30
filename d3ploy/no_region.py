@@ -1,5 +1,5 @@
 """
-The Non-Optimizing institution uses ARMA and ARCH to determine the 
+The Non-Optimizing region uses ARMA and ARCH to determine the 
 supply and demand of a commodity. It uses this information to determine
 the deployment of the supply side agent. Information use to determine the
 deployment is taken from the t-1 time step. This information predicts supply
@@ -13,7 +13,7 @@ from collections import defaultdict
 import numpy as np
 import scipy as sp
 
-from cyclus.agents import Institution, Agent
+from cyclus.agents import Region, Agent
 from cyclus import lib
 import cyclus.typesystem as ts
 
@@ -22,9 +22,9 @@ from arch import arch_model
 
 CALC_METHODS = {}
 
-class NOInst(Institution):
+class NOInst(Region):
     """
-    This institution deploys facilities based on demand curves using 
+    This region deploys facilities based on demand curves using 
     Non Optimizing (NO) methods. 
     """
 
@@ -33,14 +33,6 @@ class NOInst(Institution):
         tooltip="List of commodities in the institution.",
         uilabel="Commodities",
         uitype="oneOrMore"    
-    )
-
-    reverse_commodities = ts.VectorString(
-        doc="A list of commodities that the institution will manage.",
-        tooltip="List of commodities in the institution.",
-        uilabel="Reversed Commodities",
-        uitype="oneOrMore",
-        default="[]"    
     )
 
     growth_rate = ts.Double(
@@ -109,9 +101,6 @@ class NOInst(Institution):
         self.commod_to_fac = {}
         self.commodity_supply = {}
         self.commodity_demand = {}
-        self.rev_commod_to_fac = {}
-        self.rev_commodity_supply = {}
-        self.rev_commodity_demand = {}
         self.fac_supply = {}
         CALC_METHODS['ma'] = self.moving_avg
         CALC_METHODS['arma'] = self.predict_arma
@@ -126,20 +115,12 @@ class NOInst(Institution):
             self.commodity_demand[commod] = defaultdict(float)
             self.fac_supply[commod] = {}
             self.commod_to_fac[commod] = []
-        for commod in self.reverse_commodities:
-            lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_supply)
-            lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_demand) 
-            self.rev_commodity_supply[commod] = defaultdict(float)  
-            self.rev_commodity_demand[commod] = defaultdict(float)
-            self.fac_supply[commod] = {}
-            self.rev_commod_to_fac[commod] = []
 
     def tick(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.     
         """
-        print(self.commod_to_fac)
         time = self.context.time
         for commod, value in self.commod_to_fac.items():
             diff, supply, demand = self.calc_diff(commod, time-1)
@@ -159,26 +140,6 @@ class NOInst(Institution):
                 out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
                 out_text += " supply " + str(self.commodity_supply[commod][time-1])
                 out_text += " demand " + str(self.commodity_demand[commod][time-1]) + "\n"
-                with open(commod +".txt", 'a') as f:
-                    f.write(out_text)
-        for commod, value in self.rev_commod_to_fac.items():
-            diff, supply, demand = self.calc_diff(commod, time-1)
-            if  diff < 0:
-                proto = random.choice(self.rev_commod_to_fac[commod])
-                ## This is still not correct. If no facilities are present at the start of the
-                ## simulation prod_rate will still return zero. More complex fix is required.            
-                if proto in self.rev_fac_supply[commod]:
-                    prod_rate = self.rev_fac_supply[commod][proto]
-                else:
-                    print("No facility production rate available for " + proto)                
-                number = np.ceil(-1*diff/prod_rate)
-                for i in range(int(number)):
-                    self.context.schedule_build(self, proto)
-                    i += 1
-            if self.record:
-                out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
-                out_text += " supply " + str(self.rev_commodity_supply[commod][time-1])
-                out_text += " demand " + str(self.rev_commodity_demand[commod][time-1]) + "\n"
                 with open(commod +".txt", 'a') as f:
                     f.write(out_text)
 
@@ -240,7 +201,6 @@ class NOInst(Institution):
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
         self.fac_supply[commod][agent.prototype] = value
-        print("ASDFADFADSFASSD", agent.prototype, commod)
         if agent.prototype not in self.commod_to_fac[commod]:
             self.commod_to_fac[commod].append(agent.prototype)
 
@@ -260,7 +220,6 @@ class NOInst(Institution):
             series.
         """      
         commod = commod[6:]
-        print("DEMAND", agent.prototype, commod)
         self.commodity_demand[commod][time] += value
 
 
