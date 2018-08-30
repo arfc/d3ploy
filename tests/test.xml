@@ -68,21 +68,21 @@
           <calc_method>arma</calc_method>
           <growth_rate>0.05</growth_rate>
           <commodities><val>POWER</val><val>fuel</val><val>uranium</val></commodities>
-          <initial_demand>100000.0</initial_demand>
+          <initial_demand>1000.0</initial_demand>
           <record>1</record>
         </NOInst>
       </config>
       <initialfacilitylist>
         <entry>
-          <number>100</number>
+          <number>1</number>
           <prototype>Reactor</prototype>
         </entry>
         <entry>
-          <number>20</number>
+          <number>1</number>
           <prototype>Enrichment</prototype>
         </entry>
         <entry>
-          <number>40</number>
+          <number>1</number>
           <prototype>Mine</prototype>
         </entry>
       </initialfacilitylist>
