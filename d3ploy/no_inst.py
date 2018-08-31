@@ -32,7 +32,7 @@ class NOInst(Institution):
         doc="A list of commodities that the institution will manage.",
         tooltip="List of commodities in the institution.",
         uilabel="Commodities",
-        uitype="oneOrMore"    
+        uitype="oneOrMore"
 
     reverse_commodities = ts.VectorString(
         doc="A list of commodities that the institution will manage.",
@@ -42,19 +42,11 @@ class NOInst(Institution):
         default=[]
     )
 
-    growth_rate = ts.Double(
-        doc="This value represents the growth rate that the institution is " +
-            "attempting to meet.",
-        tooltip="Growth rate of growth commodity",
-        uilabel="Growth Rate",
-        default="0.02"
-    )
-
-    initial_demand = ts.Double(
-        doc="The initial power of the facility",
-        tooltip="Initital demand",
-        uilabel="Initial demand"
-    )
+    demand_eq = ts.String(
+        doc="This is the string for the demand equation of the driving commodity. " +
+              "The equation should use `t' as the dependent variable",
+        tooltip="Demand equation for driving commodity",
+        uilabel="Demand Equation")
 
     calc_method = ts.String(
         doc="This is the calculated method used to determine the supply and demand " +
@@ -262,8 +254,8 @@ class NOInst(Institution):
         demand : The calculated demand at a given timestep.
         """
         timestep = self.context.dt
-        time = time * timestep
-        demand = self.initial_demand * ((1.0+self.growth_rate)**(time/3.154e+7))
+        t = time * timestep
+        demand = eval(self.demand_calc)
         return demand
 
     def moving_avg(self, ts, steps=1, std_dev = 0, back_steps=5):
