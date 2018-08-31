@@ -118,10 +118,10 @@ class NOInst(Institution):
             for commod in self.commodities:
                 print(commod)
                 lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
-                lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand) 
+                lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
                 print(lib.TIME_SERIES_LISTENERS)
                 print(type(lib.TIME_SERIES_LISTENERS["supply"+commod]))
-                self.commodity_supply[commod] = defaultdict(float)  
+                self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
                 self.fac_supply[commod] = {}
                 self.commod_to_fac[commod] = []
@@ -143,11 +143,11 @@ class NOInst(Institution):
             if  diff < 0:
                 proto = random.choice(self.commod_to_fac[commod])
                 ## This is still not correct. If no facilities are present at the start of the
-                ## simulation prod_rate will still return zero. More complex fix is required.            
+                ## simulation prod_rate will still return zero. More complex fix is required.
                 if proto in self.fac_supply[commod]:
                     prod_rate = self.fac_supply[commod][proto]
                 else:
-                    print("No facility production rate available for " + proto)                
+                    print("No facility production rate available for " + proto)
                 number = np.ceil(-1*diff/prod_rate)
                 for i in range(int(number)):
                     self.context.schedule_build(self, proto)
@@ -179,10 +179,10 @@ class NOInst(Institution):
         if time not in self.commodity_demand[commod]:
             self.commodity_demand[commod][time] = self.initial_demand
         if time not in self.commodity_supply[commod]:
-            self.commodity_supply[commod][time] = self.initial_demand              
+            self.commodity_supply[commod][time] = self.initial_demand
         try:
-            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod], 
-                                                    steps = self.steps, 
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
+                                                    steps = self.steps,
                                                     std_dev = self.supply_std_dev,
                                                     back_steps=self.back_steps)
         except (ValueError, np.linalg.linalg.LinAlgError):
@@ -192,8 +192,8 @@ class NOInst(Institution):
             self.commodity_demand[commod][time+2] = demand
         try:
 
-            demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod], 
-                                                    steps = self.steps, 
+            demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
+                                                    steps = self.steps,
                                                     std_dev = self.demand_std_dev,
                                                     back_steps=self.back_steps)
         except (np.linalg.linalg.LinAlgError, ValueError):
@@ -238,7 +238,7 @@ class NOInst(Institution):
         value : object
             This is the value of the object being recorded in the time
             series.
-        """      
+        """
         commod = commod[6:]
         print("DEMAND", agent.prototype, commod)
         self.commodity_demand[commod][time] += value
