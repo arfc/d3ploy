@@ -33,6 +33,7 @@ class NOInst(Institution):
         tooltip="List of commodities in the institution.",
         uilabel="Commodities",
         uitype="oneOrMore"
+    )
 
     reverse_commodities = ts.VectorString(
         doc="A list of commodities that the institution will manage.",
@@ -126,6 +127,7 @@ class NOInst(Institution):
                 self.commod_to_fac[commod] = []
             self.fresh = False
 
+    def tock(self)
         """
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.
