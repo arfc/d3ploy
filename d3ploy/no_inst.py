@@ -28,20 +28,14 @@ class NOInst(Institution):
     Non Optimizing (NO) methods.
     """
 
-    commodities = ts.VectorString(
-        doc="A list of commodities that the institution will manage.",
-        tooltip="List of commodities in the institution.",
-        uilabel="Commodities",
-        uitype="oneOrMore"
+    driving_commod = ts.String(
+        doc="String of commodity that drives demand.",
+        tooltip="Demand-driving commodity in institution",
+        uilabel="Commodity",
+        uitype="commodity name"
+        default='POWER'
     )
 
-    reverse_commodities = ts.VectorString(
-        doc="A list of commodities that the institution will manage.",
-        tooltip="List of commodities in the institution.",
-        uilabel="Reversed Commodities",
-        uitype="oneOrMore",
-        default=[]
-    )
 
     demand_eq = ts.String(
         doc="This is the string for the demand equation of the driving commodity. " +
@@ -105,6 +99,7 @@ class NOInst(Institution):
         self.rev_commodity_supply = {}
         self.rev_commodity_demand = {}
         self.fac_supply = {}
+        self.commodity_list = []
         self.fresh = True
         CALC_METHODS['ma'] = self.moving_avg
         CALC_METHODS['arma'] = self.predict_arma
@@ -114,8 +109,8 @@ class NOInst(Institution):
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
-            print(self.commodities)
-            for commod in self.commodities:
+            print(self.commodity_list)
+            for commod in self.commodity_list:
                 print(commod)
                 lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
@@ -187,7 +182,7 @@ class NOInst(Institution):
                                                     back_steps=self.back_steps)
         except (ValueError, np.linalg.linalg.LinAlgError):
             supply = CALC_METHODS['ma'](self.commodity_supply[commod])
-        if commod == 'POWER':
+        if commod == driving_commod:
             demand = self.demand_calc(time+2)
             self.commodity_demand[commod][time+2] = demand
         try:
@@ -218,6 +213,7 @@ class NOInst(Institution):
         """
         print('EXTRACT SUPPLY')
         commod = commod[6:]
+        self.commodity_list.append(commod)
         self.commodity_supply[commod][time] += value
         self.fac_supply[commod][agent.prototype] = value
         print("ASDFADFADSFASSD", agent.prototype, commod)
