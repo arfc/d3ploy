@@ -3,7 +3,11 @@ A collection of Cyclus manager archetypes for demand driven deployment. It opera
 global calls within a Cyclus simulation so that all agents within the simulation
 can communicate. The goal of this package is to provide three types of mathematical
 basis for determining supply and demand of commodities within Cyclus; Non-optimizing (NO)
-deterministing optimization (DO), and Stochastic optimization (SO). 
+deterministing optimization (DO), and Stochastic optimization (SO).
+
+The user needs to specify the supply chain in the form of initial facilities. With the
+`driving commodity` and initial facilities, the Institution will figure out the supply
+chain and will deploy prototypes to meet the demand of the driving commodity.
 
 Dependencies
 ============
@@ -17,8 +21,8 @@ moving average (ARMA), and autoregressive conditional heteroskedasticity (ARCH).
 
 ARMA
 ----
-The autoregressive moving average method takes a time series and uses an 
-auto regressive term and a moving average term. 
+The autoregressive moving average method takes a time series and uses an
+auto regressive term and a moving average term.
 
 ARCH
 ----
@@ -50,30 +54,20 @@ deficit in the current time step.
 
 Required Inputs
 ---------------
-- **demand_commod**: This is the commodity that is demanded of the institution.
-Facilities outside of this insitution need this commodity and request it from
-facilities inside of this institution. **NOTE** If 'power' is used as the 
-**demand_commod**, the institution will calculate the demand using an exponential
-growth curve and a grow rate of 2% by default. This growth rate is an optional 
-input. 
-- **supply_commod**: This is the commodity that facilities inside of this institution
-supply. 
-- **prototypes**: A oneOrMore of the prototypes available for the institution to deploy
-to meet the demand for the demanded commodity.
-- **initial_demand**: This sets the initial demand of the demand commodity. If the
-initial facilities at start up does not meet this demand the first time step will
-see a undersupply. 
-- **calc_method**: This is the method used to calculate the supply and demand. 
+- **driving_commod**: This is the commodity that drives the deployment. The
+demand of this commodity is calculated by the `demand_eq` (default = `POWER`).
+- **demand_eq**: This is the string for the demand equation of the driving
+commodity. The equation should use `t` as the dependent variable.
+- **calc_method**: This is the method used to calculate the supply and demand.
 Current available options are 'ARMA' and 'MA' for autoregressive moving average
-and moving average. 
+and moving average.
+
 
 Optional Inputs
 ---------------
-- **growth_rate**: The growth rate used to calculate power if power is the 
-**demand_commod**. Default: 0.02 (2%). 
-- **record**: A boolean flag used to set if an institution will dump a record
-of its supply and demand values to a .txt file. The name of the file is the
-**demand_commod**. Default: False.
+- **record**: This boolean indicates whether or not the institution should record its
+output to text file outputs. The output files match the name of the demand commodity
+of the institution. Default: False.
 - **supply_std_dev**: The number of standard deviations off of the predicted supply
 value to use as the predicted value. For example if the predicted value is 10
 with a standard deviation of 2, +1 will result in a predicted value of 12 and 
