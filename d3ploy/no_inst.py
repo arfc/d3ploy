@@ -172,9 +172,11 @@ class NOInst(Institution):
             The calculated demand of the demand commodity at [time]
         """
         if time not in self.commodity_demand[commod]:
-            self.commodity_demand[commod][time] = self.initial_demand
+            t = 0
+            self.commodity_demand[commod][time] = eval(self.demand_eq)
         if time not in self.commodity_supply[commod]:
-            self.commodity_supply[commod][time] = self.initial_demand
+            t = 0
+            self.commodity_supply[commod][time] = eval(self.demand_eq)
         try:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     steps = self.steps,
