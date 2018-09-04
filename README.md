@@ -12,6 +12,7 @@ chain and will deploy prototypes to meet the demand of the driving commodity.
 Dependencies
 ============
 **statsmodels**: Python package for statistical analysis
+
 **arch**: Python package for conditional heteroskidasticity models.
 
 Non-Optimizing Methods
