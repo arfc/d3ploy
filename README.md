@@ -5,7 +5,7 @@ can communicate. The goal of this package is to provide three types of mathemati
 basis for determining supply and demand of commodities within Cyclus; Non-optimizing (NO)
 deterministing optimization (DO), and Stochastic optimization (SO).
 
-The user needs to specify the supply chain in the form of initial facilities. With the
+The user needs to specify the supply chain by setting the appropriate `initialfacilitylist`. With the
 `driving commodity` and initial facilities, the Institution will figure out the supply
 chain and will deploy prototypes to meet the demand of the driving commodity.
 
