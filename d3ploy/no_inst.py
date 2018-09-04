@@ -28,6 +28,14 @@ class NOInst(Institution):
     Non Optimizing (NO) methods.
     """
 
+    driving_commod = ts.String(
+        doc="String of commodity that drives demand.",
+        tooltip="Demand-driving commodity in institution",
+        uilabel="Commodity",
+        uitype="commodity name"
+        default='POWER'
+    )
+
     commodities = ts.VectorString(
         doc="A list of commodities that the institution will manage.",
         tooltip="List of commodities in the institution.",
@@ -187,7 +195,7 @@ class NOInst(Institution):
                                                     back_steps=self.back_steps)
         except (ValueError, np.linalg.linalg.LinAlgError):
             supply = CALC_METHODS['ma'](self.commodity_supply[commod])
-        if commod == 'POWER':
+        if commod == driving_commod:
             demand = self.demand_calc(time+2)
             self.commodity_demand[commod][time+2] = demand
         try:
