@@ -110,7 +110,7 @@ class NOInst(Institution):
         CALC_METHODS['arma'] = self.predict_arma
         CALC_METHODS['arch'] = self.predict_arch
         print('init')
-
+        
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
@@ -119,8 +119,6 @@ class NOInst(Institution):
                 print(commod)
                 lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
-                print(lib.TIME_SERIES_LISTENERS)
-                print(type(lib.TIME_SERIES_LISTENERS["supply"+commod]))
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
                 self.fac_supply[commod] = {}
@@ -135,11 +133,9 @@ class NOInst(Institution):
         print('tock')
         time = self.context.time
         for commod, value in self.commod_to_fac.items():
-            if len(value)==0:
+            if len(value)==0 or time==0:
                 continue
             diff, supply, demand = self.calc_diff(commod, time-1)
-            print(commod)
-            print(self.commod_to_fac)
             if  diff < 0:
                 proto = random.choice(self.commod_to_fac[commod])
                 ## This is still not correct. If no facilities are present at the start of the
@@ -175,7 +171,6 @@ class NOInst(Institution):
         demand : double
             The calculated demand of the demand commodity at [time]
         """
-
         if time not in self.commodity_demand[commod]:
             self.commodity_demand[commod][time] = self.initial_demand
         if time not in self.commodity_supply[commod]:
@@ -216,11 +211,9 @@ class NOInst(Institution):
             This is the value of the object being recorded in the time
             series.
         """
-        print('EXTRACT SUPPLY')
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
         self.fac_supply[commod][agent.prototype] = value
-        print("ASDFADFADSFASSD", agent.prototype, commod)
         if agent.prototype not in self.commod_to_fac[commod]:
             self.commod_to_fac[commod].append(agent.prototype)
 
@@ -257,7 +250,7 @@ class NOInst(Institution):
         """
         timestep = self.context.dt
         t = time * timestep
-        demand = eval(self.demand_calc)
+        demand = eval(self.demand_eq)
         return demand
 
     def moving_avg(self, ts, steps=1, std_dev = 0, back_steps=5):
