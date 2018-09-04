@@ -107,8 +107,7 @@
           <calc_method>ma</calc_method>
           <record>1</record>
 	        <demand_std_dev>0.0</demand_std_dev>
-          <growth_rate>1.0</growth_rate>
-          <initial_demand>1</initial_demand>
+          <demand_eq>3*t</demand_eq>
           <commodities><val>POWER</val><val>fuel</val></commodities>
           <steps>1</steps>
         </NOInst>
