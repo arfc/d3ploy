@@ -32,7 +32,8 @@ class NOInst(Institution):
         doc="A list of commodities that the institution will manage.",
         tooltip="List of commodities in the institution.",
         uilabel="Commodities",
-        uitype="oneOrMore"    
+        uitype="oneOrMore"
+    )
 
     reverse_commodities = ts.VectorString(
         doc="A list of commodities that the institution will manage.",
@@ -42,19 +43,11 @@ class NOInst(Institution):
         default=[]
     )
 
-    growth_rate = ts.Double(
-        doc="This value represents the growth rate that the institution is " +
-            "attempting to meet.",
-        tooltip="Growth rate of growth commodity",
-        uilabel="Growth Rate",
-        default="0.02"
-    )
-
-    initial_demand = ts.Double(
-        doc="The initial power of the facility",
-        tooltip="Initital demand",
-        uilabel="Initial demand"
-    )
+    demand_eq = ts.String(
+        doc="This is the string for the demand equation of the driving commodity. " +
+              "The equation should use `t' as the dependent variable",
+        tooltip="Demand equation for driving commodity",
+        uilabel="Demand Equation")
 
     calc_method = ts.String(
         doc="This is the calculated method used to determine the supply and demand " +
@@ -125,15 +118,16 @@ class NOInst(Institution):
             for commod in self.commodities:
                 print(commod)
                 lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
-                lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand) 
+                lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
                 print(lib.TIME_SERIES_LISTENERS)
                 print(type(lib.TIME_SERIES_LISTENERS["supply"+commod]))
-                self.commodity_supply[commod] = defaultdict(float)  
+                self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
                 self.fac_supply[commod] = {}
                 self.commod_to_fac[commod] = []
             self.fresh = False
 
+    def tock(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.
@@ -149,11 +143,11 @@ class NOInst(Institution):
             if  diff < 0:
                 proto = random.choice(self.commod_to_fac[commod])
                 ## This is still not correct. If no facilities are present at the start of the
-                ## simulation prod_rate will still return zero. More complex fix is required.            
+                ## simulation prod_rate will still return zero. More complex fix is required.
                 if proto in self.fac_supply[commod]:
                     prod_rate = self.fac_supply[commod][proto]
                 else:
-                    print("No facility production rate available for " + proto)                
+                    print("No facility production rate available for " + proto)
                 number = np.ceil(-1*diff/prod_rate)
                 for i in range(int(number)):
                     self.context.schedule_build(self, proto)
@@ -185,10 +179,10 @@ class NOInst(Institution):
         if time not in self.commodity_demand[commod]:
             self.commodity_demand[commod][time] = self.initial_demand
         if time not in self.commodity_supply[commod]:
-            self.commodity_supply[commod][time] = self.initial_demand              
+            self.commodity_supply[commod][time] = self.initial_demand
         try:
-            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod], 
-                                                    steps = self.steps, 
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
+                                                    steps = self.steps,
                                                     std_dev = self.supply_std_dev,
                                                     back_steps=self.back_steps)
         except (ValueError, np.linalg.linalg.LinAlgError):
@@ -198,8 +192,8 @@ class NOInst(Institution):
             self.commodity_demand[commod][time+2] = demand
         try:
 
-            demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod], 
-                                                    steps = self.steps, 
+            demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
+                                                    steps = self.steps,
                                                     std_dev = self.demand_std_dev,
                                                     back_steps=self.back_steps)
         except (np.linalg.linalg.LinAlgError, ValueError):
@@ -244,7 +238,7 @@ class NOInst(Institution):
         value : object
             This is the value of the object being recorded in the time
             series.
-        """      
+        """
         commod = commod[6:]
         print("DEMAND", agent.prototype, commod)
         self.commodity_demand[commod][time] += value
@@ -262,8 +256,8 @@ class NOInst(Institution):
         demand : The calculated demand at a given timestep.
         """
         timestep = self.context.dt
-        time = time * timestep
-        demand = self.initial_demand * ((1.0+self.growth_rate)**(time/3.154e+7))
+        t = time * timestep
+        demand = eval(self.demand_calc)
         return demand
 
     def moving_avg(self, ts, steps=1, std_dev = 0, back_steps=5):
