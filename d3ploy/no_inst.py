@@ -158,13 +158,12 @@ class NOInst(Institution):
                     prod_rate = self.fac_supply[commod][time]
                 number = np.floor(diff / prod_rate)
                 i = 0
-                while i < number:
-                    print('We decommission in timestep %i \n' %self.context.time)
-                    children = self.children
-                    for child in children:
-                        child.decomission()
-                        break
+                children = self.children
+                for child in children:
+                    child.decommission()
                     i += 1
+                    if i == number:
+                        break
 
             if self.record:
                 out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
