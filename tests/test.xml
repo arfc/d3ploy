@@ -66,9 +66,8 @@
       <config>
         <NOInst>
           <calc_method>arma</calc_method>
-          <growth_rate>0.05</growth_rate>
+          <demand_eq>3*t</demand_eq>
           <commodities><val>POWER</val><val>fuel</val><val>uranium</val></commodities>
-          <initial_demand>1000.0</initial_demand>
           <record>1</record>
         </NOInst>
       </config>
