@@ -110,7 +110,18 @@ class NOInst(Institution):
         CALC_METHODS['arma'] = self.predict_arma
         CALC_METHODS['arch'] = self.predict_arch
         print('init')
-        
+        #self.print_variables()
+
+    def print_variables(self):
+        print('commodities: %s' %self.commodities)
+        print('demand_eq: %s' %self.demand_eq)
+        print('calc_method: %s' %self.calc_method)
+        print('record: %s' %str(self.record))
+        print('steps: %i' %self.steps)
+        print('back_steps: %i' %self.back_steps)
+        print('supply_std_dev: %f' %self.supply_std_dev)
+        print('demand_std_dev: %f' %self.demand_std_dev)
+
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
