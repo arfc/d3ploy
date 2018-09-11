@@ -65,6 +65,13 @@ class NOInst(Institution):
         uilabel="Record to Text",
         default=False
     )
+    
+    driving_commod = ts.String(
+        doc="Sets the driving commodity for the institution. That is the " +
+            "commodity that no_inst will deploy against the demand equation."
+        tooltip="Driving Commodity",
+        uilabel="Driving Commodity"
+    )
 
     steps = ts.Int(
         doc="The number of timesteps forward for ARMA or order of the MA",
@@ -109,7 +116,6 @@ class NOInst(Institution):
         CALC_METHODS['ma'] = self.moving_avg
         CALC_METHODS['arma'] = self.predict_arma
         CALC_METHODS['arch'] = self.predict_arch
-        print('init')
         #self.print_variables()
 
     def print_variables(self):
@@ -125,9 +131,7 @@ class NOInst(Institution):
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
-            print(self.commodities)
             for commod in self.commodities:
-                print(commod)
                 lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
@@ -135,13 +139,12 @@ class NOInst(Institution):
                 self.fac_supply[commod] = {}
                 self.commod_to_fac[commod] = []
             self.fresh = False
-
+        
     def tock(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.
         """
-        print('tock')
         time = self.context.time
         for commod, value in self.commod_to_fac.items():
             if len(value)==0 or time==0:
@@ -195,7 +198,7 @@ class NOInst(Institution):
                                                     back_steps=self.back_steps)
         except (ValueError, np.linalg.linalg.LinAlgError):
             supply = CALC_METHODS['ma'](self.commodity_supply[commod])
-        if commod == 'POWER':
+        if commod == self.driving_commod:
             demand = self.demand_calc(time+2)
             self.commodity_demand[commod][time+2] = demand
         try:
@@ -246,7 +249,6 @@ class NOInst(Institution):
             series.
         """
         commod = commod[6:]
-        print("DEMAND", agent.prototype, commod)
         self.commodity_demand[commod][time] += value
 
     def demand_calc(self, time):
