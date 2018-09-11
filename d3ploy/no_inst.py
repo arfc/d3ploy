@@ -71,6 +71,7 @@ class NOInst(Institution):
             "commodity that no_inst will deploy against the demand equation."
         tooltip="Driving Commodity",
         uilabel="Driving Commodity"
+        default="POWER"
     )
 
     steps = ts.Int(
