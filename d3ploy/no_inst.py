@@ -138,7 +138,7 @@ class NOInst(Institution):
         self.commodities = {}
         for entry in self.temp:
             z = entry.split('_')
-            self.commodities[z[0]].update({[1]: float(z[2])})
+            self.commodities[z[0]].update({z[1]: float(z[2])})
 
 
     def enter_notify(self):
@@ -195,26 +195,24 @@ class NOInst(Institution):
             key: prototype name
             value: # to deploy
         """
+        diff = -1.0 * diff
         proto_commod = self.commodities[commod]
         min_cap = min(proto_commod.values())
-        if diff < min_cap:
-            return {}
-
         key_list = self.get_asc_key_list(proto_commod)
 
-        after = diff
+        remainder = diff
         deploy_dict = {}
         for proto in key_list:
             # if diff still smaller than the proto capacity,
-            if after > proto_commod[proto]:
+            if remainder > proto_commod[proto]:
                 # get one
                 deploy_dict[proto] = 1
                 # see what the diff is now
-                after -= proto_commod[proto]
+                remainder -= proto_commod[proto]
                 # if this is not enough, keep deploying until it's smaller than its cap
-                while after > proto_commod[proto]:
+                while remainder > proto_commod[proto]:
                     deploy_dict[proto] += 1
-                    after -= proto_commod[proto]
+                    remainder -= proto_commod[proto]
         return deploy_dict
     
 
