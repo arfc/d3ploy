@@ -220,7 +220,7 @@ class NOInst(Institution):
 
     def get_asc_key_list(self, dicti):
         key_list = [' '] * len(dicti.values())
-        sorted_caps = sorted(dicti.values())
+        sorted_caps = sorted(dicti.values(), reverse=True)
         for key, val in dicti.items():
             indx = sorted_caps.index(val)
             key_list[indx] = key

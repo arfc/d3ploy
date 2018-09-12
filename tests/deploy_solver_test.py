@@ -42,7 +42,7 @@ def deploy_solver(commod, diff):
 
 def get_asc_key_list(dicti):
     key_list = [' '] * len(dicti.values())
-    sorted_caps = sorted(dicti.values())
+    sorted_caps = sorted(dicti.values(), reverse=True)
     for key, val in dicti.items():
         indx = sorted_caps.index(val)
         key_list[indx] = key
@@ -65,10 +65,14 @@ for i in range(100):
     
     if final_diff > min(commod.values()):
         print('YA FAIL')
+        print(diff)
         print(final_diff)
         print(commod)
+        print(deploy_dict)
         raise ValueError('The difference after deployment exceeds the capacity of the smallest deployable prototype')
     else:
         print('GOOD JOB')
+        print(diff)
         print(final_diff)
+        print(deploy_dict)
         print(commod)
