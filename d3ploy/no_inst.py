@@ -131,8 +131,7 @@ class NOInst(Institution):
         self.commodities = {}
         for entry in self.temp:
             z = entry.split('_')
-            self.commodities[z[0]].update({'proto': z[1],
-                                           'cap': z[2]})
+            self.commodities[z[0]].update({[1]: float(z[2])})
 
 
     def enter_notify(self):
