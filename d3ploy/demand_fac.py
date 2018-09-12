@@ -95,4 +95,3 @@ class DemandFac(Facility):
         else:
             lib.record_time_series("demand"+self.demand_commod, self, 0.)
 
-
