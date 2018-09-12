@@ -29,7 +29,8 @@ class NOInst(Institution):
     """
 
     commodities = ts.VectorString(
-        doc="A list of commodities that the institution will manage.",
+        doc="A list of commodities that the institution will manage. " +
+            "commodity_prototype_capacity format",
         tooltip="List of commodities in the institution.",
         uilabel="Commodities",
         uitype="oneOrMore"
@@ -129,15 +130,28 @@ class NOInst(Institution):
         print('supply_std_dev: %f' %self.supply_std_dev)
         print('demand_std_dev: %f' %self.demand_std_dev)
 
+    def parse_commodities(self):
+        """ This function parses the vector of strings commodity variable
+            and replaces the variable as a dictionary. This function should be deleted
+            after the map connection is fixed."""
+        temp = copy(self.commodity)
+        self.commodities = {}
+        for entry in self.temp:
+            z = entry.split('_')
+            self.commodities[z[0]].update({[1]: float(z[2])})
+
+
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
-            for commod in self.commodities:
+            for commod, protos in self.commodities.items():
+                print(commod)
                 lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
                 self.fac_supply[commod] = {}
+                # should we just add the protoypes here?
                 self.commod_to_fac[commod] = []
             self.fresh = False
         

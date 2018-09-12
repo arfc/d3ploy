@@ -108,7 +108,7 @@
           <record>1</record>
 	        <demand_std_dev>0.0</demand_std_dev>
           <demand_eq>3*t</demand_eq>
-          <commodities><val>POWER</val><val>fuel</val></commodities>
+          <commodities><val>POWER_reactor_1</val><val>fuel_source_1</val></commodities>
           <steps>1</steps>
         </NOInst>
       </config>
