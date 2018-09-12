@@ -166,23 +166,68 @@ class NOInst(Institution):
                 continue
             diff, supply, demand = self.calc_diff(commod, time-1)
             if  diff < 0:
-                proto = random.choice(self.commod_to_fac[commod])
-                ## This is still not correct. If no facilities are present at the start of the
-                ## simulation prod_rate will still return zero. More complex fix is required.
-                if proto in self.fac_supply[commod]:
-                    prod_rate = self.fac_supply[commod][proto]
-                else:
-                    print("No facility production rate available for " + proto)
-                number = np.ceil(-1*diff/prod_rate)
-                for i in range(int(number)):
-                    self.context.schedule_build(self, proto)
-                    i += 1
+                deploy_dict = self.deploy_solver(commod, diff)
+                for proto, num in deploy_dict.items():
+                    for i in range(num):                        
+                        self.context.schedule_build(self, proto)
             if self.record:
                 out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
                 out_text += " supply " + str(self.commodity_supply[commod][time-1])
                 out_text += " demand " + str(self.commodity_demand[commod][time-1]) + "\n"
                 with open(commod +".txt", 'a') as f:
                     f.write(out_text)
+    
+        
+    def deploy_solver(self, commod, diff):
+        """ This function optimizes prototypes to deploy to minimize over
+            deployment of prototypes.
+
+        Paramters:
+        ----------
+        commod: str
+            commodity to deploy the prototypes for
+        diff: float
+            lack in supply
+        
+        Returns:
+        --------
+        deploy_dict: dict
+            key: prototype name
+            value: # to deploy
+        """
+        proto_commod = self.commodities[commod]
+        min_cap = min(proto_commod.values())
+        if diff < min_cap:
+            return {}
+
+        key_list = self.get_asc_key_list(proto_commod)
+
+        after = diff
+        deploy_dict = {}
+        for proto in key_list:
+            # if diff still smaller than the proto capacity,
+            if after > proto_commod[proto]:
+                # get one
+                deploy_dict[proto] = 1
+                # see what the diff is now
+                after -= proto_commod[proto]
+                # if this is not enough, keep deploying until it's smaller than its cap
+                while after > proto_commod[proto]:
+                    deploy_dict[proto] += 1
+                    after -= proto_commod[proto]
+        return deploy_dict
+    
+
+    def get_asc_key_list(self, dicti):
+        key_list = [' '] * len(dicti.values())
+        sorted_caps = sorted(dicti.values())
+        for key, val in dicti.items():
+            indx = sorted_caps.index(val)
+            key_list[indx] = key
+        return key_list
+
+            
+
 
     def calc_diff(self, commod, time):
         """
