@@ -107,14 +107,13 @@ class NOInst(Institution):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.commod_to_fac = {}
         self.commodity_supply = {}
         self.commodity_demand = {}
-        self.rev_commod_to_fac = {}
         self.rev_commodity_supply = {}
         self.rev_commodity_demand = {}
-        self.fac_supply = {}
         self.fresh = True
+        # this should be deleted once map is fixed
+        self.parse_commodities()
         CALC_METHODS['ma'] = self.moving_avg
         CALC_METHODS['arma'] = self.predict_arma
         CALC_METHODS['arch'] = self.predict_arch
@@ -145,25 +144,24 @@ class NOInst(Institution):
         super().enter_notify()
         if self.fresh:
             for commod, protos in self.commodities.items():
-                print(commod)
                 lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
-                self.fac_supply[commod] = {}
-                # should we just add the protoypes here?
-                self.commod_to_fac[commod] = []
             self.fresh = False
-        
+
+
     def tock(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
-        for commod, value in self.commod_to_fac.items():
-            if len(value)==0 or time==0:
+        for commod, proto_cap in self.commodities.items():
+            if time==0:
                 continue
+            if not bool(proto_cap):
+                raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
             diff, supply, demand = self.calc_diff(commod, time-1)
             if  diff < 0:
                 deploy_dict = self.deploy_solver(commod, diff)
@@ -177,6 +175,7 @@ class NOInst(Institution):
                 with open(commod +".txt", 'a') as f:
                     f.write(out_text)
     
+        
         
     def deploy_solver(self, commod, diff):
         """ This function optimizes prototypes to deploy to minimize over
@@ -224,8 +223,6 @@ class NOInst(Institution):
             key_list[indx] = key
         return key_list
 
-            
-
 
     def calc_diff(self, commod, time):
         """
@@ -243,6 +240,7 @@ class NOInst(Institution):
         demand : double
             The calculated demand of the demand commodity at [time]
         """
+        # what is this?
         if time not in self.commodity_demand[commod]:
             t = 0
             self.commodity_demand[commod][time] = eval(self.demand_eq)
@@ -287,9 +285,9 @@ class NOInst(Institution):
         """
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
-        self.fac_supply[commod][agent.prototype] = value
-        if agent.prototype not in self.commod_to_fac[commod]:
-            self.commod_to_fac[commod].append(agent.prototype)
+        # update commodities
+        self.commodities[commod] = {agent.prototype: value}
+
 
     def extract_demand(self, agent, time, value, commod):
         """
@@ -308,6 +306,7 @@ class NOInst(Institution):
         """
         commod = commod[6:]
         self.commodity_demand[commod][time] += value
+
 
     def demand_calc(self, time):
         """
