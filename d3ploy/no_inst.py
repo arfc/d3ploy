@@ -68,9 +68,9 @@ class NOInst(Institution):
     
     driving_commod = ts.String(
         doc="Sets the driving commodity for the institution. That is the " +
-            "commodity that no_inst will deploy against the demand equation."
+            "commodity that no_inst will deploy against the demand equation.",
         tooltip="Driving Commodity",
-        uilabel="Driving Commodity"
+        uilabel="Driving Commodity",
         default="POWER"
     )
 
