@@ -177,6 +177,19 @@ class NOInst(Institution):
                 for i in range(int(number)):
                     self.context.schedule_build(self, proto)
                     i += 1
+            if diff > 0:
+                proto = random.choice(self.prototypes)
+                if proto in self.fac_supply[commod]:
+                    prod_rate = self.fac_supply[commod][time]
+                number = np.floor(diff / prod_rate)
+                i = 0
+                children = self.children
+                for child in children:
+                    child.decommission()
+                    i += 1
+                    if i == number:
+                        break
+
             if self.record:
                 out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
                 out_text += " supply " + str(self.commodity_supply[commod][time-1])
