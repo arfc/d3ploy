@@ -232,7 +232,8 @@ class NOInst(Institution):
         self.commodity_supply[commod][time] += value
         self.fac_supply[commod][agent.prototype] = value
         if agent.prototype not in self.commod_to_fac[commod]:
-            self.commod_to_fac[commod].append(agent.prototype)
+            if agent.kind == 'Facility':
+                self.commod_to_fac[commod].append(agent.prototype)
 
     def extract_demand(self, agent, time, value, commod):
         """
@@ -264,8 +265,7 @@ class NOInst(Institution):
         -------
         demand : The calculated demand at a given timestep.
         """
-        timestep = self.context.dt
-        t = time * timestep
+        t = time
         demand = eval(self.demand_eq)
         return demand
 
