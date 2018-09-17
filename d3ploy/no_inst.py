@@ -117,7 +117,7 @@ class NOInst(Institution):
         CALC_METHODS['arch'] = self.predict_arch
 
     def print_variables(self):
-        print('commodities: %s' %self.commodities)
+        print('commodities: %s' %self.commodity_dict)
         print('demand_eq: %s' %self.demand_eq)
         print('calc_method: %s' %self.calc_method)
         print('record: %s' %str(self.record))
@@ -126,28 +126,27 @@ class NOInst(Institution):
         print('supply_std_dev: %f' %self.supply_std_dev)
         print('demand_std_dev: %f' %self.demand_std_dev)
 
-    def parse_commodities(self):
+    def parse_commodities(self, commodities):
         """ This function parses the vector of strings commodity variable
             and replaces the variable as a dictionary. This function should be deleted
             after the map connection is fixed."""
-        temp = self.commodities
-        self.commodities = {}
+        temp = commodities
+        commodity_dict = {}
         for entry in temp:
             z = entry.split('_')
-            if z[0] not in self.commodities.keys():
-                self.commodities[z[0]] = {}
-                self.commodities[z[0]].update({z[1]: float(z[2])})
+            if z[0] not in commodity_dict.keys():
+                commodity_dict[z[0]] = {}
+                commodity_dict[z[0]].update({z[1]: float(z[2])})
             else:
-                self.commodities[z[0]].update({z[1]: float(z[2])})
-
+                commodity_dict[z[0]].update({z[1]: float(z[2])})
+        return commodity_dict
 
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
             # convert list of strings to dictionary
-            self.parse_commodities()
-            print(self.commodities)
-            for commod, protos in self.commodities.items():
+            self.commodity_dict = self.parse_commodities(self.commodities)
+            for commod in self.commodity_dict:
                 lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
@@ -155,9 +154,6 @@ class NOInst(Institution):
             self.fresh = False
         print('entered successfully')
         self.print_variables()
-
-    def tick(self):
-        print('tick')
 
 
     def tock(self):
@@ -167,9 +163,7 @@ class NOInst(Institution):
         """
         print('tock')
         time = self.context.time
-        for commod, proto_cap in self.commodities.items():
-            print(commod)
-            print(proto_cap)
+        for commod, proto_cap in self.commodity_dict.items():
             if time==0:
                 continue
             if not bool(proto_cap):
@@ -180,6 +174,7 @@ class NOInst(Institution):
                 for proto, num in deploy_dict.items():
                     for i in range(num):                        
                         self.context.schedule_build(self, proto)
+                        print('BUILT %s' %proto)
             if self.record:
                 out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
                 out_text += " supply " + str(self.commodity_supply[commod][time-1])
@@ -196,7 +191,7 @@ class NOInst(Institution):
         Paramters:
         ----------
         commod: str
-            commodity to deploy the prototypes for
+            commodity to deploy
         diff: float
             lack in supply
         
@@ -207,7 +202,7 @@ class NOInst(Institution):
             value: # to deploy
         """
         diff = -1.0 * diff
-        proto_commod = self.commodities[commod]
+        proto_commod = self.commodity_dict[commod]
         min_cap = min(proto_commod.values())
         key_list = self.get_asc_key_list(proto_commod)
 
@@ -295,11 +290,10 @@ class NOInst(Institution):
             This is the value of the object being recorded in the time
             series.
         """
-        print('ehhhh')
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
         # update commodities
-        self.commodities[commod] = {agent.prototype: value}
+        self.commodity_dict[commod] = {agent.prototype: value}
 
     def extract_demand(self, agent, time, value, commod):
         """

@@ -112,21 +112,7 @@
           <steps>1</steps>
         </NOInst>
       </config>
-      <initialfacilitylist>
-       <entry>
-         <number>1</number>
-         <prototype>reactor</prototype>
-       </entry>
-       <entry>
-         <number>1</number>
-         <prototype>source</prototype>
-       </entry>
-       <entry>
-         <number>1</number>
-         <prototype>sink</prototype>
-       </entry>
-     </initialfacilitylist>
-      <name>source_inst</name>
+    <name>source_inst</name>
     </institution>
     <name>SingleRegion</name>
   </region>
