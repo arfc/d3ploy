@@ -112,12 +112,9 @@ class NOInst(Institution):
         self.rev_commodity_supply = {}
         self.rev_commodity_demand = {}
         self.fresh = True
-        # this should be deleted once map is fixed
-        self.parse_commodities()
         CALC_METHODS['ma'] = self.moving_avg
         CALC_METHODS['arma'] = self.predict_arma
         CALC_METHODS['arch'] = self.predict_arch
-        #self.print_variables()
 
     def print_variables(self):
         print('commodities: %s' %self.commodities)
@@ -133,22 +130,34 @@ class NOInst(Institution):
         """ This function parses the vector of strings commodity variable
             and replaces the variable as a dictionary. This function should be deleted
             after the map connection is fixed."""
-        temp = copy(self.commodity)
+        temp = self.commodities
         self.commodities = {}
-        for entry in self.temp:
+        for entry in temp:
             z = entry.split('_')
-            self.commodities[z[0]].update({z[1]: float(z[2])})
+            if z[0] not in self.commodities.keys():
+                self.commodities[z[0]] = {}
+                self.commodities[z[0]].update({z[1]: float(z[2])})
+            else:
+                self.commodities[z[0]].update({z[1]: float(z[2])})
 
 
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
+            # convert list of strings to dictionary
+            self.parse_commodities()
+            print(self.commodities)
             for commod, protos in self.commodities.items():
                 lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
             self.fresh = False
+        print('entered successfully')
+        self.print_variables()
+
+    def tick(self):
+        print('tick')
 
 
     def tock(self):
@@ -156,8 +165,11 @@ class NOInst(Institution):
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.
         """
+        print('tock')
         time = self.context.time
         for commod, proto_cap in self.commodities.items():
+            print(commod)
+            print(proto_cap)
             if time==0:
                 continue
             if not bool(proto_cap):
@@ -283,6 +295,7 @@ class NOInst(Institution):
             This is the value of the object being recorded in the time
             series.
         """
+        print('ehhhh')
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
         # update commodities
