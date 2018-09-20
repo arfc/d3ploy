@@ -191,7 +191,7 @@ class NOInst(Institution):
         Paramters:
         ----------
         commod: str
-            commodity to deploy
+            commodity driving deployment
         diff: float
             lack in supply
         
