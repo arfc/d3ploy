@@ -29,7 +29,8 @@ class NOInst(Institution):
     """
 
     commodities = ts.VectorString(
-        doc="A list of commodities that the institution will manage.",
+        doc="A list of commodities that the institution will manage. " +
+            "commodity_prototype_capacity format",
         tooltip="List of commodities in the institution.",
         uilabel="Commodities",
         uitype="oneOrMore"
@@ -68,9 +69,9 @@ class NOInst(Institution):
     
     driving_commod = ts.String(
         doc="Sets the driving commodity for the institution. That is the " +
-            "commodity that no_inst will deploy against the demand equation."
+            "commodity that no_inst will deploy against the demand equation.",
         tooltip="Driving Commodity",
-        uilabel="Driving Commodity"
+        uilabel="Driving Commodity",
         default="POWER"
     )
 
@@ -106,21 +107,17 @@ class NOInst(Institution):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.commod_to_fac = {}
         self.commodity_supply = {}
         self.commodity_demand = {}
-        self.rev_commod_to_fac = {}
         self.rev_commodity_supply = {}
         self.rev_commodity_demand = {}
-        self.fac_supply = {}
         self.fresh = True
         CALC_METHODS['ma'] = self.moving_avg
         CALC_METHODS['arma'] = self.predict_arma
         CALC_METHODS['arch'] = self.predict_arch
-        #self.print_variables()
 
     def print_variables(self):
-        print('commodities: %s' %self.commodities)
+        print('commodities: %s' %self.commodity_dict)
         print('demand_eq: %s' %self.demand_eq)
         print('calc_method: %s' %self.calc_method)
         print('record: %s' %str(self.record))
@@ -129,46 +126,106 @@ class NOInst(Institution):
         print('supply_std_dev: %f' %self.supply_std_dev)
         print('demand_std_dev: %f' %self.demand_std_dev)
 
+    def parse_commodities(self, commodities):
+        """ This function parses the vector of strings commodity variable
+            and replaces the variable as a dictionary. This function should be deleted
+            after the map connection is fixed."""
+        temp = commodities
+        commodity_dict = {}
+        for entry in temp:
+            z = entry.split('_')
+            if z[0] not in commodity_dict.keys():
+                commodity_dict[z[0]] = {}
+                commodity_dict[z[0]].update({z[1]: float(z[2])})
+            else:
+                commodity_dict[z[0]].update({z[1]: float(z[2])})
+        return commodity_dict
+
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
-            for commod in self.commodities:
+            # convert list of strings to dictionary
+            self.commodity_dict = self.parse_commodities(self.commodities)
+            for commod in self.commodity_dict:
                 lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
-                self.fac_supply[commod] = {}
-                self.commod_to_fac[commod] = []
             self.fresh = False
-        
+
+
     def tock(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
-        for commod, value in self.commod_to_fac.items():
-            if len(value)==0 or time==0:
+        for commod, proto_cap in self.commodity_dict.items():
+            if time==0:
                 continue
+            if not bool(proto_cap):
+                raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
             diff, supply, demand = self.calc_diff(commod, time-1)
             if  diff < 0:
-                proto = random.choice(self.commod_to_fac[commod])
-                ## This is still not correct. If no facilities are present at the start of the
-                ## simulation prod_rate will still return zero. More complex fix is required.
-                if proto in self.fac_supply[commod]:
-                    prod_rate = self.fac_supply[commod][proto]
-                else:
-                    print("No facility production rate available for " + proto)
-                number = np.ceil(-1*diff/prod_rate)
-                for i in range(int(number)):
-                    self.context.schedule_build(self, proto)
-                    i += 1
+                deploy_dict = self.deploy_solver(commod, diff)
+                for proto, num in deploy_dict.items():
+                    for i in range(num):                        
+                        self.context.schedule_build(self, proto)
             if self.record:
                 out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
                 out_text += " supply " + str(self.commodity_supply[commod][time-1])
                 out_text += " demand " + str(self.commodity_demand[commod][time-1]) + "\n"
                 with open(commod +".txt", 'a') as f:
                     f.write(out_text)
+    
+        
+        
+    def deploy_solver(self, commod, diff):
+        """ This function optimizes prototypes to deploy to minimize over
+            deployment of prototypes.
+
+        Paramters:
+        ----------
+        commod: str
+            commodity driving deployment
+        diff: float
+            lack in supply
+        
+        Returns:
+        --------
+        deploy_dict: dict
+            key: prototype name
+            value: # to deploy
+        """
+        diff = -1.0 * diff
+        proto_commod = self.commodity_dict[commod]
+        min_cap = min(proto_commod.values())
+        key_list = self.get_asc_key_list(proto_commod)
+
+        remainder = diff
+        deploy_dict = {}
+        for proto in key_list:
+            # if diff still smaller than the proto capacity,
+            if remainder > proto_commod[proto]:
+                # get one
+                deploy_dict[proto] = 1
+                # see what the diff is now
+                remainder -= proto_commod[proto]
+                # if this is not enough, keep deploying until it's smaller than its cap
+                while remainder > proto_commod[proto]:
+                    deploy_dict[proto] += 1
+                    remainder -= proto_commod[proto]
+        return deploy_dict
+    
+
+    def get_asc_key_list(self, dicti):
+        key_list = [' '] * len(dicti.values())
+        sorted_caps = sorted(dicti.values(), reverse=True)
+        for key, val in dicti.items():
+            indx = sorted_caps.index(val)
+            key_list[indx] = key
+        return key_list
+
 
     def calc_diff(self, commod, time):
         """
@@ -186,6 +243,7 @@ class NOInst(Institution):
         demand : double
             The calculated demand of the demand commodity at [time]
         """
+        # what is this?
         if time not in self.commodity_demand[commod]:
             t = 0
             self.commodity_demand[commod][time] = eval(self.demand_eq)
@@ -230,9 +288,8 @@ class NOInst(Institution):
         """
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
-        self.fac_supply[commod][agent.prototype] = value
-        if agent.prototype not in self.commod_to_fac[commod]:
-            self.commod_to_fac[commod].append(agent.prototype)
+        # update commodities
+        self.commodity_dict[commod] = {agent.prototype: value}
 
     def extract_demand(self, agent, time, value, commod):
         """
@@ -252,6 +309,7 @@ class NOInst(Institution):
         commod = commod[6:]
         self.commodity_demand[commod][time] += value
 
+
     def demand_calc(self, time):
         """
         Calculate the electrical demand at a given timestep (time).
@@ -264,8 +322,7 @@ class NOInst(Institution):
         -------
         demand : The calculated demand at a given timestep.
         """
-        timestep = self.context.dt
-        t = time * timestep
+        t = time
         demand = eval(self.demand_eq)
         return demand
 
