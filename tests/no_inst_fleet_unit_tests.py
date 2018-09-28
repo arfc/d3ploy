@@ -22,6 +22,9 @@ hit_list = glob.glob('*.sqlite') + glob.glob('*.json')
 for file in hit_list:
     os.remove(file)
 
+ENV = dict(os.environ)
+ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
+
 
 def get_cursor(file_name):
     """ Connects and returns a cursor to an sqlite output file
@@ -39,9 +42,6 @@ def get_cursor(file_name):
     con.row_factory = lite.Row
     return con.cursor()
 
-
-# The TEMPLATE is a dictionary of all simulation parameters
-# except the region-institution definition which is unique for each test 
 TEMPLATE = {
     "simulation": {
         "archetypes": {
@@ -53,7 +53,7 @@ TEMPLATE = {
                 {"lib": "d3ploy.no_inst", "name": "NOInst"}
             ]
         },
-        "control": {"duration": "1000", "startmonth": "1", "startyear": "2000"},
+        "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
         "recipe": [
             {
                 "basis": "mass",
@@ -67,13 +67,13 @@ TEMPLATE = {
             }
         ],
         "facility": [{
-            "config": {"Source": {"outcommod": "fresh_fuel",
+            "config": {"Source": {"outcommod": "fuel",
                                   "outrecipe": "fresh_uox",
-                                  "throughput": "1000"}},
+                                  "throughput": "3000"}},
             "name": "source"
         },
             {
-            "config": {"Sink": {"in_commods": {"val": "spent_fuel"},
+            "config": {"Sink": {"in_commods": {"val": "spentfuel"},
                                 "max_inv_size": "1e6"}},
             "name": "sink"
         },
@@ -81,23 +81,21 @@ TEMPLATE = {
             "config": {
                 "Reactor": {
                     "assem_size": "1000",
-                    "cycle_time": "18",
-                    "fuel_incommods": {"val": "fresh_fuel"},
+                    "cycle_time": "1",
+                    "fuel_incommods": {"val": "fuel"},
                     "fuel_inrecipes": {"val": "fresh_uox"},
-                    "fuel_outcommods": {"val": "spent_fuel"},
+                    "fuel_outcommods": {"val": "spentfuel"},
                     "fuel_outrecipes": {"val": "spent_uox"},
                     "n_assem_batch": "1",
                     "n_assem_core": "3",
                     "power_cap": "1000",
                     "refuel_time": "1",
-                    "reactor_fuel_demand": "fuel_reactor"
                 }
             },
             "name": "reactor"
         }]
     }
 }
-
 
 """ 
 Test naming convention
@@ -116,14 +114,12 @@ Numbering
     are numbered 
 """
 
-
 """ TOLERANCES """
 # No. of timesteps accepted for supply to catch up with initial demand
 catchup_tolerance = 12 
 
 # Acceptable percentage difference diff btwn supply and demand
-facility_tolerance = 10 #[%]
-
+facility_tolerance = 20 #[%]
 
 def demand_curve(initial_demand,growth_rate,time_point):
     """ Uses initial demand, growth rate and list of timesteps to 
@@ -145,7 +141,7 @@ def demand_curve(initial_demand,growth_rate,time_point):
 
 def supply_within_demand_range(sql_file):  
     # getting the sqlite file
-    cur = get_cursor('test_a_const_1_file.sqlite')
+    cur = get_cursor(sql_file)
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
     fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
@@ -162,8 +158,7 @@ def supply_within_demand_range(sql_file):
             num = num + 1
         else: 
             num = num+0 
-    return num 
-
+    return num
 
 #######################TEST_A_Constant_1####################################
 """ 
@@ -179,12 +174,12 @@ test_a_const_1_template["simulation"].update({"region": {
     "institution": {
         "config": {
             "NOInst": {
-                "calc_method": "arma", 
-                "commodities": {"val": ["fuel"]}, 
-                "demand_std_dev": "1.0", 
-                "growth_rate": "1.0", 
-                "initial_demand": "1000", 
-                "record": "1", 
+                "calc_method": "arma",
+                "commodities": {"val": ["fuel_source_3000"]},
+                "driving_commod": "fuel",
+                "demand_std_dev": "1.0",
+                "demand_eq": "10000",
+                "record": "1",
                 "steps": "1"
             }
         },
@@ -212,7 +207,6 @@ def test_a_const_1():
 
 ##############################################################################
 
-
 ############################TEST_A_Grow_1#####################################
 """ Test a-growth-1 
         - [A]: facility - source, demand-driving commodity - fresh fuel 
@@ -227,10 +221,10 @@ test_a_grow_1_temp["simulation"].update({"region": {
         "config": {
             "NOInst": {
                 "calc_method": "arma", 
-                "commodities": {"val": ["fuel"]}, 
+                "commodities": {"val": ["fuel_source_3000"]}, 
+                "driving_commod": "fuel",
                 "demand_std_dev": "1.0", 
-                "growth_rate": "1.0", 
-                "initial_demand": "10000", 
+                "demand_eq": "100*t", 
                 "record": "1", 
                 "steps": "1"
             }
@@ -247,7 +241,7 @@ def test_a_grow_1():
     output_file = 'test_a_grow_1_file.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
     with open(input_file, 'w') as f:
-        json.dump(test_a_grow_1_template, f)
+        json.dump(test_a_grow_1_temp, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
     # check if ran successfully
@@ -272,12 +266,12 @@ test_a_grow_2_temp["simulation"].update({"region": {
     "institution": {
         "config": {
             "NOInst": {
-                "calc_method": "arma", 
-                "commodities": {"val": ["fuel"]}, 
-                "demand_std_dev": "1.0", 
-                "growth_rate": "1.0", 
-                "initial_demand": "0", 
-                "record": "1", 
+                "calc_method": "arma",
+                "commodities": {"val": ["fuel_source_3000"]},
+                "driving_commod": "fuel",
+                "demand_std_dev": "1.0",
+                "demand_eq": "10*(1+0.1)**(t/12)",
+                "record": "1",
                 "steps": "1"
             }
         },
@@ -290,17 +284,17 @@ test_a_grow_2_temp["simulation"].update({"region": {
 
 # actual test part
 def test_a_grow_2():
-    output_file = 'test_a_grow_1_file.sqlite'
+    output_file = 'test_a_grow_2_file.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
     with open(input_file, 'w') as f:
-        json.dump(test_a_grow_2_template, f)
+        json.dump(test_a_grow_2_temp, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    number_within_tolerance = supply_within_demand_range('test_a_grow_1_file.sqlite')
+    number_within_tolerance = supply_within_demand_range('test_a_grow_2_file.sqlite')
     assert(number_within_tolerance == 0)
 
-#######################################################################################    
+#######################################################################################             
