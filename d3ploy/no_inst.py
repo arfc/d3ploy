@@ -160,14 +160,22 @@ class NOInst(Institution):
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
+        print('tock',time)
         for commod, proto_cap in self.commodity_dict.items():
             if time==0:
                 continue
             if not bool(proto_cap):
                 raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
+            #print('commodity_demand',self.commodity_demand)
+            #print('commodity_supply',self.commodity_supply)
             diff, supply, demand = self.calc_diff(commod, time-1)
+            #print('1commodity_demand',self.commodity_demand)
+            #print('1commodity_supply',self.commodity_supply)
+            print('diff',diff)
+            print('supply',supply)
             if  diff < 0:
                 deploy_dict = self.deploy_solver(commod, diff)
+                print('deploy dict',deploy_dict)
                 for proto, num in deploy_dict.items():
                     for i in range(num):                        
                         self.context.schedule_build(self, proto)
@@ -243,13 +251,8 @@ class NOInst(Institution):
         demand : double
             The calculated demand of the demand commodity at [time]
         """
-        # what is this?
-        if time not in self.commodity_demand[commod]:
-            t = 0
-            self.commodity_demand[commod][time] = eval(self.demand_eq)
-        if time not in self.commodity_supply[commod]:
-            t = 0
-            self.commodity_supply[commod][time] = eval(self.demand_eq)
+        #print('commodity_demand',self.commodity_demand)
+        #print('commodity_supply',self.commodity_supply)
         try:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     steps = self.steps,
@@ -268,6 +271,9 @@ class NOInst(Institution):
                                                     back_steps=self.back_steps)
         except (np.linalg.linalg.LinAlgError, ValueError):
             demand = CALC_METHODS['ma'](self.commodity_demand[commod])
+        print(commod)
+        print('inside supply',supply)
+        print('inside demand',demand)
         diff = supply - demand
         return diff, supply, demand
 
@@ -324,6 +330,7 @@ class NOInst(Institution):
         """
         t = time
         demand = eval(self.demand_eq)
+        print('demand',demand)
         return demand
 
     def moving_avg(self, ts, steps=1, std_dev = 0, back_steps=5):
