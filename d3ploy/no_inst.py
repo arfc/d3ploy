@@ -177,9 +177,8 @@ class NOInst(Institution):
                 out_text += " demand " + str(self.commodity_demand[commod][time-1]) + "\n"
                 with open(commod +".txt", 'a') as f:
                     f.write(out_text)
-    
-        
-        
+
+
     def deploy_solver(self, commod, diff):
         """ This function optimizes prototypes to deploy to minimize over
             deployment of prototypes.
@@ -190,7 +189,7 @@ class NOInst(Institution):
             commodity driving deployment
         diff: float
             lack in supply
-        
+
         Returns:
         --------
         deploy_dict: dict
@@ -200,12 +199,13 @@ class NOInst(Institution):
         diff = -1.0 * diff
         proto_commod = self.commodity_dict[commod]
         min_cap = min(proto_commod.values())
-        key_list = self.get_asc_key_list(proto_commod)
-
+        key_list = self.get_asc_key_list(self, proto_commod)
         remainder = diff
         deploy_dict = {}
         for proto in key_list:
             # if diff still smaller than the proto capacity,
+            print(remainder)
+            print(proto_commod[proto])
             if remainder > proto_commod[proto]:
                 # get one
                 deploy_dict[proto] = 1
@@ -216,7 +216,7 @@ class NOInst(Institution):
                     deploy_dict[proto] += 1
                     remainder -= proto_commod[proto]
         return deploy_dict
-    
+
 
     def get_asc_key_list(self, dicti):
         key_list = [' '] * len(dicti.values())
