@@ -152,8 +152,6 @@ class NOInst(Institution):
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
             self.fresh = False
-        print('entered successfully')
-        self.print_variables()
 
 
     def tock(self):
@@ -161,7 +159,6 @@ class NOInst(Institution):
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.
         """
-        print('tock')
         time = self.context.time
         for commod, proto_cap in self.commodity_dict.items():
             if time==0:
@@ -174,7 +171,6 @@ class NOInst(Institution):
                 for proto, num in deploy_dict.items():
                     for i in range(num):                        
                         self.context.schedule_build(self, proto)
-                        print('BUILT %s' %proto)
             if self.record:
                 out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
                 out_text += " supply " + str(self.commodity_supply[commod][time-1])
@@ -210,7 +206,7 @@ class NOInst(Institution):
         deploy_dict = {}
         for proto in key_list:
             # if diff still smaller than the proto capacity,
-            if remainder > proto_commod[proto]:
+            if remainder >= proto_commod[proto]:
                 # get one
                 deploy_dict[proto] = 1
                 # see what the diff is now
@@ -247,13 +243,11 @@ class NOInst(Institution):
         demand : double
             The calculated demand of the demand commodity at [time]
         """
-        # what is this?
         if time not in self.commodity_demand[commod]:
             t = 0
             self.commodity_demand[commod][time] = eval(self.demand_eq)
         if time not in self.commodity_supply[commod]:
-            t = 0
-            self.commodity_supply[commod][time] = eval(self.demand_eq)
+            self.commodity_supply[commod][time] = 0
         try:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     steps = self.steps,
