@@ -204,9 +204,8 @@ class NOInst(Institution):
         deploy_dict = {}
         for proto in key_list:
             # if diff still smaller than the proto capacity,
-            print(remainder)
-            print(proto_commod[proto])
-            if remainder > proto_commod[proto]:
+            if remainder >= proto_commod[proto]:
+
                 # get one
                 deploy_dict[proto] = 1
                 # see what the diff is now
@@ -243,13 +242,11 @@ class NOInst(Institution):
         demand : double
             The calculated demand of the demand commodity at [time]
         """
-        # what is this?
         if time not in self.commodity_demand[commod]:
             t = 0
             self.commodity_demand[commod][time] = eval(self.demand_eq)
         if time not in self.commodity_supply[commod]:
-            t = 0
-            self.commodity_supply[commod][time] = eval(self.demand_eq)
+            self.commodity_supply[commod][time] = 0
         try:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     steps = self.steps,
