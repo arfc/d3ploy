@@ -243,8 +243,6 @@ class NOInst(Institution):
         demand : double
             The calculated demand of the demand commodity at [time]
         """
-        #print('commodity_demand',self.commodity_demand)
-        #print('commodity_supply',self.commodity_supply)
         if time not in self.commodity_demand[commod]:
             t = 0
             self.commodity_demand[commod][time] = eval(self.demand_eq)
