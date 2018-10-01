@@ -322,7 +322,6 @@ class NOInst(Institution):
         """
         t = time
         demand = eval(self.demand_eq)
-        #print('demand',demand)
         return demand
 
     def moving_avg(self, ts, steps=1, std_dev = 0, back_steps=5):
