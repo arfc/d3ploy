@@ -24,7 +24,7 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda install -c anaconda jinja2 matplotlib scipy numpy cython pytest pandas
+  - conda install -c anaconda jinja2 matplotlib scipy numpy cython pytest pandas h5py
 
   - git clone http://github.com/flanflanagan/cyclus -b time_series
   - git clone http://github.com/flanflanagan/cycamore -b d3ploy_update
