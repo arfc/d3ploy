@@ -183,7 +183,6 @@ class NOInst(Institution):
     def deploy_solver(self, commod, diff):
         """ This function optimizes prototypes to deploy to minimize over
             deployment of prototypes.
-
         Paramters:
         ----------
         commod: str
@@ -206,7 +205,7 @@ class NOInst(Institution):
         deploy_dict = {}
         for proto in key_list:
             # if diff still smaller than the proto capacity,
-            if remainder > proto_commod[proto]:
+            if remainder >= proto_commod[proto]:
                 # get one
                 deploy_dict[proto] = 1
                 # see what the diff is now
@@ -243,13 +242,11 @@ class NOInst(Institution):
         demand : double
             The calculated demand of the demand commodity at [time]
         """
-        # what is this?
         if time not in self.commodity_demand[commod]:
             t = 0
             self.commodity_demand[commod][time] = eval(self.demand_eq)
         if time not in self.commodity_supply[commod]:
-            t = 0
-            self.commodity_supply[commod][time] = eval(self.demand_eq)
+            self.commodity_supply[commod][time] = 0
         try:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     steps = self.steps,
@@ -275,7 +272,6 @@ class NOInst(Institution):
         """
         Gather information on the available supply of a commodity over the
         lifetime of the simulation.
-
         Parameters
         ----------
         agent : cyclus agent
@@ -295,7 +291,6 @@ class NOInst(Institution):
         """
         Gather information on the demand of a commodity over the
         lifetime of the simulation.
-
         Parameters
         ----------
         agent : cyclus agent
@@ -313,7 +308,6 @@ class NOInst(Institution):
     def demand_calc(self, time):
         """
         Calculate the electrical demand at a given timestep (time).
-
         Parameters
         ----------
         time : int
@@ -331,7 +325,6 @@ class NOInst(Institution):
         Calculates the moving average of a previous [order] entries in
         timeseries [ts]. It will automatically reduce the order if the
         length of ts is shorter than the order.
-
         Parameters:
         -----------
         ts : Array of doubles
@@ -355,7 +348,6 @@ class NOInst(Institution):
         Predict the value of supply or demand at a given time step using the
         currently available time series data. This method impliments an ARMA
         calculation to perform the prediciton.
-
         Parameters:
         -----------
         ts : Array of doubles
@@ -387,4 +379,3 @@ class NOInst(Institution):
         x = forecast.mean.get(step)[len(v)-steps]
         sd = math.sqrt(forecast.variance.get(step)[len(v)-steps]) * std_dev
         return x+sd
-
