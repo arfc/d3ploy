@@ -39,6 +39,7 @@ install:
   - conda install -c anaconda numpy
   - conda install -c anaconda cython
   - conda install -c anaconda pytest
+  - conda install -c anaconda pandas
 
   - git clone http://github.com/flanflanagan/cyclus -b time_series
   - git clone http://github.com/flanflanagan/cycamore -b d3ploy_update
