@@ -1,0 +1,57 @@
+language: python
+python:
+  - 2.7
+  - 3.6
+
+# Setup anaconda
+install:
+  - sudo apt-get install libhdf5-serial-dev
+  - sudo apt-get install gfortran
+  - sudo apt-get install gcc
+  - sudo apt-get install build-essential
+  - sudo apt-get install cmake
+  - sudo apt-get install libblas-dev
+  - sudo apt-get install liblapack-dev
+  - sudo apt-get install git
+  - sudo apt-get update
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+      sudo apt-get install -y cmake make libboost-all-dev libxml2-dev libxml++2.6-dev \
+        libsqlite3-dev libhdf5-serial-dev libbz2-dev coinor-libcbc-dev coinor-libcoinutils-dev \
+        coinor-libosi-dev coinor-libclp-dev coinor-libcgl-dev libblas-dev liblapack-dev g++ \
+        libgoogle-perftools-dev python-dev python-tables python-pandas python-numpy python-nose \
+        python-jinja2 cython
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+      sudo apt-get install -y cmake make libboost-all-dev libxml2-dev libxml++2.6-dev \
+        libsqlite3-dev libhdf5-serial-dev libbz2-dev coinor-libcbc-dev coinor-libcoinutils-dev \
+        coinor-libosi-dev coinor-libclp-dev coinor-libcgl-dev libblas-dev liblapack-dev g++ \
+        libgoogle-perftools-dev python3-dev python3-tables python3-pandas python3-numpy python3-nose \
+        python3-jinja2 cython3
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - conda install -c conda-forge pyne 
+  - conda install -c anaconda jinja2
+  - conda install -c anaconda matplotlib
+  - conda install -c anaconda numpy
+  - conda install -c anaconda scipy
+  - conda install -c anaconda numpy
+  - conda install -c anaconda cython
+  - conda install -c anaconda pytest
+
+  - git clone http://github.com/flanflanagan/cyclus -b time_series
+  - git clone http://github.com/flanflanagan/cycamore -b d3ploy_update
+  - python ./cyclus/install.py
+  - python ./cycamore/install.py
+
+  - python ./setup.py install
+
+# command to run tests
+#script:
+#  - 
