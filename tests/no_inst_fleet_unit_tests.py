@@ -186,9 +186,7 @@ test_a_const_1_template["simulation"].update({"region": {
         "name": "source_inst"
     },
     "name": "SingleRegion"
-}
-}
-)
+}})
 
 # actual test part
 def test_a_const_1():
@@ -232,9 +230,7 @@ test_a_grow_1_temp["simulation"].update({"region": {
         "name": "source_inst"
     },
     "name": "SingleRegion"
-}
-}
-)
+}})
 
 # actual test part
 def test_a_grow_1():
@@ -278,9 +274,7 @@ test_a_grow_2_temp["simulation"].update({"region": {
         "name": "source_inst"
     },
     "name": "SingleRegion"
-}
-}
-)
+}})
 
 # actual test part
 def test_a_grow_2():
