@@ -5,14 +5,7 @@ python:
 
 # Setup anaconda
 install:
-  - sudo apt-get install libhdf5-serial-dev
-  - sudo apt-get install gfortran
-  - sudo apt-get install gcc
-  - sudo apt-get install build-essential
-  - sudo apt-get install cmake
-  - sudo apt-get install libblas-dev
-  - sudo apt-get install liblapack-dev
-  - sudo apt-get install git
+  - sudo apt-get install libhdf5-serial-dev gfortran gcc build-essentialcmake libblas-dev liblapack-dev git
   - sudo apt-get update
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
       wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
