@@ -125,4 +125,4 @@ def test_cont_integ():
     power_demand = cur.execute("select time, sum(value) from timeseriespower group by time").fetchall()
     power_supply = cur.execute("select time, sum(value) from timeseriessupplypower group by time").fetchall()
     total = fuel_demand[0][0]+fuel_supply[0][0]+power_demand[0][0]+power_supply[0][0] 
-    assert(fuel_supply[0][0] >= 0)
+    assert(total >= 0)
