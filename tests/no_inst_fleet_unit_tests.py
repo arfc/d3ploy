@@ -160,6 +160,35 @@ def supply_within_demand_range(sql_file):
             num = num+0 
     return num
 
+def plot_demand_supply(sqlite):
+    cur = get_cursor(sqlite)
+    fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfreshfuel group by time").fetchall()
+    fuel_demand = cur.execute("select time, sum(value) from timeseriesdemandfreshfuel group by time").fetchall() 
+    dict_supply = {}
+    dict_demand = {}
+    for x in range(0,len(fuel_supply)):
+        dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
+    for x in range(0,len(fuel_demand)):
+        dict_demand[fuel_demand[x][0]] = fuel_demand[x][1]
+    fig, ax = plt.subplots(figsize=(15, 7))
+    ax.plot(*zip(*sorted(dict_fuel_supply.items())),'*',label = 'Supply')
+    ax.plot(*zip(*sorted(dict_fuel_demand.items())),'.',label = 'Demand')
+    ax.grid()
+    ax.set_xlabel('Time (month timestep)', fontsize=14)
+    ax.set_ylabel('Mass (kg)' , fontsize=14)
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(
+            handles,
+            labels,
+            fontsize=13,
+            loc='upper center',
+            bbox_to_anchor=(
+                0.9,
+                1.0),
+            fancybox=True)
+    ax.set_title('Fuel Demand Supply plot')
+    plt.savefig('try.png', dpi=300)
+
 #######################TEST_A_Constant_1####################################
 """ 
 Test A-Constant-1 
@@ -202,6 +231,7 @@ def test_a_const_1():
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
     number_within_tolerance = supply_within_demand_range('test_a_const_1_file.sqlite')
     assert(number_within_tolerance == 0)
+    plot_demand_supply('test_a_const_1_file.sqlite')
 
 ##############################################################################
 
