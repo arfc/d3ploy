@@ -13,6 +13,7 @@ import pytest
 import copy
 import glob
 import sys
+from matplotlib import pyplot as plt
 
 from nose.tools import assert_in, assert_true, assert_equals
 
@@ -171,8 +172,8 @@ def plot_demand_supply(sqlite):
     for x in range(0,len(fuel_demand)):
         dict_demand[fuel_demand[x][0]] = fuel_demand[x][1]
     fig, ax = plt.subplots(figsize=(15, 7))
-    ax.plot(*zip(*sorted(dict_fuel_supply.items())),'*',label = 'Supply')
-    ax.plot(*zip(*sorted(dict_fuel_demand.items())),'.',label = 'Demand')
+    ax.plot(*zip(*sorted(dict_supply.items())),'*',label = 'Supply')
+    ax.plot(*zip(*sorted(dict_demand.items())),'.',label = 'Demand')
     ax.grid()
     ax.set_xlabel('Time (month timestep)', fontsize=14)
     ax.set_ylabel('Mass (kg)' , fontsize=14)
@@ -228,10 +229,12 @@ def test_a_const_1():
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
+    # plot 
+    plot_demand_supply('test_a_const_1_file.sqlite')
+
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
     number_within_tolerance = supply_within_demand_range('test_a_const_1_file.sqlite')
     assert(number_within_tolerance == 0)
-    plot_demand_supply('test_a_const_1_file.sqlite')
 
 ##############################################################################
 
