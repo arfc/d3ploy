@@ -12,6 +12,7 @@ import math
 from collections import defaultdict
 import numpy as np
 import scipy as sp
+from solver import * as solver
 
 from cyclus.agents import Institution, Agent
 from cyclus import lib
@@ -66,7 +67,7 @@ class NOInst(Institution):
         uilabel="Record to Text",
         default=False
     )
-    
+
     driving_commod = ts.String(
         doc="Sets the driving commodity for the institution. That is the " +
             "commodity that no_inst will deploy against the demand equation.",
@@ -167,9 +168,9 @@ class NOInst(Institution):
                 raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
             diff, supply, demand = self.calc_diff(commod, time-1)
             if  diff < 0:
-                deploy_dict = self.deploy_solver(commod, diff)
+                deploy_dict = solver.deploy_solver(self.commodity_dict, commod, diff)
                 for proto, num in deploy_dict.items():
-                    for i in range(num):                        
+                    for i in range(num):
                         self.context.schedule_build(self, proto)
             if self.record:
                 out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
@@ -177,53 +178,6 @@ class NOInst(Institution):
                 out_text += " demand " + str(self.commodity_demand[commod][time-1]) + "\n"
                 with open(commod +".txt", 'a') as f:
                     f.write(out_text)
-    
-        
-        
-    def deploy_solver(self, commod, diff):
-        """ This function optimizes prototypes to deploy to minimize over
-            deployment of prototypes.
-        Paramters:
-        ----------
-        commod: str
-            commodity driving deployment
-        diff: float
-            lack in supply
-        
-        Returns:
-        --------
-        deploy_dict: dict
-            key: prototype name
-            value: # to deploy
-        """
-        diff = -1.0 * diff
-        proto_commod = self.commodity_dict[commod]
-        min_cap = min(proto_commod.values())
-        key_list = self.get_asc_key_list(proto_commod)
-
-        remainder = diff
-        deploy_dict = {}
-        for proto in key_list:
-            # if diff still smaller than the proto capacity,
-            if remainder >= proto_commod[proto]:
-                # get one
-                deploy_dict[proto] = 1
-                # see what the diff is now
-                remainder -= proto_commod[proto]
-                # if this is not enough, keep deploying until it's smaller than its cap
-                while remainder > proto_commod[proto]:
-                    deploy_dict[proto] += 1
-                    remainder -= proto_commod[proto]
-        return deploy_dict
-    
-
-    def get_asc_key_list(self, dicti):
-        key_list = [' '] * len(dicti.values())
-        sorted_caps = sorted(dicti.values(), reverse=True)
-        for key, val in dicti.items():
-            indx = sorted_caps.index(val)
-            key_list[indx] = key
-        return key_list
 
 
     def calc_diff(self, commod, time):
