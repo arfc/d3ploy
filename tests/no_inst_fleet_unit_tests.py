@@ -14,12 +14,13 @@ import copy
 import glob
 import sys
 from matplotlib import pyplot as plt
+import numpy as np
 
 from nose.tools import assert_in, assert_true, assert_equals
 
 # Delete previously generated files
 direc = os.listdir('./')
-hit_list = glob.glob('*.sqlite') + glob.glob('*.json')
+hit_list = glob.glob('*.sqlite') + glob.glob('*.json') + glob.glob('*.png')
 for file in hit_list:
     os.remove(file)
 
@@ -74,26 +75,9 @@ TEMPLATE = {
             "name": "source"
         },
             {
-            "config": {"Sink": {"in_commods": {"val": "spentfuel"},
+            "config": {"Sink": {"in_commods": {"val": "fuel"},
                                 "max_inv_size": "1e6"}},
             "name": "sink"
-        },
-            {
-            "config": {
-                "Reactor": {
-                    "assem_size": "1000",
-                    "cycle_time": "1",
-                    "fuel_incommods": {"val": "fuel"},
-                    "fuel_inrecipes": {"val": "fresh_uox"},
-                    "fuel_outcommods": {"val": "spentfuel"},
-                    "fuel_outrecipes": {"val": "spent_uox"},
-                    "n_assem_batch": "1",
-                    "n_assem_core": "3",
-                    "power_cap": "1000",
-                    "refuel_time": "1",
-                }
-            },
-            "name": "reactor"
         }]
     }
 }
@@ -161,19 +145,22 @@ def supply_within_demand_range(sql_file):
             num = num+0 
     return num
 
-def plot_demand_supply(sqlite):
+def plot_demand_supply(sqlite,demand,test):
     cur = get_cursor(sqlite)
-    fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfreshfuel group by time").fetchall()
-    fuel_demand = cur.execute("select time, sum(value) from timeseriesdemandfreshfuel group by time").fetchall() 
+    fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
     dict_supply = {}
-    dict_demand = {}
     for x in range(0,len(fuel_supply)):
         dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
-    for x in range(0,len(fuel_demand)):
-        dict_demand[fuel_demand[x][0]] = fuel_demand[x][1]
+    t = np.fromiter(dict_supply.keys(),dtype=float)
+    fuel_demand = eval(demand)
+    print(fuel_demand)
+    if isinstance(fuel_demand,int):
+        print('hi')
+        fuel_demand = fuel_demand*np.ones(len(t))
+
     fig, ax = plt.subplots(figsize=(15, 7))
     ax.plot(*zip(*sorted(dict_supply.items())),'*',label = 'Supply')
-    ax.plot(*zip(*sorted(dict_demand.items())),'.',label = 'Demand')
+    ax.plot(t,fuel_demand,'*',label='Demand')
     ax.grid()
     ax.set_xlabel('Time (month timestep)', fontsize=14)
     ax.set_ylabel('Mass (kg)' , fontsize=14)
@@ -188,7 +175,7 @@ def plot_demand_supply(sqlite):
                 1.0),
             fancybox=True)
     ax.set_title('Fuel Demand Supply plot')
-    plt.savefig('try.png', dpi=300)
+    plt.savefig(test, dpi=300)
 
 #######################TEST_A_Constant_1####################################
 """ 
@@ -230,7 +217,7 @@ def test_a_const_1():
     assert("Cyclus run successful!" in s)
 
     # plot 
-    plot_demand_supply('test_a_const_1_file.sqlite')
+    plot_demand_supply('test_a_const_1_file.sqlite','10000','a-const-1')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
     number_within_tolerance = supply_within_demand_range('test_a_const_1_file.sqlite')
@@ -276,6 +263,9 @@ def test_a_grow_1():
     # check if ran successfully
     assert("Cyclus run successful!" in s)
 
+    # plot 
+    plot_demand_supply('test_a_grow_1_file.sqlite','100*t','a-grow-1')
+
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
     number_within_tolerance = supply_within_demand_range('test_a_grow_1_file.sqlite')
     assert(number_within_tolerance == 0)
@@ -319,6 +309,9 @@ def test_a_grow_2():
                                 universal_newlines=True, env=ENV)
     # check if ran successfully
     assert("Cyclus run successful!" in s)
+
+    # plot 
+    plot_demand_supply('test_a_grow_2_file.sqlite','10*(1+0.1)**(t/12)','a-grow-2')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
     number_within_tolerance = supply_within_demand_range('test_a_grow_2_file.sqlite')
