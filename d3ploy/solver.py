@@ -52,7 +52,19 @@ def deploy_solver(commodity_dict, commod, diff):
             while remainder > proto_commod[proto]:
                 deploy_dict[proto] += 1
                 remainder -= proto_commod[proto]
+
+    for proto in list(reversed(key_list)):
+        # see if the prototype cap is bigger than remainder
+        if remainder > proto_commod[proto]:
+            continue
+        if proto in deploy_dict.keys():
+            deploy_dict[proto] += 1
+        else:
+            deploy_dict[proto] = 1
+        break
+    
     return deploy_dict
+
 
 def get_asc_key_list(dicti):
     """ This function sorts keys in ascending order
