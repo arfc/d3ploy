@@ -26,7 +26,7 @@ install:
   - conda info -a
   - conda install -c anaconda jinja2 matplotlib scipy numpy cython pytest pandas h5py
 
-  - git clone http://github.com/flanflanagan/cyclus -b time_series
+  - git clone http://github.com/cyclus/cyclus
   - git clone http://github.com/flanflanagan/cycamore -b d3ploy_update
   - python ./cyclus/install.py
   - python ./cycamore/install.py
