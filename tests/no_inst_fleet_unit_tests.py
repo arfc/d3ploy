@@ -78,6 +78,23 @@ TEMPLATE = {
             "config": {"Sink": {"in_commods": {"val": "fuel"},
                                 "max_inv_size": "1e6"}},
             "name": "sink"
+        },
+        {
+            "config": {
+                "Reactor": {
+                    "assem_size": "1000",
+                    "cycle_time": "1",
+                    "fuel_incommods": {"val": "fuel"},
+                    "fuel_inrecipes": {"val": "fresh_uox"},
+                    "fuel_outcommods": {"val": "spentfuel"},
+                    "fuel_outrecipes": {"val": "spent_uox"},
+                    "n_assem_batch": "1",
+                    "n_assem_core": "3",
+                    "power_cap": "1000",
+                    "refuel_time": "1",
+                }
+            },
+            "name": "reactor"
         }]
     }
 }
