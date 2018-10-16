@@ -18,12 +18,9 @@ def test_deploy_solver():
         deploy_dict = solver.deploy_solver({'commod':commod}, 'commod', diff)
         # actually deploy and see if it's good
         final_diff = diff
-        print(commodity_dict)
         for key, val in deploy_dict.items():
             final_diff += val * commod[key]
 
-        print(final_diff)
-        print(deploy_dict)
         if final_diff > min(commod.values()):
             raise ValueError('The difference after deployment exceeds the capacity of the smallest deployable prototype')
         
