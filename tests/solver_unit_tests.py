@@ -2,11 +2,7 @@ import random
 import sys
 import os
 import pytest
-dirname = os.path.dirname(os.path.abspath(__file__))
-dirname = dirname.split('/tests')[0]
-dirname = dirname + '/d3ploy'
-sys.path.append(dirname)
-import solver
+import d3ploy.solver as solver
 
 
 def test_deploy_solver():
