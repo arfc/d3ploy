@@ -28,13 +28,8 @@ install:
 
   - git clone http://github.com/cyclus/cyclus
   - git clone http://github.com/cyclus/cycamore
-  - cd cyclus
-  - python install.py --clean-build
-  - cd
-  - cd cycamore
-  - python install.py --clean-build
-#  - python ./cyclus/install.py
-#  - python ./cycamore/install.py
+  - python ./cyclus/install.py --core-version 9999.999
+  - python ./cycamore/install.py
 
   - python ./setup.py install
 
