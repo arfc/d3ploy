@@ -1,5 +1,5 @@
 """
-The Non-Optimizing institution uses ARMA and ARCH to determine the
+The Non-Optimizing region uses ARMA and ARCH to determine the 
 supply and demand of a commodity. It uses this information to determine
 the deployment of the supply side agent. Information use to determine the
 deployment is taken from the t-1 time step. This information predicts supply
@@ -13,7 +13,7 @@ from collections import defaultdict
 import numpy as np
 import scipy as sp
 
-from cyclus.agents import Institution, Agent
+from cyclus.agents import Region, Agent
 from cyclus import lib
 import cyclus.typesystem as ts
 
@@ -22,33 +22,32 @@ from arch import arch_model
 
 CALC_METHODS = {}
 
-class NOInst(Institution):
+class NOInst(Region):
     """
-    This institution deploys facilities based on demand curves using
-    Non Optimizing (NO) methods.
+    This region deploys facilities based on demand curves using 
+    Non Optimizing (NO) methods. 
     """
 
     commodities = ts.VectorString(
-        doc="A list of commodities that the institution will manage. " +
-            "commodity_prototype_capacity format",
-        tooltip="List of commodities in the institution.",
-        uilabel="Commodities",
-        uitype="oneOrMore"
-    )
-
-    reverse_commodities = ts.VectorString(
         doc="A list of commodities that the institution will manage.",
         tooltip="List of commodities in the institution.",
-        uilabel="Reversed Commodities",
-        uitype="oneOrMore",
-        default=[]
+        uilabel="Commodities",
+        uitype="oneOrMore"    
     )
 
-    demand_eq = ts.String(
-        doc="This is the string for the demand equation of the driving commodity. " +
-              "The equation should use `t' as the dependent variable",
-        tooltip="Demand equation for driving commodity",
-        uilabel="Demand Equation")
+    growth_rate = ts.Double(
+        doc="This value represents the growth rate that the institution is " +
+            "attempting to meet.",
+        tooltip="Growth rate of growth commodity",
+        uilabel="Growth Rate",
+        default="0.02"    
+    )
+
+    initial_demand = ts.Double(
+        doc="The initial power of the facility",
+        tooltip="Initital demand",
+        uilabel="Initial demand"
+    )
 
     calc_method = ts.String(
         doc="This is the calculated method used to determine the supply and demand " +
@@ -57,7 +56,7 @@ class NOInst(Institution):
         tooltip="Calculation method used to predict supply/demand",
         uilabel="Calculation Method"
     )
-
+    
     record = ts.Bool(
         doc="Indicates whether or not the institution should record it's output to text " +
               "file outputs. The output files match the name of the demand commodity of the " +
@@ -65,14 +64,6 @@ class NOInst(Institution):
         tooltip="Boolean to indicate whether or not to record output to text file.",
         uilabel="Record to Text",
         default=False
-    )
-    
-    driving_commod = ts.String(
-        doc="Sets the driving commodity for the institution. That is the " +
-            "commodity that no_inst will deploy against the demand equation.",
-        tooltip="Driving Commodity",
-        uilabel="Driving Commodity",
-        default="POWER"
     )
 
     steps = ts.Int(
@@ -107,130 +98,56 @@ class NOInst(Institution):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.commod_to_fac = {}
         self.commodity_supply = {}
         self.commodity_demand = {}
-        self.rev_commodity_supply = {}
-        self.rev_commodity_demand = {}
-        self.fresh = True
+        self.fac_supply = {}
         CALC_METHODS['ma'] = self.moving_avg
         CALC_METHODS['arma'] = self.predict_arma
         CALC_METHODS['arch'] = self.predict_arch
 
-    def print_variables(self):
-        print('commodities: %s' %self.commodity_dict)
-        print('demand_eq: %s' %self.demand_eq)
-        print('calc_method: %s' %self.calc_method)
-        print('record: %s' %str(self.record))
-        print('steps: %i' %self.steps)
-        print('back_steps: %i' %self.back_steps)
-        print('supply_std_dev: %f' %self.supply_std_dev)
-        print('demand_std_dev: %f' %self.demand_std_dev)
-
-    def parse_commodities(self, commodities):
-        """ This function parses the vector of strings commodity variable
-            and replaces the variable as a dictionary. This function should be deleted
-            after the map connection is fixed."""
-        temp = commodities
-        commodity_dict = {}
-        for entry in temp:
-            z = entry.split('_')
-            if z[0] not in commodity_dict.keys():
-                commodity_dict[z[0]] = {}
-                commodity_dict[z[0]].update({z[1]: float(z[2])})
-            else:
-                commodity_dict[z[0]].update({z[1]: float(z[2])})
-        return commodity_dict
-
     def enter_notify(self):
         super().enter_notify()
-        if self.fresh:
-            # convert list of strings to dictionary
-            self.commodity_dict = self.parse_commodities(self.commodities)
-            for commod in self.commodity_dict:
-                lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
-                lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
-                self.commodity_supply[commod] = defaultdict(float)
-                self.commodity_demand[commod] = defaultdict(float)
-            self.fresh = False
+        for commod in self.commodities:
+            lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
+            lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand) 
+            self.commodity_supply[commod] = defaultdict(float)  
+            self.commodity_demand[commod] = defaultdict(float)
+            self.fac_supply[commod] = {}
+            self.commod_to_fac[commod] = []
 
-
-    def tock(self):
+    def tick(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
-        in supply and demand and makes the the decision to deploy facilities or not.
+        in supply and demand and makes the the decision to deploy facilities or not.     
         """
         time = self.context.time
-        for commod, proto_cap in self.commodity_dict.items():
-            if time==0:
-                continue
-            if not bool(proto_cap):
-                raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
+        for commod, value in self.commod_to_fac.items():
             diff, supply, demand = self.calc_diff(commod, time-1)
             if  diff < 0:
-                deploy_dict = self.deploy_solver(commod, diff)
-                for proto, num in deploy_dict.items():
-                    for i in range(num):                        
-                        self.context.schedule_build(self, proto)
+                proto = random.choice(self.commod_to_fac[commod])
+                ## This is still not correct. If no facilities are present at the start of the
+                ## simulation prod_rate will still return zero. More complex fix is required.            
+                if proto in self.fac_supply[commod]:
+                    prod_rate = self.fac_supply[commod][proto]
+                else:
+                    print("No facility production rate available for " + proto)                
+                number = np.ceil(-1*diff/prod_rate)
+                for i in range(int(number)):
+                    self.context.schedule_build(self, proto)
+                    i += 1
             if self.record:
                 out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
                 out_text += " supply " + str(self.commodity_supply[commod][time-1])
                 out_text += " demand " + str(self.commodity_demand[commod][time-1]) + "\n"
                 with open(commod +".txt", 'a') as f:
                     f.write(out_text)
-    
-        
-        
-    def deploy_solver(self, commod, diff):
-        """ This function optimizes prototypes to deploy to minimize over
-            deployment of prototypes.
-        Paramters:
-        ----------
-        commod: str
-            commodity driving deployment
-        diff: float
-            lack in supply
-        
-        Returns:
-        --------
-        deploy_dict: dict
-            key: prototype name
-            value: # to deploy
-        """
-        diff = -1.0 * diff
-        proto_commod = self.commodity_dict[commod]
-        min_cap = min(proto_commod.values())
-        key_list = self.get_asc_key_list(proto_commod)
-
-        remainder = diff
-        deploy_dict = {}
-        for proto in key_list:
-            # if diff still smaller than the proto capacity,
-            if remainder >= proto_commod[proto]:
-                # get one
-                deploy_dict[proto] = 1
-                # see what the diff is now
-                remainder -= proto_commod[proto]
-                # if this is not enough, keep deploying until it's smaller than its cap
-                while remainder > proto_commod[proto]:
-                    deploy_dict[proto] += 1
-                    remainder -= proto_commod[proto]
-        return deploy_dict
-    
-
-    def get_asc_key_list(self, dicti):
-        key_list = [' '] * len(dicti.values())
-        sorted_caps = sorted(dicti.values(), reverse=True)
-        for key, val in dicti.items():
-            indx = sorted_caps.index(val)
-            key_list[indx] = key
-        return key_list
-
 
     def calc_diff(self, commod, time):
         """
         This function calculates the different in supply and demand for a given facility
         Parameters
-        ----------
+        ----------        
         time : int
             This is the time step that the difference is being calculated for.
         Returns
@@ -243,24 +160,22 @@ class NOInst(Institution):
             The calculated demand of the demand commodity at [time]
         """
         if time not in self.commodity_demand[commod]:
-            t = 0
-            self.commodity_demand[commod][time] = eval(self.demand_eq)
+            self.commodity_demand[commod][time] = self.initial_demand
         if time not in self.commodity_supply[commod]:
-            self.commodity_supply[commod][time] = 0
+            self.commodity_supply[commod][time] = self.initial_demand              
         try:
-            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
-                                                    steps = self.steps,
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod], 
+                                                    steps = self.steps, 
                                                     std_dev = self.supply_std_dev,
                                                     back_steps=self.back_steps)
         except (ValueError, np.linalg.linalg.LinAlgError):
             supply = CALC_METHODS['ma'](self.commodity_supply[commod])
-        if commod == self.driving_commod:
+        if commod == 'POWER':
             demand = self.demand_calc(time+2)
             self.commodity_demand[commod][time+2] = demand
         try:
-
-            demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
-                                                    steps = self.steps,
+            demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod], 
+                                                    steps = self.steps, 
                                                     std_dev = self.demand_std_dev,
                                                     back_steps=self.back_steps)
         except (np.linalg.linalg.LinAlgError, ValueError):
@@ -271,7 +186,8 @@ class NOInst(Institution):
     def extract_supply(self, agent, time, value, commod):
         """
         Gather information on the available supply of a commodity over the
-        lifetime of the simulation.
+        lifetime of the simulation. 
+
         Parameters
         ----------
         agent : cyclus agent
@@ -284,13 +200,15 @@ class NOInst(Institution):
         """
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
-        # update commodities
-        self.commodity_dict[commod] = {agent.prototype: value}
+        self.fac_supply[commod][agent.prototype] = value
+        if agent.prototype not in self.commod_to_fac[commod]:
+            self.commod_to_fac[commod].append(agent.prototype)
 
     def extract_demand(self, agent, time, value, commod):
         """
         Gather information on the demand of a commodity over the
         lifetime of the simulation.
+        
         Parameters
         ----------
         agent : cyclus agent
@@ -300,40 +218,43 @@ class NOInst(Institution):
         value : object
             This is the value of the object being recorded in the time
             series.
-        """
+        """      
         commod = commod[6:]
         self.commodity_demand[commod][time] += value
 
 
     def demand_calc(self, time):
         """
-        Calculate the electrical demand at a given timestep (time).
+        Calculate the electrical demand at a given timestep (time). 
+        
         Parameters
         ----------
         time : int
-            The timestep that the demand will be calculated at.
+            The timestep that the demand will be calculated at. 
         Returns
         -------
         demand : The calculated demand at a given timestep.
         """
-        t = time
-        demand = eval(self.demand_eq)
+        timestep = self.context.dt
+        time = time * timestep
+        demand = self.initial_demand * ((1.0+self.growth_rate)**(time/3.154e+7))
         return demand
 
     def moving_avg(self, ts, steps=1, std_dev = 0, back_steps=5):
         """
         Calculates the moving average of a previous [order] entries in
         timeseries [ts]. It will automatically reduce the order if the
-        length of ts is shorter than the order.
+        length of ts is shorter than the order. 
+
         Parameters:
         -----------
         ts : Array of doubles
             An array of time series data to be used for the arma prediction
         order : int
-            The number of values used for the moving average.
+            The number of values used for the moving average. 
         Returns
         -------
-        x : The moving average calculated by the function.
+        x : The moving average calculated by the function.         
         """
         supply = np.array(list(ts.values()))
         if steps >= len(supply):
@@ -345,21 +266,22 @@ class NOInst(Institution):
 
     def predict_arma(self, ts, steps=2, std_dev = 0, back_steps=5):
         """
-        Predict the value of supply or demand at a given time step using the
+        Predict the value of supply or demand at a given time step using the 
         currently available time series data. This method impliments an ARMA
-        calculation to perform the prediciton.
+        calculation to perform the prediciton. 
+
         Parameters:
         -----------
         ts : Array of doubles
             An array of time series data to be used for the arma prediction
         time: int
-            The number of timesteps to predict forward.
+            The number of timesteps to predict forward. 
         Returns:
         --------
-        x : Predicted value for the time series at chosen timestep (time).
+        x : Predicted value for the time series at chosen timestep (time). 
         """
         v = list(ts.values())
-        v = v[-1*back_steps:]
+        v = v[-1*back_steps:]        
         fit = sm.tsa.ARMA(v, (1,0)).fit(disp=-1)
         forecast = fit.forecast(steps)
         x = forecast[0][steps-1] + forecast[1][steps-1]*std_dev
@@ -367,9 +289,9 @@ class NOInst(Institution):
 
     def predict_arch(self, ts, steps=2, std_dev = 0, back_steps=10):
         """
-        Predict the value of supply or demand at a given time step using the
+        Predict the value of supply or demand at a given time step using the 
         currently available time series data. This method impliments an ARCH
-        calculation to perform the prediciton.
+        calculation to perform the prediciton. 
         """
         v = list(ts.values())
         model = arch_model(v)
@@ -379,3 +301,4 @@ class NOInst(Institution):
         x = forecast.mean.get(step)[len(v)-steps]
         sd = math.sqrt(forecast.variance.get(step)[len(v)-steps]) * std_dev
         return x+sd
+
