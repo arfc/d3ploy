@@ -27,9 +27,14 @@ install:
   - conda install -c anaconda jinja2 matplotlib scipy numpy cython pytest pandas h5py
 
   - git clone http://github.com/cyclus/cyclus
-  - git clone http://github.com/flanflanagan/cycamore -b d3ploy_update
-  - python ./cyclus/install.py
-  - python ./cycamore/install.py
+  - git clone http://github.com/cyclus/cycamore
+  - cd cyclus
+  - python install.py --clean-build
+  - cd
+  - cd cycamore
+  - python install.py --clean-build
+#  - python ./cyclus/install.py
+#  - python ./cycamore/install.py
 
   - python ./setup.py install
 
