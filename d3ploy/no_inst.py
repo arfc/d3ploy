@@ -12,8 +12,6 @@ import math
 from collections import defaultdict
 import numpy as np
 import scipy as sp
-dirname = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(dirname)
 import d3ploy.solver
 
 from cyclus.agents import Institution, Agent
