@@ -1,6 +1,17 @@
 version: 2
 
 jobs:
+
+    clone:
+        docker:
+            - image: cyclus/cyclus-deps
+        working_directory: ~/
+        steps:
+            - run: 
+                name: clone cyclus
+                command:
+                    git clone http://github.com/cyclus/cyclus
+                    git clone http://github.com/cyclus/cycamore 
     # Build Cyclus
     build:
         docker:
@@ -23,6 +34,16 @@ jobs:
                 key: v1-repo-{{ checksum ".circle-sha" }}
                 paths:
                   - /root
+    cyc:
+        docker:
+            - image: cyclus/cyclus-deps
+        working_directory: ~/cycamore
+        steps:
+            # Ensure your image has git (required by git to clone via SSH) so that CircleCI can clone your repo
+            - run:
+                name: Build Docker Image
+                command: |
+                    python install.py 
 
 
     d3ploy_build:
@@ -30,18 +51,16 @@ jobs:
             - image: cyclus/cyclus-deps
         working_directory: ~/
         steps:
-            - run: git clone https://github.com/ergs/d3ploy -b develop
             - run:
                 name: build d3ploy
                 command: |
-                    cd d3ploy
                     python setup.py install
     
     unit_test:
         docker:
             - image: cyclus/cyclus-deps
-        working_directory: ~/d3ploy
+        working_directory: ~/tests
         steps:
             - run:
                 name: solver unit tests
-                command: pytest ./tests/solver_unit_tests.py
+                command: pytest solver_unit_tests.py
