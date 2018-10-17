@@ -5,7 +5,7 @@ jobs:
     build:
       docker:
           - image: cyclus/cyclus-deps
-      working_directory: ~/
+      working_directory: ~/d3ploy
       steps:
         - run:
             name: build d3ploy
