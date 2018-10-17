@@ -19,6 +19,7 @@ jobs:
             - image: cyclus/cyclus-deps
         working_directory: ~/d3ploy
         steps:
+            - run: ls
             - run:
                 name: solver unit tests
                 command: |
@@ -71,6 +72,17 @@ jobs:
                     -DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
                     -DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"
     
+    install_d3ploy_dep:
+        docker:
+            - image: cyclus/cyclus-deps
+        working_directory: ~/d3ploy
+        steps:
+            - run: 
+                name: conda install
+                command: |
+                    conda install arch -c bashtage
+                    conda install statsmodels
+    
 
 workflows:
         version: 2
@@ -81,7 +93,9 @@ workflows:
                     requires:
                         - cyclus_master
                 - build
+                - install_d3ploy_dep
                 - unit_test:
                     requires:
+                        - install_d3ploy_dep
                         - build
                 
