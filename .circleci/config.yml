@@ -103,10 +103,10 @@ jobs:
             - run: 
                 name: conda install
                 command: |
-                    conda install arch -c bashtage
-                    conda install statsmodels
-                    conda install -c anaconda scipy
-                    conda install -c conda-forge matplotlib
+                    conda install arch -c bashtage -y
+                    conda install statsmodels -y
+                    conda install -c anaconda scipy -y
+                    conda install -c conda-forge matplotlib -y
             - run:
                 name: save SHA to a file
                 command: echo $CIRCLE_SHA1 > .circle-sha
