@@ -26,7 +26,7 @@ jobs:
             - image: cyclus/cyclus-deps
         working_directory: ~/d3ploy
         steps:
-           - run:
+          - run:
                 name: save SHA to a file
                 command: echo $CIRCLE_SHA1 > .circle-sha
           - restore_cache:
