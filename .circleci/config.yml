@@ -2,6 +2,28 @@ version: 2
 
 jobs:
 
+    build:
+      docker:
+          - image: cyclus/cyclus-deps
+      working_directory: ~/d3ploy
+      steps:
+        - run: apt-get -qq update; apt-get -y install git openssh-client
+        - checkout
+        - run:
+            name: build d3ploy
+            command: python setup.py install
+
+
+    unit_test:
+        docker:
+            - image: cyclus/cyclus-deps
+        working_directory: ~/d3ploy
+        steps:
+            - run:
+                name: solver unit tests
+                command: pytest solver_unit_tests.py
+
+
     cyclus_master:
       docker:
         - image: cyclus/cyclus-deps
@@ -58,22 +80,3 @@ jobs:
                     -DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
                     -DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"
     
-    build:
-      docker:
-          - image: cyclus/cyclus-deps
-      working_directory: ~/d3ploy
-      steps:
-        - run: apt-get -qq update; apt-get -y install git openssh-client
-        - checkout
-        - run:
-            name: build d3ploy
-            command: python setup.py install
-
-    unit_test:
-        docker:
-            - image: cyclus/cyclus-deps
-        working_directory: ~/d3ploy
-        steps:
-            - run:
-                name: solver unit tests
-                command: pytest solver_unit_tests.py
