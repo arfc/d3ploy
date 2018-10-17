@@ -29,7 +29,7 @@ jobs:
                     -DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
                     -DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"
 
-     cycamore_master: ## Cycamore/master against Cyclus/dev
+    cycamore_master: ## Cycamore/master against Cyclus/dev
         docker:
             - image: cyclus/cyclus-deps
         working_directory: /root
