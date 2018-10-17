@@ -31,12 +31,6 @@ jobs:
       steps:
         - run: apt-get -qq update; apt-get -y install git openssh-client
         - run:
-            name: save SHA to a file
-            command: echo $CIRCLE_SHA1 > .circle-sha
-        - restore_cache:
-          keys:
-            - v1-repo--{{ checksum ".circle-sha" }}
-        - run:
           name: checkout cyclus master
           command: |
             git clone https://github.com/cyclus/cyclus.git
@@ -59,12 +53,6 @@ jobs:
         steps:
             # Ensure your image has git (required by git to clone via SSH) so that CircleCI can clone your repo
             - run: apt-get -qq update; apt-get -y install git openssh-client
-            - run:
-                name: save SHA to a file
-                command: echo $CIRCLE_SHA1 > .circle-sha
-            - restore_cache:
-                keys:
-                  - v1-repo-{{ checksum ".circle-sha" }}
             - run:
                 name: Checkout Cycamore Master
                 command: |
