@@ -76,7 +76,9 @@ workflows:
         build_and_test:
             jobs:
                 - cyclus_master
-                - cycamore_master
+                - cycamore_master:
+                    requires:
+                        - build
                 - build
                 - unit_test:
                     requires:
