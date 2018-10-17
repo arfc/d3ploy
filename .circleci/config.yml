@@ -61,8 +61,10 @@ jobs:
     build:
       docker:
           - image: cyclus/cyclus-deps
-      working_directory: /root
+      working_directory: ~/d3ploy
       steps:
+        - run: apt-get -qq update; apt-get -y install git openssh-client
+        - checkout
         - run:
             name: build d3ploy
             command: python setup.py install
@@ -70,7 +72,7 @@ jobs:
     unit_test:
         docker:
             - image: cyclus/cyclus-deps
-        working_directory: ~/tests
+        working_directory: ~/d3ploy
         steps:
             - run:
                 name: solver unit tests
