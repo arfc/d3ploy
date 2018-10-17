@@ -4,7 +4,7 @@ jobs:
 
     build:
       docker:
-          - image: cyclus/cyclus-deps
+        - image: cyclus/cyclus-deps
       working_directory: ~/d3ploy
       steps:
         - run: apt-get -qq update; apt-get -y install git openssh-client
@@ -54,7 +54,7 @@ jobs:
 
     cycamore_master: ## Cycamore/master against Cyclus/dev
         docker:
-            - image: cyclus/cyclus-deps
+          - image: cyclus/cyclus-deps
         working_directory: /root
         steps:
             # Ensure your image has git (required by git to clone via SSH) so that CircleCI can clone your repo
@@ -80,3 +80,15 @@ jobs:
                     -DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
                     -DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"
     
+
+workflows:
+        version: 2
+        build_and_test:
+            jobs:
+                - cyclus_master
+                - cycamore_master
+                - build
+                - unit_test:
+                    requires:
+                        - build
+                
