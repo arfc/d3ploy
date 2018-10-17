@@ -24,6 +24,7 @@ jobs:
             - run:
                 name: solver unit tests
                 command: |
+                    python setup.py install
                     pip install -U pytest
                     pytest ./tests/solver_unit_tests.py
 
