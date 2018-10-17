@@ -23,7 +23,8 @@ jobs:
                 name: solver unit tests
                 command: |
                     pip install -U pytest
-                    pytest tests/solver_unit_tests.py
+                    cd tests
+                    pytest solver_unit_tests.py
 
 
     cyclus_master:
@@ -78,7 +79,7 @@ workflows:
                 - cyclus_master
                 - cycamore_master:
                     requires:
-                        - build
+                        - cyclus_master
                 - build
                 - unit_test:
                     requires:
