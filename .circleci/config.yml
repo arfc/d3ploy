@@ -20,11 +20,12 @@ jobs:
         working_directory: ~/d3ploy
         steps:
             - run: ls
+            - checkout
             - run:
                 name: solver unit tests
                 command: |
                     pip install -U pytest
-                    pytest ~/d3ploy/tests/solver_unit_tests.py
+                    pytest ./tests/solver_unit_tests.py
 
 
     cyclus_master:
