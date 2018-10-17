@@ -81,6 +81,9 @@ jobs:
                 command: |
                     conda install arch -c bashtage
                     conda install statsmodels
+                    conda install -c anaconda scipy
+                    conda install -c conda-forge matplotlib
+
     
 
 workflows:
