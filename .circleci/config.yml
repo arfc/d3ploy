@@ -91,7 +91,9 @@ jobs:
                 name: Build Cycamore
                 command: |
                     cd cycamore
-                    python install.py
+                    python install.py -j 2 --build-type=Release \
+                    -DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
+                    -DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"
     
     install_d3ploy_dep:
         docker:
