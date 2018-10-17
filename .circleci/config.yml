@@ -24,7 +24,7 @@ jobs:
             - run:
                 name: check
                 command:
-                    cd
+                    pwd
             - run:
                 name: Build Docker Image
                 command: |
