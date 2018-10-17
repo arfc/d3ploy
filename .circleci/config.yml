@@ -57,7 +57,7 @@ jobs:
                     -DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
                     -DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"       
 
-    d3ploy_build:
+    build:
         docker:
             - image: cyclus/cyclus-deps
         working_directory: ~/
