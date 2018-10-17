@@ -23,7 +23,7 @@ jobs:
                 name: solver unit tests
                 command: |
                     pip install -U pytest
-                    pytest solver_unit_tests.py
+                    pytest tests/solver_unit_tests.py
 
 
     cyclus_master:
