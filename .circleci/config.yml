@@ -2,53 +2,60 @@ version: 2
 
 jobs:
 
-    clone:
+    cyclus_master:
+      docker:
+        - image: cyclus/cyclus-deps
+      working_directory: /root
+      steps:
+        - run: apt-get -qq update; apt-get -y install git openssh-client
+        - run:
+          name: save SHA to a file
+          command: echo $CIRCLE_SHA1 > .circle-sha
+        - restore_cache:
+          keys:
+            - v1-repo--{{ checksum ".circle-sha" }}
+        - run:
+          name: checkout cyclus master
+          command: |
+            git clone https://github.com/cyclus/cyclus.git
+            cd cyclus
+            git fetch --all
+            git checkout master
+        - run:
+          name: build cyclus
+          command: |
+            cd cyclus
+            python install.py -j 2 --build-type=Release --core-version 999999.999999 \
+                    -DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
+                    -DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"
+
+     cycamore_master: ## Cycamore/master against Cyclus/dev
         docker:
             - image: cyclus/cyclus-deps
-        working_directory: ~/
-        steps:
-            - run: 
-                name: clone cyclus
-                command:
-                    git clone http://github.com/cyclus/cyclus
-                    git clone http://github.com/cyclus/cycamore 
-    # Build Cyclus
-    build:
-        docker:
-            - image: cyclus/cyclus-deps
-        working_directory: ~/cyclus
+        working_directory: /root
         steps:
             # Ensure your image has git (required by git to clone via SSH) so that CircleCI can clone your repo
             - run: apt-get -qq update; apt-get -y install git openssh-client
-            - checkout
-            - run:
-                name: check
-                command:
-                    ls
-            - run:
-                name: Build Docker Image
-                command: |
-                    python install.py -j 2 --build-type=Release --core-version 999999.999999 \
-                    -DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
-                    -DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"
             - run:
                 name: save SHA to a file
                 command: echo $CIRCLE_SHA1 > .circle-sha
-            - save_cache:
-                key: v1-repo-{{ checksum ".circle-sha" }}
-                paths:
-                  - /root
-    cyc:
-        docker:
-            - image: cyclus/cyclus-deps
-        working_directory: ~/cycamore
-        steps:
-            # Ensure your image has git (required by git to clone via SSH) so that CircleCI can clone your repo
+            - restore_cache:
+                keys:
+                  - v1-repo-{{ checksum ".circle-sha" }}
             - run:
-                name: Build Docker Image
+                name: Checkout Cycamore Master
                 command: |
-                    python install.py 
-
+                    git clone https://github.com/cyclus/cycamore.git
+                    cd cycamore
+                    git fetch --all
+                    git checkout master
+            - run:
+                name: Build Cycamore
+                command: |
+                    cd cycamore
+                    python install.py -j 2 --build-type=Release \
+                    -DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
+                    -DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"       
 
     d3ploy_build:
         docker:
