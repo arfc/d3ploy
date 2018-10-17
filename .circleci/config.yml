@@ -21,7 +21,9 @@ jobs:
         steps:
             - run:
                 name: solver unit tests
-                command: pytest solver_unit_tests.py
+                command: |
+                    pip install -U pytest
+                    pytest solver_unit_tests.py
 
 
     cyclus_master:
