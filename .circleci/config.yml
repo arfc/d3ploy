@@ -7,11 +7,11 @@ jobs:
           - image: cyclus/cyclus-deps
       working_directory: ~/d3ploy
       steps:
+        - run: ls
         - run:
             name: build d3ploy
-            command: |
-              ls
-              python setup.py install
+            command: python setup.py install
+
 
     cyclus_master:
       docker:
