@@ -23,7 +23,7 @@ jobs:
                 name: solver unit tests
                 command: |
                     pip install -U pytest
-                    cd tests
+                    cd d3ploy/tests
                     pytest solver_unit_tests.py
 
 
