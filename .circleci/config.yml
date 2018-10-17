@@ -5,7 +5,7 @@ jobs:
     build:
       docker:
           - image: cyclus/cyclus-deps
-      working_directory: ~/d3ploy
+      working_directory: /root
       steps:
         - run: pwd
         - run: ls
