@@ -93,7 +93,6 @@ jobs:
                     conda install arch -c bashtage -y
                     conda install -c anaconda statsmodels -y
                     conda install -c anaconda scipy -y
-                    conda install -c conda-forge matplotlib -y
             - run:
                 name: save SHA to a file
                 command: echo $CIRCLE_SHA1 > .circle-sha
