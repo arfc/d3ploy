@@ -71,7 +71,9 @@ jobs:
             name: build cycamore
             command: |
                 cd cycamore
-                python install.py
+                python install.py -j 2 --build-type=Release \
+                    -DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
+                    -DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"
         - run:
             name: save SHA to a file
             command: echo $CIRCLE_SHA1 > .circle-sha
