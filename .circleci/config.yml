@@ -102,6 +102,19 @@ jobs:
                 paths:
                   - /root
 
+    cyclus_unit_tests:
+        docker:
+            - image: nuclearbae/quickstart-python
+        working_directory: ~/d3ploy
+        steps:
+            - run:
+                name: run cyclus unit tests
+                command: cyclus_unit_tests
+            - run:
+                name: run cycamore unit tests
+                command: cycamore_unit_tests
+
+
     
 
 workflows:
@@ -115,4 +128,5 @@ workflows:
                     requires:
                         - install_d3ploy_dep
                         - build
+                - cyclus_unit_tests
                 
