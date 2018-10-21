@@ -128,5 +128,3 @@ workflows:
                     requires:
                         - install_d3ploy_dep
                         - build
-                - cyclus_unit_tests
-                
