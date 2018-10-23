@@ -165,9 +165,15 @@ def supply_within_demand_range(sql_file):
 def plot_demand_supply(sqlite,demand,test):
     cur = get_cursor(sqlite)
     fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
+    calc_fuel_demand = cur.execute("select time, sum(value) from timeseriesfuelcalc_demand group by time").fetchall()
+    calc_fuel_supply = cur.execute("select time, sum(value) from timeseriesfuelcalc_supply group by time").fetchall()
     dict_supply = {}
+    dict_calc_demand = {}
+    dict_calc_supply = {}
     for x in range(0,len(fuel_supply)):
         dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
+        dict_calc_demand[fuel_supply[x][0]] = calc_fuel_demand[x][1]
+        dict_calc_supply[fuel_supply[x][0]] = calc_fuel_supply[x][1]
     t = np.fromiter(dict_supply.keys(),dtype=float)
     fuel_demand = eval(demand)
     print('fuel demand',fuel_demand)
@@ -176,8 +182,10 @@ def plot_demand_supply(sqlite,demand,test):
         fuel_demand = fuel_demand*np.ones(len(t))
 
     fig, ax = plt.subplots(figsize=(15, 7))
-    ax.plot(*zip(*sorted(dict_supply.items())),'*',label = 'Supply')
     ax.plot(t,fuel_demand,'*',label='Demand')
+    ax.plot(*zip(*sorted(dict_supply.items())),'*',label = 'Supply')
+    ax.plot(*zip(*sorted(dict_calc_demand.items())),'o',alpha = 0.5,label = 'Calculated Demand')
+    ax.plot(*zip(*sorted(dict_calc_supply.items())),'o',alpha = 0.5,label = 'Calculated Supply')
     ax.grid()
     ax.set_xlabel('Time (month timestep)', fontsize=14)
     ax.set_ylabel('Mass (kg)' , fontsize=14)
@@ -185,14 +193,14 @@ def plot_demand_supply(sqlite,demand,test):
     ax.legend(
             handles,
             labels,
-            fontsize=13,
+            fontsize=11,
             loc='upper center',
             bbox_to_anchor=(
-                0.9,
+                1.1,
                 1.0),
             fancybox=True)
     ax.set_title('Fuel Demand Supply plot')
-    plt.savefig(test, dpi=300)
+    plt.savefig(test, dpi=300,bbox_inches='tight')
 
 #######################TEST_A_Constant_1####################################
 """ 
@@ -302,7 +310,7 @@ test_a_grow_2_temp["simulation"].update({"region": {
     "institution": {
         "config": {
             "NOInst": {
-                "calc_method": "arma",
+                "calc_method": "ma",
                 "commodities": {"val": ["fuel_source_3000"]},
                 "driving_commod": "fuel",
                 "demand_std_dev": "1.0",
