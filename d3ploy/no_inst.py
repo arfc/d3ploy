@@ -155,15 +155,13 @@ class NOInst(Institution):
             self.fresh = False
 
 
-    def tock(self):
+    def decision(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
         for commod, proto_cap in self.commodity_dict.items():
-            if time==0:
-                continue
             if not bool(proto_cap):
                 raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
             diff, supply, demand = self.calc_diff(commod, time-1)
