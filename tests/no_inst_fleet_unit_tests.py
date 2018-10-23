@@ -170,7 +170,7 @@ def plot_demand_supply(sqlite,demand,test):
         dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
     t = np.fromiter(dict_supply.keys(),dtype=float)
     fuel_demand = eval(demand)
-    print(fuel_demand)
+    print('fuel demand',fuel_demand)
     if isinstance(fuel_demand,int):
         print('hi')
         fuel_demand = fuel_demand*np.ones(len(t))
@@ -306,7 +306,7 @@ test_a_grow_2_temp["simulation"].update({"region": {
                 "commodities": {"val": ["fuel_source_3000"]},
                 "driving_commod": "fuel",
                 "demand_std_dev": "1.0",
-                "demand_eq": "10*(1+0.1)**(t/12)",
+                "demand_eq": "10*(1+1.5)**(t/12)",
                 "record": "1",
                 "steps": "1"
             }
@@ -328,7 +328,7 @@ def test_a_grow_2():
     assert("Cyclus run successful!" in s)
 
     # plot 
-    plot_demand_supply('test_a_grow_2_file.sqlite','10*(1+0.1)**(t/12)','a-grow-2')
+    plot_demand_supply('test_a_grow_2_file.sqlite','10*(1+1.5)**(t/12)','a-grow-2')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
     number_within_tolerance = supply_within_demand_range('test_a_grow_2_file.sqlite')
