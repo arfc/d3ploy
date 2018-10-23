@@ -49,40 +49,6 @@ jobs:
                 name: conda install
                 command: |
                     conda install -c bashtage arch -y
-                    conda install -c anaconda statsmodels -y
-            - run:
-                name: save SHA to a file
-                command: echo $CIRCLE_SHA1 > .circle-sha
-            - save_cache:
-                key: v1-repo-{{ checksum ".circle-sha" }}
-                paths:
-                  - /root
-
-    install_arch:
-        docker:
-            - image: cyclus/cycamore
-        working_directory: ~/d3ploy
-        steps:
-            - run: 
-                name: conda install
-                command: |
-                    conda install -c bashtage arch -y
-            - run:
-                name: save SHA to a file
-                command: echo $CIRCLE_SHA1 > .circle-sha
-            - save_cache:
-                key: v1-repo-{{ checksum ".circle-sha" }}
-                paths:
-                  - /root
-
-    install_statsmodel:
-        docker:
-            - image: cyclus/cycamore
-        working_directory: ~/d3ploy
-        steps:
-            - run: 
-                name: conda install
-                command: |
                     conda install statsmodels -y
             - run:
                 name: save SHA to a file
@@ -92,16 +58,14 @@ jobs:
                 paths:
                   - /root
 
-    
 
 workflows:
         version: 2
         build_and_test:
             jobs:
                 - build
-                - install_statsmodel
-                - install_arch
+                - install_d3ploy_dep
                 - unit_test:
                     requires:
-                        #- install_d3ploy_dep
+                        - install_d3ploy_dep
                         - build
