@@ -48,7 +48,7 @@ jobs:
             - run: 
                 name: conda install
                 command: |
-                    conda install arch -c bashtage -y
+                    conda install -c bashtage arch -y
                     conda install -c anaconda statsmodels -y
                     conda install -c anaconda scipy -y
             - run:
