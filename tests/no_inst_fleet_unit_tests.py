@@ -123,25 +123,56 @@ catchup_tolerance = 12
 # Acceptable percentage difference diff btwn supply and demand
 facility_tolerance = 20 #[%]
 
-def demand_curve(initial_demand,growth_rate,time_point):
+# Acceptable number of facility tolerance 
+no_fac = 1 
+
+# fuel facility throughput 
+thru = 3000
+
+def demand_curve(type,time_point):
     """ Uses initial demand, growth rate and list of timesteps to 
     output the corresponding demand curve points 
 
     Parameters
     ----------
-    initial_demand : int, initial demand of demand-driving commodity 
-    growth_rate : int, growth rate of demand-driving commodity 
     time_point: int, a time step in the simulation  
 
     Returns
     -------
     demand_values : int, demand point corresponding to time_point  
     """
-    demand_point = initial_demand*(1+growth_rate)**(time_point/12)
+    if type == 'a-const-1':
+        demand_point = 10000
+    elif type == 'a-grow-1':
+        demand_point = 100*time_point
+    elif type == 'a-grow-2':
+        demand_point = 10*(1+1.5)**(time_point/12)
     return demand_point
 
+# For testing if supply is within a facility tolerance of demand 
+def supply_within_demand_fac_tol(sql_file,type):
+    # getting the sqlite file
+    cur = get_cursor(sql_file)
 
-def supply_within_demand_range(sql_file):  
+    # check if supply of fuel is within facility_tolerance & catchup_tolerance
+    fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
+    num = 0
+    for pt in range(0,len(fuel_supply)):
+        fuel_supply_point = fuel_supply[pt][1]
+        time_point = fuel_supply[pt][0]
+        # if supply curve value is larger/smaller than demand curve by no_fac amount
+        # at any timestep the num counter will be larger 
+        # than 1 and the test will fail
+        fuel_demand_point = demand_curve(type,time_point)
+        diff = fuel_supply_point - fuel_demand_point
+        if diff>no_fac*thru:
+            num = num + 1
+        else: 
+            num = num+0 
+    return num
+
+# For testing if supply is in a percentage tolerance of demand
+def supply_within_demand_range(sql_file,type):  
     # getting the sqlite file
     cur = get_cursor(sql_file)
 
@@ -154,7 +185,7 @@ def supply_within_demand_range(sql_file):
         # if supply curve value is larger/smaller than demand curve by facility_tolerance percentage
         # at any timestep (larger than catch up tolerance) the num counter will be larger 
         # than 1 and the test will fail
-        fuel_demand_point = demand_curve(1000,0,time_point)
+        fuel_demand_point = demand_curve(type,time_point)
         percentage_diff = abs((fuel_supply_point - fuel_demand_point)/fuel_demand_point)*100
         if percentage_diff>facility_tolerance:
             num = num + 1
@@ -243,7 +274,7 @@ def test_a_const_1():
     plot_demand_supply('test_a_const_1_file.sqlite','10000','a-const-1')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    number_within_tolerance = supply_within_demand_range('test_a_const_1_file.sqlite')
+    number_within_tolerance = supply_within_demand_fac_tol('test_a_const_1_file.sqlite','a-const-1')
     assert(number_within_tolerance == 0)
 
 ##############################################################################
@@ -290,7 +321,7 @@ def test_a_grow_1():
     plot_demand_supply('test_a_grow_1_file.sqlite','100*t','a-grow-1')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    number_within_tolerance = supply_within_demand_range('test_a_grow_1_file.sqlite')
+    number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_1_file.sqlite','a-grow-1')
     assert(number_within_tolerance == 0)
 
 ######################################################################################
@@ -337,7 +368,7 @@ def test_a_grow_2():
     plot_demand_supply('test_a_grow_2_file.sqlite','10*(1+1.5)**(t/12)','a-grow-2')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    number_within_tolerance = supply_within_demand_range('test_a_grow_2_file.sqlite')
+    number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_2_file.sqlite','a-grow-2')
     assert(number_within_tolerance == 0)
 
 #######################################################################################             
