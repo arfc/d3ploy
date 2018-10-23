@@ -4,7 +4,7 @@ jobs:
 
     build:
       docker:
-        - image: cyclus/cyclus-deps
+        - image: cyclus/cycamore
       working_directory: ~/d3ploy
       steps:
         - run: apt-get -qq update; apt-get -y install git openssh-client
@@ -23,7 +23,7 @@ jobs:
 
     unit_test:
         docker:
-            - image: cyclus/cyclus-deps
+            - image: cyclus/cycamore
         working_directory: ~/d3ploy
         steps:
           - run:
@@ -39,58 +39,15 @@ jobs:
                     python setup.py install
                     pytest ./tests/solver_unit_tests.py
 
-
-    install_cyclus_cycamore:
-      docker:
-        - image: cyclus/cyclus-deps
-      working_directory: /root
-      steps:
-        - run: apt-get -qq update; apt-get -y install git openssh-client
-        - run:
-            name: checkout cyclus master
-            command: |
-                git clone https://github.com/cyclus/cyclus.git
-                cd cyclus
-                git fetch --all
-                git checkout master
-        - run:
-            name: build cyclus
-            command: |
-                cd cyclus
-                python install.py -j 2 --build-type=Release --core-version 999999.999999 \
-                        -DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
-                        -DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"
-        - run:
-            name: checkout cycamore master
-            command: |
-                git clone https://github.com/cyclus/cycamore
-                cd cycamore
-                git fetch --all
-                git checkout master
-        - run:
-            name: build cycamore
-            command: |
-                cd cycamore
-                python install.py -j 2 --build-type=Release \
-                    -DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
-                    -DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"
-        - run:
-            name: save SHA to a file
-            command: echo $CIRCLE_SHA1 > .circle-sha
-        - save_cache:
-            key: v1-repo-{{ checksum ".circle-sha" }}
-            paths:
-                - /root
     
     install_d3ploy_dep:
         docker:
-            - image: cyclus/cyclus-deps
+            - image: cyclus/cycamore
         working_directory: ~/d3ploy
         steps:
             - run: 
                 name: conda install
                 command: |
-                    conda update --all -y
                     conda install arch -c bashtage -y
                     conda install -c anaconda statsmodels -y
                     conda install -c anaconda scipy -y
@@ -102,26 +59,12 @@ jobs:
                 paths:
                   - /root
 
-    cyclus_unit_tests:
-        docker:
-            - image: nuclearbae/quickstart-python
-        working_directory: ~/d3ploy
-        steps:
-            - run:
-                name: run cyclus unit tests
-                command: cyclus_unit_tests
-            - run:
-                name: run cycamore unit tests
-                command: cycamore_unit_tests
-
-
     
 
 workflows:
         version: 2
         build_and_test:
             jobs:
-                - install_cyclus_cycamore
                 - build
                 - install_d3ploy_dep
                 - unit_test:
