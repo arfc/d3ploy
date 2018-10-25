@@ -27,11 +27,15 @@ jobs:
         working_directory: ~/d3ploy
         steps:
           - run:
-                name: save SHA to a file
-                command: echo $CIRCLE_SHA1 > .circle-sha
-          - restore_cache:
-                keys:
-                  - v1-repo-{{ checksum ".circle-sha" }}
+                name: conda install
+                command: |
+                    conda install -c bashtage arch -y
+                    conda install statsmodles -y
+          - checkout
+          - run:
+                name: build
+                command: |
+                    python setup.py install
           - run:
                 name: solver unit tests
                 command: |
@@ -40,32 +44,10 @@ jobs:
                     pytest ./tests/solver_unit_tests.py
                     pytest ./tests/no_inst_fleet_unit_tests.py
     
-    install_d3ploy_dep:
-        docker:
-            - image: cyclus/cycamore
-        working_directory: ~/d3ploy
-        steps:
-            - run: 
-                name: conda install
-                command: |
-                    conda install -c bashtage arch -y
-                    conda install statsmodels -y
-            - run:
-                name: save SHA to a file
-                command: echo $CIRCLE_SHA1 > .circle-sha
-            - save_cache:
-                key: v1-repo-{{ checksum ".circle-sha" }}
-                paths:
-                  - /root
-
 
 workflows:
         version: 2
         build_and_test:
             jobs:
                 - build
-                - install_d3ploy_dep
-                - unit_test:
-                    requires:
-                        - install_d3ploy_dep
-                        - build
+                - unit_test
