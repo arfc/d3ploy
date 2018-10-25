@@ -53,6 +53,9 @@ def deploy_solver(commodity_dict, commod, diff):
                 deploy_dict[proto] += 1
                 remainder -= proto_commod[proto]
 
+    if remainder == 0:
+        return deploy_dict
+    
     for proto in list(reversed(key_list)):
         # see if the prototype cap is bigger than remainder
         if remainder > proto_commod[proto]:
