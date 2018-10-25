@@ -124,7 +124,7 @@ catchup_tolerance = 12
 facility_tolerance = 20 #[%]
 
 # Acceptable number of facility tolerance 
-no_fac = 1 
+no_fac = 2 
 
 # fuel facility throughput 
 thru = 3000
@@ -142,7 +142,7 @@ def demand_curve(type,time_point):
     demand_values : int, demand point corresponding to time_point  
     """
     if type == 'a-const-1':
-        demand_point = 10000
+        demand_point = 3000
     elif type == 'a-grow-1':
         demand_point = 100*time_point
     elif type == 'a-grow-2':
@@ -249,7 +249,7 @@ test_a_const_1_template["simulation"].update({"region": {
                 "commodities": {"val": ["fuel_source_3000"]},
                 "driving_commod": "fuel",
                 "demand_std_dev": "1.0",
-                "demand_eq": "10000",
+                "demand_eq": "3000",
                 "record": "1",
                 "steps": "1"
             }
@@ -271,7 +271,7 @@ def test_a_const_1():
     assert("Cyclus run successful!" in s)
 
     # plot 
-    plot_demand_supply('test_a_const_1_file.sqlite','10000','a-const-1')
+    plot_demand_supply('test_a_const_1_file.sqlite','3000','a-const-1')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
     number_within_tolerance = supply_within_demand_fac_tol('test_a_const_1_file.sqlite','a-const-1')
