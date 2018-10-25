@@ -123,9 +123,6 @@ catchup_tolerance = 12
 # Acceptable percentage difference diff btwn supply and demand
 facility_tolerance = 20 #[%]
 
-# Acceptable number of facility tolerance 
-no_fac = 2 
-
 # fuel facility throughput 
 thru = 3000
 
@@ -150,7 +147,12 @@ def demand_curve(type,time_point):
     return demand_point
 
 # For testing if supply is within a facility tolerance of demand 
-def supply_within_demand_fac_tol(sql_file,type):
+def supply_within_demand_fac_tol(sql_file,type,no_fac):
+    """
+    Parameters
+    ----------
+    no_fac = int, Acceptable number of facility tolerance 
+    """
     # getting the sqlite file
     cur = get_cursor(sql_file)
 
@@ -274,7 +276,12 @@ def test_a_const_1():
     plot_demand_supply('test_a_const_1_file.sqlite','3000','a-const-1')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    number_within_tolerance = supply_within_demand_fac_tol('test_a_const_1_file.sqlite','a-const-1')
+    number_within_tolerance = supply_within_demand_fac_tol('test_a_const_1_file.sqlite','a-const-1',2)
+    assert(number_within_tolerance == 0)
+
+@pytest.mark.xfail
+def test_a_const_1_tol1(): 
+    number_within_tolerance = supply_within_demand_fac_tol('test_a_const_1_file.sqlite','a-const-1',1)
     assert(number_within_tolerance == 0)
 
 ##############################################################################
@@ -321,7 +328,12 @@ def test_a_grow_1():
     plot_demand_supply('test_a_grow_1_file.sqlite','100*t','a-grow-1')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_1_file.sqlite','a-grow-1')
+    number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_1_file.sqlite','a-grow-1',2)
+    assert(number_within_tolerance == 0)
+
+@pytest.mark.xfail
+def test_a_grow_1_tol1(): 
+    number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_1_file.sqlite','a-grow-1',1)
     assert(number_within_tolerance == 0)
 
 ######################################################################################
@@ -368,7 +380,12 @@ def test_a_grow_2():
     plot_demand_supply('test_a_grow_2_file.sqlite','10*(1+1.5)**(t/12)','a-grow-2')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_2_file.sqlite','a-grow-2')
+    number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_2_file.sqlite','a-grow-2',2)
+    assert(number_within_tolerance == 0)
+
+@pytest.mark.xfail
+def test_a_grow_2_tol1(): 
+    number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_2_file.sqlite','a-grow-2',1)
     assert(number_within_tolerance == 0)
 
 #######################################################################################             
