@@ -167,6 +167,8 @@ class NOInst(Institution):
             if not bool(proto_cap):
                 raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
             diff, supply, demand = self.calc_diff(commod, time-1)
+            lib.record_time_series(commod+'calc_supply', self, supply)
+            lib.record_time_series(commod+'calc_demand', self, demand)
             if  diff < 0:
                 deploy_dict = solver.deploy_solver(self.commodity_dict, commod, diff)
                 for proto, num in deploy_dict.items():
