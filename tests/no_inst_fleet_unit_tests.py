@@ -123,25 +123,56 @@ catchup_tolerance = 12
 # Acceptable percentage difference diff btwn supply and demand
 facility_tolerance = 20 #[%]
 
-def demand_curve(initial_demand,growth_rate,time_point):
+# Acceptable number of facility tolerance 
+no_fac = 2 
+
+# fuel facility throughput 
+thru = 3000
+
+def demand_curve(type,time_point):
     """ Uses initial demand, growth rate and list of timesteps to 
     output the corresponding demand curve points 
 
     Parameters
     ----------
-    initial_demand : int, initial demand of demand-driving commodity 
-    growth_rate : int, growth rate of demand-driving commodity 
     time_point: int, a time step in the simulation  
 
     Returns
     -------
     demand_values : int, demand point corresponding to time_point  
     """
-    demand_point = initial_demand*(1+growth_rate)**(time_point/12)
+    if type == 'a-const-1':
+        demand_point = 3000
+    elif type == 'a-grow-1':
+        demand_point = 100*time_point
+    elif type == 'a-grow-2':
+        demand_point = 10*(1+1.5)**(time_point/12)
     return demand_point
 
+# For testing if supply is within a facility tolerance of demand 
+def supply_within_demand_fac_tol(sql_file,type):
+    # getting the sqlite file
+    cur = get_cursor(sql_file)
 
-def supply_within_demand_range(sql_file):  
+    # check if supply of fuel is within facility_tolerance & catchup_tolerance
+    fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
+    num = 0
+    for pt in range(0,len(fuel_supply)):
+        fuel_supply_point = fuel_supply[pt][1]
+        time_point = fuel_supply[pt][0]
+        # if supply curve value is larger/smaller than demand curve by no_fac amount
+        # at any timestep the num counter will be larger 
+        # than 1 and the test will fail
+        fuel_demand_point = demand_curve(type,time_point)
+        diff = fuel_supply_point - fuel_demand_point
+        if diff>no_fac*thru:
+            num = num + 1
+        else: 
+            num = num+0 
+    return num
+
+# For testing if supply is in a percentage tolerance of demand
+def supply_within_demand_range(sql_file,type):  
     # getting the sqlite file
     cur = get_cursor(sql_file)
 
@@ -154,7 +185,7 @@ def supply_within_demand_range(sql_file):
         # if supply curve value is larger/smaller than demand curve by facility_tolerance percentage
         # at any timestep (larger than catch up tolerance) the num counter will be larger 
         # than 1 and the test will fail
-        fuel_demand_point = demand_curve(1000,0,time_point)
+        fuel_demand_point = demand_curve(type,time_point)
         percentage_diff = abs((fuel_supply_point - fuel_demand_point)/fuel_demand_point)*100
         if percentage_diff>facility_tolerance:
             num = num + 1
@@ -165,19 +196,25 @@ def supply_within_demand_range(sql_file):
 def plot_demand_supply(sqlite,demand,test):
     cur = get_cursor(sqlite)
     fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
+    calc_fuel_demand = cur.execute("select time, sum(value) from timeseriesfuelcalc_demand group by time").fetchall()
+    calc_fuel_supply = cur.execute("select time, sum(value) from timeseriesfuelcalc_supply group by time").fetchall()
     dict_supply = {}
+    dict_calc_demand = {}
+    dict_calc_supply = {}
     for x in range(0,len(fuel_supply)):
         dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
+        dict_calc_demand[fuel_supply[x][0]] = calc_fuel_demand[x][1]
+        dict_calc_supply[fuel_supply[x][0]] = calc_fuel_supply[x][1]
     t = np.fromiter(dict_supply.keys(),dtype=float)
     fuel_demand = eval(demand)
-    print(fuel_demand)
     if isinstance(fuel_demand,int):
-        print('hi')
         fuel_demand = fuel_demand*np.ones(len(t))
 
     fig, ax = plt.subplots(figsize=(15, 7))
-    ax.plot(*zip(*sorted(dict_supply.items())),'*',label = 'Supply')
     ax.plot(t,fuel_demand,'*',label='Demand')
+    ax.plot(*zip(*sorted(dict_supply.items())),'*',label = 'Supply')
+    ax.plot(*zip(*sorted(dict_calc_demand.items())),'o',alpha = 0.5,label = 'Calculated Demand')
+    ax.plot(*zip(*sorted(dict_calc_supply.items())),'o',alpha = 0.5,label = 'Calculated Supply')
     ax.grid()
     ax.set_xlabel('Time (month timestep)', fontsize=14)
     ax.set_ylabel('Mass (kg)' , fontsize=14)
@@ -185,14 +222,14 @@ def plot_demand_supply(sqlite,demand,test):
     ax.legend(
             handles,
             labels,
-            fontsize=13,
+            fontsize=11,
             loc='upper center',
             bbox_to_anchor=(
-                0.9,
+                1.1,
                 1.0),
             fancybox=True)
     ax.set_title('Fuel Demand Supply plot')
-    plt.savefig(test, dpi=300)
+    plt.savefig(test, dpi=300,bbox_inches='tight')
 
 #######################TEST_A_Constant_1####################################
 """ 
@@ -212,7 +249,7 @@ test_a_const_1_template["simulation"].update({"region": {
                 "commodities": {"val": ["fuel_source_3000"]},
                 "driving_commod": "fuel",
                 "demand_std_dev": "1.0",
-                "demand_eq": "10000",
+                "demand_eq": "3000",
                 "record": "1",
                 "steps": "1"
             }
@@ -234,10 +271,10 @@ def test_a_const_1():
     assert("Cyclus run successful!" in s)
 
     # plot 
-    plot_demand_supply('test_a_const_1_file.sqlite','10000','a-const-1')
+    plot_demand_supply('test_a_const_1_file.sqlite','3000','a-const-1')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    number_within_tolerance = supply_within_demand_range('test_a_const_1_file.sqlite')
+    number_within_tolerance = supply_within_demand_fac_tol('test_a_const_1_file.sqlite','a-const-1')
     assert(number_within_tolerance == 0)
 
 ##############################################################################
@@ -284,7 +321,7 @@ def test_a_grow_1():
     plot_demand_supply('test_a_grow_1_file.sqlite','100*t','a-grow-1')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    number_within_tolerance = supply_within_demand_range('test_a_grow_1_file.sqlite')
+    number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_1_file.sqlite','a-grow-1')
     assert(number_within_tolerance == 0)
 
 ######################################################################################
@@ -302,11 +339,11 @@ test_a_grow_2_temp["simulation"].update({"region": {
     "institution": {
         "config": {
             "NOInst": {
-                "calc_method": "arma",
+                "calc_method": "ma",
                 "commodities": {"val": ["fuel_source_3000"]},
                 "driving_commod": "fuel",
                 "demand_std_dev": "1.0",
-                "demand_eq": "10*(1+0.1)**(t/12)",
+                "demand_eq": "10*(1+1.5)**(t/12)",
                 "record": "1",
                 "steps": "1"
             }
@@ -328,10 +365,10 @@ def test_a_grow_2():
     assert("Cyclus run successful!" in s)
 
     # plot 
-    plot_demand_supply('test_a_grow_2_file.sqlite','10*(1+0.1)**(t/12)','a-grow-2')
+    plot_demand_supply('test_a_grow_2_file.sqlite','10*(1+1.5)**(t/12)','a-grow-2')
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    number_within_tolerance = supply_within_demand_range('test_a_grow_2_file.sqlite')
+    number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_2_file.sqlite','a-grow-2')
     assert(number_within_tolerance == 0)
 
 #######################################################################################             
