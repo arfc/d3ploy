@@ -1,0 +1,54 @@
+version: 2
+
+jobs:
+
+    build:
+      docker:
+        - image: cyclus/cycamore
+      working_directory: ~/d3ploy
+      steps:
+        - run: apt-get -qq update; apt-get -y install git openssh-client
+        - checkout
+        - run:
+            name: build d3ploy
+            command: python setup.py install
+        - run:
+            name: save SHA to a file
+            command: echo $CIRCLE_SHA1 > .circle-sha
+        - save_cache:
+            key: v1-repo-{{ checksum ".circle-sha" }}
+            paths:
+              - /root
+
+
+    unit_test:
+        docker:
+            - image: cyclus/cycamore
+        working_directory: ~/d3ploy
+        steps:
+          - run:
+                name: conda install
+                command: |
+                    conda install -c bashtage arch -y
+                    conda install statsmodels -y
+                    conda install matplotlib -y
+          - checkout
+          - run:
+                name: build
+                command: |
+                    python setup.py install
+          - run:
+                name: solver unit tests
+                command: |
+                    pip install -U pytest
+                    python setup.py install
+                    pytest ./tests/solver_unit_tests.py
+                    pytest ./tests/no_inst_fleet_unit_tests.py
+    
+
+workflows:
+        version: 2
+        build_and_test:
+            jobs:
+                - build
+                - unit_test
