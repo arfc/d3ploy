@@ -123,15 +123,13 @@ catchup_tolerance = 12
 # Acceptable percentage difference diff btwn supply and demand
 facility_tolerance = 20 #[%]
 
-# fuel facility throughput 
-thru = 3000
-
 def demand_curve(type,time_point):
     """ Uses initial demand, growth rate and list of timesteps to 
     output the corresponding demand curve points 
 
     Parameters
     ----------
+    type: string, string of test name 
     time_point: int, a time step in the simulation  
 
     Returns
@@ -146,12 +144,19 @@ def demand_curve(type,time_point):
         demand_point = 10*(1+1.5)**(time_point/12)
     return demand_point
 
-# For testing if supply is within a facility tolerance of demand 
+
 def supply_within_demand_fac_tol(sql_file,type,no_fac):
-    """
+    """ Analyzes if the fuelsupply provided in the SQL file is within no_fac tolerance of 
+    demand and returns a number of timesteps that it is within the tolerance. 
     Parameters
     ----------
+    sql_file: sqlite file to analyze 
+    type: string, string of test name to input into demand_curve function 
     no_fac = int, Acceptable number of facility tolerance 
+    Returns
+    -------
+    num : int, number of time steps where fuelsupply is not within no_fac
+    tolerance of fueldemand   
     """
     # getting the sqlite file
     cur = get_cursor(sql_file)
@@ -167,7 +172,7 @@ def supply_within_demand_fac_tol(sql_file,type,no_fac):
         # than 1 and the test will fail
         fuel_demand_point = demand_curve(type,time_point)
         diff = fuel_supply_point - fuel_demand_point
-        if diff>no_fac*thru:
+        if diff>no_fac*3000:
             num = num + 1
         else: 
             num = num+0 
@@ -175,6 +180,17 @@ def supply_within_demand_fac_tol(sql_file,type,no_fac):
 
 # For testing if supply is in a percentage tolerance of demand
 def supply_within_demand_range(sql_file,type):  
+    """ Analyzes if the fuelsupply provided in the SQL file is within facility and catchup
+    tolerance of demand and returns a number of timesteps that it is within the tolerance. 
+    Parameters
+    ----------
+    sql_file: sqlite file to analyze 
+    type: string, string of test name to input into demand_curve function 
+    Returns
+    -------
+    num : int, number of time steps where fuelsupply is not within facility and catchup
+    tolerance of fueldemand   
+    """    
     # getting the sqlite file
     cur = get_cursor(sql_file)
 
@@ -196,6 +212,13 @@ def supply_within_demand_range(sql_file,type):
     return num
 
 def plot_demand_supply(sqlite,demand,test):
+    """ Plots fuelsupply, fueldemand, calculated fuel supply and calculated fuel demand 
+    Parameters
+    ----------
+    sqlite: sqlite file to analyze 
+    demand: string, demand curve string 
+    test: string, test name    
+    """ 
     cur = get_cursor(sqlite)
     fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
     calc_fuel_demand = cur.execute("select time, sum(value) from timeseriesfuelcalc_demand group by time").fetchall()
@@ -232,6 +255,7 @@ def plot_demand_supply(sqlite,demand,test):
             fancybox=True)
     ax.set_title('Fuel Demand Supply plot')
     plt.savefig(test, dpi=300,bbox_inches='tight')
+    return 
 
 #######################TEST_A_Constant_1####################################
 """ 
@@ -275,11 +299,13 @@ def test_a_const_1():
     # plot 
     plot_demand_supply('test_a_const_1_file.sqlite','3000','a-const-1')
 
-    # check if supply of fuel is within facility_tolerance & catchup_tolerance
+    # check if supply of fuel is within two facility tolerance of demand 
     number_within_tolerance = supply_within_demand_fac_tol('test_a_const_1_file.sqlite','a-const-1',2)
     assert(number_within_tolerance == 0)
 
 @pytest.mark.xfail
+# check if supply of fuel is within one facility tolerance of demand 
+# expected to fail because NO_d3ploy takes 2 timesteps to know that there was supply deployed 
 def test_a_const_1_tol1(): 
     number_within_tolerance = supply_within_demand_fac_tol('test_a_const_1_file.sqlite','a-const-1',1)
     assert(number_within_tolerance == 0)
@@ -327,11 +353,13 @@ def test_a_grow_1():
     # plot 
     plot_demand_supply('test_a_grow_1_file.sqlite','100*t','a-grow-1')
 
-    # check if supply of fuel is within facility_tolerance & catchup_tolerance
+    # check if supply of fuel is within two facility tolerance of demand 
     number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_1_file.sqlite','a-grow-1',2)
     assert(number_within_tolerance == 0)
 
 @pytest.mark.xfail
+# check if supply of fuel is within one facility tolerance of demand 
+# expected to fail because NO_d3ploy takes 2 timesteps to know that there was supply deployed 
 def test_a_grow_1_tol1(): 
     number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_1_file.sqlite','a-grow-1',1)
     assert(number_within_tolerance == 0)
@@ -379,11 +407,13 @@ def test_a_grow_2():
     # plot 
     plot_demand_supply('test_a_grow_2_file.sqlite','10*(1+1.5)**(t/12)','a-grow-2')
 
-    # check if supply of fuel is within facility_tolerance & catchup_tolerance
+    # check if supply of fuel is within two facility tolerance of demand 
     number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_2_file.sqlite','a-grow-2',2)
     assert(number_within_tolerance == 0)
 
 @pytest.mark.xfail
+# check if supply of fuel is within one facility tolerance of demand 
+# expected to fail because NO_d3ploy takes 2 timesteps to know that there was supply deployed 
 def test_a_grow_2_tol1(): 
     number_within_tolerance = supply_within_demand_fac_tol('test_a_grow_2_file.sqlite','a-grow-2',1)
     assert(number_within_tolerance == 0)
