@@ -30,7 +30,7 @@ jobs:
                 name: conda install
                 command: |
                     conda install -c bashtage arch -y
-                    conda install statsmodles -y
+                    conda install statsmodels -y
           - checkout
           - run:
                 name: build
