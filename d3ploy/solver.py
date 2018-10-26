@@ -3,7 +3,6 @@ import copy
 import math
 from collections import defaultdict
 import numpy as np
-import scipy as sp
 
 """
 This solver.py file contains auxillary functions that 
