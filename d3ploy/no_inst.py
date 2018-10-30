@@ -241,7 +241,7 @@ class NOInst(Institution):
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
         # update commodities
-        self.commodity_dict[commod] = {agent.prototype: value}
+        #self.commodity_dict[commod] = {agent.prototype: value}
 
     def extract_demand(self, agent, time, value, commod):
         """
