@@ -16,11 +16,11 @@ from cyclus.agents import Institution, Agent
 from cyclus import lib
 import cyclus.typesystem as ts
 import d3ploy.solver as solver
-import d3ploy.no_solvers as no
+import d3ploy.NO_solvers as no
 
 CALC_METHODS = {}
 
-class NOInst(Institution):
+class TimeSeriesInst(Institution):
     """
     This institution deploys facilities based on demand curves using
     time series methods.

@@ -43,7 +43,7 @@ INPUT = {
     {"lib": "cycamore", "name": "Source"},
     {"lib": "cycamore", "name": "Reactor"},
     {"lib": "cycamore", "name": "Sink"},
-    {"lib": "d3ploy.no_inst", "name": "NOInst"}
+    {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
    ]
   },
   "control": {"duration": "10", "startmonth": "1", "startyear": "2000"},
@@ -92,7 +92,7 @@ INPUT = {
    "config": {"NullRegion": "\n      "},
    "institution": {
     "config": {
-     "NOInst": {
+     "TimeSeriesInst": {
       "calc_method": "ma",
       "commodities": {"val": ["POWER_reactor_1000", "freshfuel_source_3000"]},
       "demand_eq": "1000",
