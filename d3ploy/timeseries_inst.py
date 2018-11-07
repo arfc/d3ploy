@@ -152,18 +152,16 @@ class TimeSeriesInst(Institution):
             self.fresh = False
 
 
-    def tock(self):
+    def decision(self):
         """
         This is the tock method for the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
         for commod, proto_cap in self.commodity_dict.items():
-            if time==0:
-                continue
             if not bool(proto_cap):
                 raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
-            diff, supply, demand = self.calc_diff(commod, time-1)
+            diff, supply, demand = self.calc_diff(commod, time)
             lib.record_time_series(commod+'calc_supply', self, supply)
             lib.record_time_series(commod+'calc_demand', self, demand)
             if  diff < 0:
@@ -173,8 +171,8 @@ class TimeSeriesInst(Institution):
                         self.context.schedule_build(self, proto)
             if self.record:
                 out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
-                out_text += " supply " + str(self.commodity_supply[commod][time-1])
-                out_text += " demand " + str(self.commodity_demand[commod][time-1]) + "\n"
+                out_text += " supply " + str(self.commodity_supply[commod][time])
+                out_text += " demand " + str(self.commodity_demand[commod][time]) + "\n"
                 with open(commod +".txt", 'a') as f:
                     f.write(out_text)
 
@@ -197,9 +195,9 @@ class TimeSeriesInst(Institution):
         """
         if time not in self.commodity_demand[commod]:
             t = 0
-            self.commodity_demand[commod][time] = eval(self.demand_eq)
+            self.commodity_demand[commod][time] = int(eval(self.demand_eq))
         if time not in self.commodity_supply[commod]:
-            self.commodity_supply[commod][time] = 0
+            self.commodity_supply[commod][time] = 0.0
         try:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     steps = self.steps,
@@ -208,16 +206,16 @@ class TimeSeriesInst(Institution):
         except (ValueError, np.linalg.linalg.LinAlgError):
             supply = CALC_METHODS['ma'](self.commodity_supply[commod])
         if commod == self.driving_commod:
-            demand = self.demand_calc(time+2)
-            self.commodity_demand[commod][time+2] = demand
-        try:
-
-            demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
+            demand = self.demand_calc(time+1)
+            self.commodity_demand[commod][time+1] = demand
+        else:
+            try:
+                demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                     steps = self.steps,
                                                     std_dev = self.demand_std_dev,
                                                     back_steps=self.back_steps)
-        except (np.linalg.linalg.LinAlgError, ValueError):
-            demand = CALC_METHODS['ma'](self.commodity_demand[commod])
+            except (np.linalg.linalg.LinAlgError, ValueError):
+                demand = CALC_METHODS['ma'](self.commodity_demand[commod])
         diff = supply - demand
         return diff, supply, demand
 

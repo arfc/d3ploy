@@ -14,7 +14,7 @@
     </spec>
   </archetypes>
   <control>
-    <duration>20</duration>
+    <duration>50</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
   </control>
@@ -66,8 +66,12 @@
       <config>
         <TimeSeriesInst>
           <calc_method>arma</calc_method>
-          <demand_eq>3*t</demand_eq>
-          <commodities><val>POWER_Reactor_1000</val><val>fuel_Enrichment_10000</val><val>uranium_Mine_100000</val></commodities>
+          <demand_eq>300*t</demand_eq>
+          <commodities>
+            <val>POWER_Reactor_1000</val>
+            <val>fuel_Enrichment_10000</val>
+            <val>uranium_Mine_100000</val>
+          </commodities>
           <record>1</record>
         </TimeSeriesInst>
       </config>
