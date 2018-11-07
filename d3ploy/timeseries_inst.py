@@ -227,7 +227,7 @@ class TimeSeriesInst(Institution):
     def predict_supply(self, commod):
         if self.calc_method in ['arma', 'ma', 'arch']:
             try:
-                supply = CALC_METHODS[self.cacl_method](self.commodity_supply[commod],
+                supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                         steps=self.steps,
                                                         std_dev=self.supply_std_dev,
                                                         back_steps=self.back_steps)
