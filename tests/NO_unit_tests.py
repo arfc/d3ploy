@@ -60,7 +60,7 @@ TEMPLATE = {
                 {"lib": "cycamore", "name": "Source"},
                 {"lib": "cycamore", "name": "Reactor"},
                 {"lib": "cycamore", "name": "Sink"},
-                {"lib": "d3ploy.no_inst", "name": "NOInst"}
+                {"lib": "d3ploy.no_inst", "name": "TimeSeriesInst"}
             ]
         },
         "control": {"duration": "15", "startmonth": "1", "startyear": "2000"},
@@ -110,9 +110,9 @@ TEMPLATE = {
     }
 }
 
-# testA refers to if NOInst meets the increased demand by
+# testA refers to if TimeSeriesInst meets the increased demand by
 # deploying more facilities.
-# testB refers to if NOInst meets the decreased demand by
+# testB refers to if TimeSeriesInst meets the decreased demand by
 # decommissioning existing facilities.
 
 
@@ -123,7 +123,7 @@ INIT_DEMAND["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
         "config": {
-            "NOInst": {
+            "TimeSeries": {
                 "calc_method": "arma",
                 "demand_commod": "POWER",
                 "demand_std_dev": "0.0",
@@ -144,7 +144,7 @@ INIT_DEMAND["simulation"].update({"region": {
 
 @pytest.mark.base
 def test_a_const_1():
-    # tests if NOInst deploys a source
+    # tests if TimeSeriesInst deploys a source
     # given initial demand and no initial facilities
     output_file = 'init_file.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
@@ -178,7 +178,7 @@ INIT_DEMAND_WITH_INIT_FACILITIES["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
         "config": {
-            "NOInst": {
+            "TimeSeriesInst": {
                 "calc_method": "arma",
                 "demand_commod": "POWER",
                 "demand_std_dev": "0.0",
@@ -202,7 +202,7 @@ INIT_DEMAND_WITH_INIT_FACILITIES["simulation"].update({"region": {
 
 @pytest.mark.base
 def test_a_const_2():
-    # tests if NOInst deploys a source given
+    # tests if TimeSeriesInst deploys a source given
     # initial demand and no initial facilities
     output_file = 'init_demand_init_fac.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
@@ -236,7 +236,7 @@ INCREASING_DEMAND['simulation'].update(
         "config": {"NullRegion": "\n      "},
         "institution": {
             "config": {
-                "NOInst": {
+                "TimeSeriesInst": {
                     "calc_method": "arma",
                     "demand_commod": "POWER",
                     "demand_std_dev": "0.0",
@@ -256,7 +256,7 @@ INCREASING_DEMAND['simulation'].update(
 
 @pytest.mark.base
 def test_a_grow_1():
-    # tests if NOInst deploys a source according to increasing demand
+    # tests if TimeSeriesInst deploys a source according to increasing demand
     output_file = 'increasing_demand.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
     with open(input_file, 'w') as f:
@@ -290,7 +290,7 @@ INCREASING_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
         "config": {"NullRegion": "\n      "},
         "institution": {
             "config": {
-                "NOInst": {
+                "TimeSeriesInst": {
                     "calc_method": "arma",
                     "demand_commod": "POWER",
                     "demand_std_dev": "0.0",
@@ -314,7 +314,7 @@ INCREASING_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
 
 @pytest.mark.base
 def test_a_grow_2():
-    # tests if NOInst deploys a source according to increasing demand
+    # tests if TimeSeriesInst deploys a source according to increasing demand
     output_file = 'increasing_demand_with_init_facilites.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
     with open(input_file, 'w') as f:
@@ -346,7 +346,7 @@ def test_a_grow_2_exact():
 
 
 def test_a_const_3():
-    # tests if NOInst decomissions all deployed
+    # tests if TimeSeriesInst decomissions all deployed
     # facilities with demand going to zero.
     output_file = 'phaseout_no_initdemand.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
@@ -372,7 +372,7 @@ PHASEOUT["simulation"].update(
         "config": {"NullRegion": "\n      "},
         "institution": {
             "config": {
-                "NOInst": {
+                "TimeSeriesInst": {
                     "calc_method": "arma",
                     "demand_commod": "POWER",
                     "demand_std_dev": "0.0",
@@ -395,7 +395,7 @@ PHASEOUT["simulation"].update(
 
 
 def test_a_decl_1():
-    # tests if NOInst decomissions all deployed
+    # tests if TimeSeriesInst decomissions all deployed
     # facilities with demand going to zero.
     output_file = 'phaseout.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
@@ -422,7 +422,7 @@ REACTOR_SOURCE_INIT_DEMAND['simulation'].update(
         "institution": [
             {
                 "config": {
-                    "NOInst": {
+                    "TimeSeriesInst": {
                         "calc_method": "arma",
                         "demand_commod": "fuel_reactor",
                         "demand_std_dev": "0.0",
@@ -437,7 +437,7 @@ REACTOR_SOURCE_INIT_DEMAND['simulation'].update(
             },
             {
                 "config": {
-                    "NOInst": {
+                    "TimeSeriesInst": {
                         "calc_method": "arma",
                         "demand_commod": "POWER",
                         "demand_std_dev": "0.0",
@@ -498,7 +498,7 @@ REACTOR_SOURCE_INIT_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
         "institution": [
             {
                 "config": {
-                    "NOInst": {
+                    "TimeSeriesInst": {
                         "calc_method": "arma",
                         "demand_commod": "fuel_reactor",
                         "demand_std_dev": "0.0",
@@ -517,7 +517,7 @@ REACTOR_SOURCE_INIT_DEMAND_WITH_INIT_FACILITIES['simulation'].update(
             },
             {
                 "config": {
-                    "NOInst": {
+                    "TimeSeriesInst": {
                         "calc_method": "arma",
                         "demand_commod": "power",
                         "demand_std_dev": "0.0",
@@ -582,7 +582,7 @@ REACTOR_SOURCE_GROWTH['simulation'].update(
         "institution": [
             {
                 "config": {
-                    "NOInst": {
+                    "TimeSeriesInst": {
                         "calc_method": "arma",
                         "demand_commod": "fuel_reactor",
                         "demand_std_dev": "0.0",
@@ -597,7 +597,7 @@ REACTOR_SOURCE_GROWTH['simulation'].update(
             },
             {
                 "config": {
-                    "NOInst": {
+                    "TimeSeriesInst": {
                         "calc_method": "arma",
                         "demand_commod": "POWER",
                         "demand_std_dev": "0.0",
@@ -665,7 +665,7 @@ PHASEOUT_NO_INITDEMAND["simulation"].update(
         "config": {"NullRegion": "\n      "},
         "institution": {
             "config": {
-                "NOInst": {
+                "TimeSeriesInst": {
                     "calc_method": "arma",
                     "demand_commod": "POWER",
                     "demand_std_dev": "0.0",
