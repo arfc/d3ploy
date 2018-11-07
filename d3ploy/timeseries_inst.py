@@ -1,9 +1,8 @@
 """
-The Non-Optimizing institution uses ARMA and ARCH to determine the
-supply and demand of a commodity. It uses this information to determine
-the deployment of the supply side agent. Information use to determine the
-deployment is taken from the t-1 time step. This information predicts supply
-and demand of the t+1 time step and the process is done on the t time step.
+This cyclus archetype uses time series methods to predict the demand and supply
+for future time steps and manages the deployment of facilities to ensure
+supply is greater than demand. Time series predicition methods can be used
+in this archetype. 
 """
 
 import random
@@ -12,21 +11,19 @@ import math
 from collections import defaultdict
 import numpy as np
 import scipy as sp
-import d3ploy.solver as solver
 
 from cyclus.agents import Institution, Agent
 from cyclus import lib
 import cyclus.typesystem as ts
-
-import statsmodels.api as sm
-from arch import arch_model
+import d3ploy.solver as solver
+import d3ploy.NO_solvers as no
 
 CALC_METHODS = {}
 
-class NOInst(Institution):
+class TimeSeriesInst(Institution):
     """
     This institution deploys facilities based on demand curves using
-    Non Optimizing (NO) methods.
+    time series methods.
     """
 
     commodities = ts.VectorString(
@@ -77,7 +74,7 @@ class NOInst(Institution):
     )
 
     steps = ts.Int(
-        doc="The number of timesteps forward for ARMA or order of the MA",
+        doc="The number of timesteps forward to predict supply and demand",
         tooltip="The number of predicted steps forward",
         uilabel="Timesteps for Prediction",
         default=2
@@ -113,9 +110,9 @@ class NOInst(Institution):
         self.rev_commodity_supply = {}
         self.rev_commodity_demand = {}
         self.fresh = True
-        CALC_METHODS['ma'] = self.moving_avg
-        CALC_METHODS['arma'] = self.predict_arma
-        CALC_METHODS['arch'] = self.predict_arch
+        CALC_METHODS['ma'] = no.moving_avg
+        CALC_METHODS['arma'] = no.predict_arma
+        CALC_METHODS['arch'] = no.predict_arch
 
     def print_variables(self):
         print('commodities: %s' %self.commodity_dict)
@@ -164,7 +161,7 @@ class NOInst(Institution):
         for commod, proto_cap in self.commodity_dict.items():
             if not bool(proto_cap):
                 raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
-            diff, supply, demand = self.calc_diff(commod, time-1)
+            diff, supply, demand = self.calc_diff(commod, time)
             lib.record_time_series(commod+'calc_supply', self, supply)
             lib.record_time_series(commod+'calc_demand', self, demand)
             if  diff < 0:
@@ -174,8 +171,8 @@ class NOInst(Institution):
                         self.context.schedule_build(self, proto)
             if self.record:
                 out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
-                out_text += " supply " + str(self.commodity_supply[commod][time-1])
-                out_text += " demand " + str(self.commodity_demand[commod][time-1]) + "\n"
+                out_text += " supply " + str(self.commodity_supply[commod][time])
+                out_text += " demand " + str(self.commodity_demand[commod][time]) + "\n"
                 with open(commod +".txt", 'a') as f:
                     f.write(out_text)
 
@@ -198,9 +195,9 @@ class NOInst(Institution):
         """
         if time not in self.commodity_demand[commod]:
             t = 0
-            self.commodity_demand[commod][time] = eval(self.demand_eq)
+            self.commodity_demand[commod][time] = int(eval(self.demand_eq))
         if time not in self.commodity_supply[commod]:
-            self.commodity_supply[commod][time] = 0
+            self.commodity_supply[commod][time] = 0.0
         try:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     steps = self.steps,
@@ -209,16 +206,16 @@ class NOInst(Institution):
         except (ValueError, np.linalg.linalg.LinAlgError):
             supply = CALC_METHODS['ma'](self.commodity_supply[commod])
         if commod == self.driving_commod:
-            demand = self.demand_calc(time+2)
-            self.commodity_demand[commod][time+2] = demand
-        try:
-
-            demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
+            demand = self.demand_calc(time+1)
+            self.commodity_demand[commod][time+1] = demand
+        else:
+            try:
+                demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                     steps = self.steps,
                                                     std_dev = self.demand_std_dev,
                                                     back_steps=self.back_steps)
-        except (np.linalg.linalg.LinAlgError, ValueError):
-            demand = CALC_METHODS['ma'](self.commodity_demand[commod])
+            except (np.linalg.linalg.LinAlgError, ValueError):
+                demand = CALC_METHODS['ma'](self.commodity_demand[commod])
         diff = supply - demand
         return diff, supply, demand
 
@@ -273,63 +270,3 @@ class NOInst(Institution):
         t = time
         demand = eval(self.demand_eq)
         return demand
-
-    def moving_avg(self, ts, steps=1, std_dev = 0, back_steps=5):
-        """
-        Calculates the moving average of a previous [order] entries in
-        timeseries [ts]. It will automatically reduce the order if the
-        length of ts is shorter than the order.
-        Parameters:
-        -----------
-        ts : Array of doubles
-            An array of time series data to be used for the arma prediction
-        order : int
-            The number of values used for the moving average.
-        Returns
-        -------
-        x : The moving average calculated by the function.
-        """
-        supply = np.array(list(ts.values()))
-        if steps >= len(supply):
-            steps = len(supply) * -1
-        else:
-            steps *= -1
-        x = np.average(supply[steps:])
-        return x
-
-    def predict_arma(self, ts, steps=2, std_dev = 0, back_steps=5):
-        """
-        Predict the value of supply or demand at a given time step using the
-        currently available time series data. This method impliments an ARMA
-        calculation to perform the prediciton.
-        Parameters:
-        -----------
-        ts : Array of doubles
-            An array of time series data to be used for the arma prediction
-        time: int
-            The number of timesteps to predict forward.
-        Returns:
-        --------
-        x : Predicted value for the time series at chosen timestep (time).
-        """
-        v = list(ts.values())
-        v = v[-1*back_steps:]
-        fit = sm.tsa.ARMA(v, (1,0)).fit(disp=-1)
-        forecast = fit.forecast(steps)
-        x = forecast[0][steps-1] + forecast[1][steps-1]*std_dev
-        return x
-
-    def predict_arch(self, ts, steps=2, std_dev = 0, back_steps=10):
-        """
-        Predict the value of supply or demand at a given time step using the
-        currently available time series data. This method impliments an ARCH
-        calculation to perform the prediciton.
-        """
-        v = list(ts.values())
-        model = arch_model(v)
-        fit = model.fit(disp='nothing', update_freq=0, show_warning=False)
-        forecast = fit.forecast(horizon=steps)
-        step = 'h.' + str(steps)
-        x = forecast.mean.get(step)[len(v)-steps]
-        sd = math.sqrt(forecast.variance.get(step)[len(v)-steps]) * std_dev
-        return x+sd

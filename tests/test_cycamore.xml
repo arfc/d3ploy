@@ -17,8 +17,8 @@
       <name>Sink</name>
     </spec>
     <spec>
-      <lib>d3ploy.no_inst</lib>
-      <name>NOInst</name>
+      <lib>d3ploy.timeseries_inst</lib>
+      <name>TimeSeriesInst</name>
     </spec>
   </archetypes>
   <control>
@@ -103,14 +103,14 @@
     </config>
     <institution>
       <config>
-        <NOInst>
+        <TimeSeriesInst>
           <calc_method>ma</calc_method>
           <record>1</record>
 	        <demand_std_dev>0.0</demand_std_dev>
           <demand_eq>3*t</demand_eq>
           <commodities><val>POWER_reactor_1</val><val>fuel_source_1</val></commodities>
           <steps>1</steps>
-        </NOInst>
+        </TimeSeriesInst>
       </config>
     <name>source_inst</name>
     </institution>
