@@ -17,6 +17,7 @@ from cyclus import lib
 import cyclus.typesystem as ts
 import d3ploy.solver as solver
 import d3ploy.NO_solvers as no
+import d3ploy.DO_solvers as do
 
 CALC_METHODS = {}
 
@@ -103,6 +104,20 @@ class TimeSeriesInst(Institution):
         default=0
     )
 
+    demand_std_dev = ts.Double(
+        doc="The standard deviation adjustment for the demand side.",
+        tooltip="The standard deviation adjustment for the demand side.",
+        uilabel="Demand Std Dev",
+        default=0
+    )
+    
+    degree = ts.Int(
+        doc="The degree of the fitting polynomial.",
+        tooltip="The degree of the fitting polynomial, if using calc method poly.",
+        uilabel="Degree Polynomial Fit",
+        default=1
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.commodity_supply = {}
@@ -113,6 +128,8 @@ class TimeSeriesInst(Institution):
         CALC_METHODS['ma'] = no.moving_avg
         CALC_METHODS['arma'] = no.predict_arma
         CALC_METHODS['arch'] = no.predict_arch
+        CALC_METHODS['poly'] = do.polyfit_regression
+
 
     def print_variables(self):
         print('commodities: %s' %self.commodity_dict)
@@ -175,8 +192,7 @@ class TimeSeriesInst(Institution):
                 out_text += " demand " + str(self.commodity_demand[commod][time]) + "\n"
                 with open(commod +".txt", 'a') as f:
                     f.write(out_text)
-
-
+        
     def calc_diff(self, commod, time):
         """
         This function calculates the different in supply and demand for a given facility
@@ -196,28 +212,53 @@ class TimeSeriesInst(Institution):
         if time not in self.commodity_demand[commod]:
             t = 0
             self.commodity_demand[commod][time] = int(eval(self.demand_eq))
+
         if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = 0.0
-        try:
+
+        supply = self.predict_supply(commod)
+        demand = self.predict_demand(commod, time)
+
+        diff = supply - demand
+        return diff, supply, demand
+
+    def predict_supply(self, commod):
+        if self.calc_method in ['arma', 'ma', 'arch']:
+            try:
+                supply = CALC_METHODS[self.cacl_method](self.commodity_supply[commod],
+                                                        steps=self.steps,
+                                                        std_dev=self.supply_std_dev,
+                                                        back_steps=self.back_steps)
+            except (ValueError, np.linalg.linalg.LinAlgError):
+                supply = CALC_METHODS['ma'](self.commodity_supply[commod])
+        elif self.calc_method in ['poly']:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
-                                                    steps = self.steps,
-                                                    std_dev = self.supply_std_dev,
-                                                    back_steps=self.back_steps)
-        except (ValueError, np.linalg.linalg.LinAlgError):
-            supply = CALC_METHODS['ma'](self.commodity_supply[commod])
+                                                    back_steps=self.back_steps,
+                                                    degree=self.degree)
+        else:
+            raise ValueError('The input calc_method is not valid. Check again.')
+        
+        return supply
+    
+    def predict_demand(self, commod, time):
         if commod == self.driving_commod:
             demand = self.demand_calc(time+1)
             self.commodity_demand[commod][time+1] = demand
         else:
-            try:
+            if self.calc_method in ['arma', 'ma', 'arch']:
+                try:
+                    demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod]),
+                                                            steps=self.steps,
+                                                            std_dev=self.supply_std_dev,
+                                                            back_steps=self.back_steps)
+                except (ValueError, np.linalg.linalg.LinAlgError):
+                    demand = CALC_METHODS['ma'](self.commodity_demand[commod])
+            elif self.cacl_method in ['poly']:
                 demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
-                                                    steps = self.steps,
-                                                    std_dev = self.demand_std_dev,
-                                                    back_steps=self.back_steps)
-            except (np.linalg.linalg.LinAlgError, ValueError):
-                demand = CALC_METHODS['ma'](self.commodity_demand[commod])
-        diff = supply - demand
-        return diff, supply, demand
+                                                        back_steps=self.back_steps,
+                                                        degree=self.degree)
+
+        return demand
 
     def extract_supply(self, agent, time, value, commod):
         """
