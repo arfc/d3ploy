@@ -129,7 +129,9 @@ class TimeSeriesInst(Institution):
         CALC_METHODS['arma'] = no.predict_arma
         CALC_METHODS['arch'] = no.predict_arch
         CALC_METHODS['poly'] = do.polyfit_regression
-
+        CALC_METHODS['exp_smoothing'] = do.exp_smoothing
+        CALC_METHODS['holt_winters'] = do.holt_winters
+        
 
     def print_variables(self):
         print('commodities: %s' %self.commodity_dict)
@@ -215,12 +217,12 @@ class TimeSeriesInst(Institution):
 
         if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = 0.0
-
         supply = self.predict_supply(commod)
         demand = self.predict_demand(commod, time)
 
         diff = supply - demand
         return diff, supply, demand
+
 
     def predict_supply(self, commod):
         if self.calc_method in ['arma', 'ma', 'arch']:
@@ -231,7 +233,7 @@ class TimeSeriesInst(Institution):
                                                         back_steps=self.back_steps)
             except (ValueError, np.linalg.linalg.LinAlgError):
                 supply = CALC_METHODS['ma'](self.commodity_supply[commod])
-        elif self.calc_method in ['poly']:
+        elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters']:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
@@ -247,18 +249,21 @@ class TimeSeriesInst(Institution):
         else:
             if self.calc_method in ['arma', 'ma', 'arch']:
                 try:
-                    demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod]),
+                    demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                             steps=self.steps,
                                                             std_dev=self.supply_std_dev,
                                                             back_steps=self.back_steps)
                 except (ValueError, np.linalg.linalg.LinAlgError):
                     demand = CALC_METHODS['ma'](self.commodity_demand[commod])
-            elif self.cacl_method in ['poly']:
+            elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters']:
                 demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                         back_steps=self.back_steps,
                                                         degree=self.degree)
-
+            else:
+                raise ValueError('The input calc_method is not valid. Check again.')
+        
         return demand
+
 
     def extract_supply(self, agent, time, value, commod):
         """
