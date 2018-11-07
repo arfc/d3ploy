@@ -5,9 +5,10 @@ from collections import defaultdict
 import numpy as np
 
 """
-This solver.py file contains auxillary functions that 
+This solver.py file contains auxillary functions that
 aid `no_inst.py'.
 """
+
 
 def deploy_solver(commodity_dict, commod, diff):
     """ This function optimizes prototypes to deploy to minimize over
@@ -47,14 +48,15 @@ def deploy_solver(commodity_dict, commod, diff):
             deploy_dict[proto] = 1
             # see what the diff is now
             remainder -= proto_commod[proto]
-            # if this is not enough, keep deploying until it's smaller than its cap
+            # if this is not enough, keep deploying
+            # until it's smaller than its cap
             while remainder > proto_commod[proto]:
                 deploy_dict[proto] += 1
                 remainder -= proto_commod[proto]
 
     if remainder == 0:
         return deploy_dict
-    
+
     for proto in list(reversed(key_list)):
         # see if the prototype cap is bigger than remainder
         if remainder > proto_commod[proto]:
@@ -64,20 +66,20 @@ def deploy_solver(commodity_dict, commod, diff):
         else:
             deploy_dict[proto] = 1
         break
-    
+
     return deploy_dict
 
 
 def get_asc_key_list(dicti):
     """ This function sorts keys in ascending order
         of their values
-    
+
     Parameters:
     -----------
     dictionary: dict
         key: key
         value: value to be sorted
-    
+
     Returns:
     --------
     key_list: list
