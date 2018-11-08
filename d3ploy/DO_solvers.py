@@ -86,7 +86,7 @@ def holt_winters(ts, back_steps=10, degree=1):
     x = model_fit.predict(len(timeseries), len(timeseries))
     return x[0]
 
-def fourierExtrapolation(ts, back_steps=1e6, degree=1):
+def fft(ts, back_steps=1e6, degree=1):
     timeseries = np.array(list(ts.values()))
     n = timeseries.size
     n_harm = 100                    # number of harmonics in model
