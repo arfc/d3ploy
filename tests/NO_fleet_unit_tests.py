@@ -1,5 +1,5 @@
 """
-This python file contains fleet based unit tests for NO_INST
+This python file contains fleet based unit tests for TimeSeriesInst
 archetype. 
 """
 
@@ -49,7 +49,7 @@ TEMPLATE = {
                 {"lib": "cycamore", "name": "Source"},
                 {"lib": "cycamore", "name": "Reactor"},
                 {"lib": "cycamore", "name": "Sink"},
-                {"lib": "d3ploy.no_inst", "name": "NOInst"}
+                {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
             ]
         },
         "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
@@ -264,7 +264,7 @@ test_a_const_1_template["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
         "config": {
-            "NOInst": {
+            "TimeSeriesInst": {
                 "calc_method": "arma",
                 "commodities": {"val": ["fuel_source_3000"]},
                 "driving_commod": "fuel",
@@ -318,7 +318,7 @@ test_a_grow_1_temp["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
         "config": {
-            "NOInst": {
+            "TimeSeriesInst": {
                 "calc_method": "arma", 
                 "commodities": {"val": ["fuel_source_3000"]}, 
                 "driving_commod": "fuel",
@@ -372,7 +372,7 @@ test_a_grow_2_temp["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
         "config": {
-            "NOInst": {
+            "TimeSeriesInst": {
                 "calc_method": "ma",
                 "commodities": {"val": ["fuel_source_3000"]},
                 "driving_commod": "fuel",
