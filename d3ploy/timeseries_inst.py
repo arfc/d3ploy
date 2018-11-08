@@ -174,7 +174,7 @@ class TimeSeriesInst(Institution):
 
     def decision(self):
         """
-        This is the tock method fordecision the institution. Here the institution determines the difference
+        This is the tock method for decision the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
