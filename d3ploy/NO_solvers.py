@@ -8,7 +8,7 @@ import numpy as np
 import statsmodels.api as sm
 from arch import arch_model
 
-def moving_avg(ts, steps=1, std_dev = 0, back_steps=5):
+def predict_ma(ts, steps=5, std_dev = 0, back_steps=5):
     """
     Calculates the moving average of a previous [order] entries in
     timeseries [ts]. It will automatically reduce the order if the
@@ -31,7 +31,7 @@ def moving_avg(ts, steps=1, std_dev = 0, back_steps=5):
     x = np.average(supply[steps:])
     return x
 
-def predict_arma(ts, steps=2, std_dev = 0, back_steps=5):
+def predict_arma(ts, steps=5, std_dev = 0, back_steps=5):
     """
     Predict the value of supply or demand at a given time step using the
     currently available time series data. This method impliments an ARMA
@@ -48,22 +48,30 @@ def predict_arma(ts, steps=2, std_dev = 0, back_steps=5):
     """
     v = list(ts.values())
     v = v[-1*back_steps:]
-    fit = sm.tsa.ARMA(v, (1,0)).fit(disp=-1)
-    forecast = fit.forecast(steps)
-    x = forecast[0][steps-1] + forecast[1][steps-1]*std_dev
+    try:    
+        fit = sm.tsa.ARMA(v, (1,0)).fit(disp=-1)
+        forecast = fit.forecast(steps)
+        x = forecast[0][steps-1] + forecast[1][steps-1]*std_dev
+    except (ValueError, np.linalg.linalg.LinAlgError):
+        x = v[-1] 
     return x
 
-def predict_arch(ts, steps=2, std_dev = 0, back_steps=10):
+def predict_arch(ts, steps=1, std_dev = 0, back_steps=10):
     """
     Predict the value of supply or demand at a given time step using the
     currently available time series data. This method impliments an ARCH
     calculation to perform the prediciton.
     """
     v = list(ts.values())
-    model = arch_model(v)
-    fit = model.fit(disp='nothing', update_freq=0, show_warning=False)
-    forecast = fit.forecast(horizon=steps)
-    step = 'h.' + str(steps)
-    x = forecast.mean.get(step)[len(v)-steps]
-    sd = math.sqrt(forecast.variance.get(step)[len(v)-steps]) * std_dev
-    return x+sd
+    if len(v) == 1:
+        return v[-1]
+    try:
+        model = arch_model(v)
+        fit = model.fit(disp='nothing', update_freq=0, show_warning=False)
+        forecast = fit.forecast(horizon=steps)
+        step = 'h.' + str(steps)
+        x = forecast.mean.get(step)[len(v)-steps]
+        x += math.sqrt(forecast.variance.get(step)[len(v)-steps]) * std_dev
+    except:
+        x = v[-1]
+    return x
