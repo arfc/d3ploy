@@ -230,7 +230,7 @@ class TimeSeriesInst(Institution):
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters']:
             supply = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                     back_steps=self.back_steps,
-                                                        degree=self.degree)
+                                                    degree=self.degree)
         else:
             raise ValueError('The input calc_method is not valid. Check again.')
         return supply
