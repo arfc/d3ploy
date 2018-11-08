@@ -91,7 +91,7 @@ def fft(ts, back_steps=1e6, degree=1):
     n = timeseries.size
     n_harm = 100                    # number of harmonics in model
     t = np.arange(0, n)
-    p = np.polyfit(t, timeseries, 2)         # find linear trend in x
+    p = np.polyfit(t, timeseries, degree)         # find linear trend in x
     x_notrend = timeseries - p[0] * t        # detrended x
     x_freqdom = np.fft.fft(x_notrend)  # detrended x in frequency domain
     f = np.fft.fftfreq(n)              # frequencies
