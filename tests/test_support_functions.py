@@ -162,7 +162,7 @@ def demand_curve(type,time_point):
         demand_point = 10*(1+1.5)**(time_point/12)
     return demand_point
 
-def supply_within_demand_fac_tol(sql_file,type,no_fac):
+def supply_within_demand_fac_tol(sql_file,type,no_fac,commod):
     """ Analyzes if the fuelsupply provided in the SQL file is within no_fac tolerance of 
     demand and returns a number of timesteps that it is within the tolerance. 
     Parameters
@@ -179,7 +179,8 @@ def supply_within_demand_fac_tol(sql_file,type,no_fac):
     cur = get_cursor(sql_file)
 
     # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfuel group by time").fetchall()
+    name = "timeseriessupply"+commod
+    fuel_supply = cur.execute("select time, sum(value) from "+name+" group by time").fetchall()
     num = 0
     for pt in range(0,len(fuel_supply)):
         fuel_supply_point = fuel_supply[pt][1]

@@ -1,6 +1,10 @@
 """
 This python file contains fleet based unit tests for timeseries_inst archetype for DO_solvers.
 
+How to use: 
+pytest [file name]: gives test results 
+python [file name]: gives best calc method based on normalizing and scoring
+
 """
 
 import json
@@ -108,36 +112,68 @@ for x in range(0,len(calc_methods)):
             }
         }
     }
-def scenario_1(): 
-    dict_total = {}
-    dict_negative = {}
 
-    for x in range(0,len(calc_methods)):
-        name = "scenario_1_input_"+calc_methods[x]
-        input_file = name+".json"
-        output_file = name+".sqlite"
-        with open(input_file, 'w') as f:
-            json.dump(scenario_1_input[x], f)
-        s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                                    universal_newlines=True, env=ENV)
+dict_total = {}
+dict_negative = {}
+number_within_tolerance = {}
+number_within_tolerance1 = {}
 
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(output_file,demand_eq,'fuel')
-        # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method 
-        functions.plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_supply,demand_eq,name)
+for x in range(0,len(calc_methods)):
+    name = "scenario_1_input_"+calc_methods[x]
+    input_file = name+".json"
+    output_file = name+".sqlite"
+    with open(input_file, 'w') as f:
+        json.dump(scenario_1_input[x], f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=ENV)
 
-        dict_total[x], dict_negative[x] = functions.calculate_total_neg(dict_demand, dict_supply)
+    dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(output_file,demand_eq,'fuel')
+    # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method 
+    #functions.plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_supply,demand_eq,name)
+
+    dict_total[x], dict_negative[x] = functions.calculate_total_neg(dict_demand, dict_supply)
+
+    number_within_tolerance[calc_methods[x]] = functions.supply_within_demand_fac_tol(output_file,'a-grow-1',2,'fuel')
+    number_within_tolerance1[calc_methods[x]] = functions.supply_within_demand_fac_tol(output_file,'a-grow-1',1,'fuel')
+
+# tells you which is the best calc method based on normalizing and scoring
+calc_method_num, score = functions.find_best(dict_total,dict_negative)
+best_calc_method = calc_methods[calc_method_num]
+print('SCENARIO1',best_calc_method)
 
 
-    # tells you which is the best calc method based on normalizing and scoring
-    calc_method_num, score = functions.find_best(dict_total,dict_negative)
-    best_calc_method = calc_methods[calc_method_num]
-    print('SCENARIO1',best_calc_method)
+# check if supply of fuel is within two facility tolerance of demand 
+def test_scenario_1_ma(): 
+    assert number_within_tolerance['ma'] == 0
 
-    number_within_tolerance = functions.supply_within_demand_fac_tol(output_file,'a-grow-1',2)
-    print(number_within_tolerance)
-    assert(number_within_tolerance == 0)
+def test_scenario_1_arma(): 
+    assert(number_within_tolerance['arma'] == 0)
 
-    
+def test_scenario_1_poly(): 
+    assert(number_within_tolerance['poly'] == 0)
+
+def test_scenario_1_exp_smoothing(): 
+    assert(number_within_tolerance['exp_smoothing'] == 0)
+
+def test_scenario_1_holt_winters(): 
+    assert(number_within_tolerance['holt_winters'] == 0)
+
+# check if supply of fuel is within one facility tolerance of demand 
+def test_scenario_1_ma_1fac(): 
+    assert number_within_tolerance1['ma'] == 0
+
+def test_scenario_1_arma_1fac(): 
+    assert(number_within_tolerance1['arma'] == 0)
+
+def test_scenario_1_poly_1fac(): 
+    assert(number_within_tolerance1['poly'] == 0)
+
+def test_scenario_1_exp_smoothing_1fac(): 
+    assert(number_within_tolerance1['exp_smoothing'] == 0)
+
+def test_scenario_1_holt_winters_1fac(): 
+    assert(number_within_tolerance1['holt_winters'] == 0)
+
 
 ######################################SCENARIO 2################################################
 scenario_2_input = {}
@@ -221,6 +257,10 @@ dict_total = {}
 dict_negative = {}
 dict_total2 = {}
 dict_negative2 = {}
+number_within_tolerance = {}
+number_within_tolerance1 = {}
+number_within_tolerance_power = {}
+number_within_tolerance1_power = {}
 
 for x in range(0,len(calc_methods)):
     name = "scenario_2_input_"+calc_methods[x]
@@ -240,6 +280,12 @@ for x in range(0,len(calc_methods)):
     dict_total[x], dict_negative[x] = functions.calculate_total_neg(dict_demand, dict_supply)
     dict_total2[x], dict_negative2[x] = functions.calculate_total_neg(dict_demand2, dict_supply2)
 
+    number_within_tolerance[calc_methods[x]] = functions.supply_within_demand_fac_tol(output_file,'a-grow-1',2,'fuel')
+    number_within_tolerance1[calc_methods[x]] = functions.supply_within_demand_fac_tol(output_file,'a-grow-1',1,'fuel')
+    number_within_tolerance_power[calc_methods[x]] = functions.supply_within_demand_fac_tol(output_file,'a-grow-1',2,'power')
+    number_within_tolerance1_power[calc_methods[x]] = functions.supply_within_demand_fac_tol(output_file,'a-grow-1',1,'power')
+    
+
 # tells you which is the best calc method based on normalizing and scoring
 print(dict_total)
 print(dict_negative)
@@ -255,3 +301,70 @@ calc_method_num2, score2 = functions.find_best(dict_total2,dict_negative2)
 best_calc_method2 = calc_methods[calc_method_num2]
 print('FUEL',best_calc_method2)
 print('FUEL score',score2)
+
+# For commodity = FUEL 
+# check if supply of fuel is within two facility tolerance of demand 
+def test_scenario_2_ma_2fac_fuel(): 
+    assert number_within_tolerance['ma'] == 0
+
+def test_scenario_2_arma_2fac_fuel(): 
+    assert(number_within_tolerance['arma'] == 0)
+
+def test_scenario_2_poly_2fac_fuel(): 
+    assert(number_within_tolerance['poly'] == 0)
+
+def test_scenario_2_exp_smoothing_2fac_fuel(): 
+    assert(number_within_tolerance['exp_smoothing'] == 0)
+
+def test_scenario_2_holt_winters_2fac_fuel(): 
+    assert(number_within_tolerance['holt_winters'] == 0)
+
+# check if supply of fuel is within one facility tolerance of demand 
+def test_scenario_2_ma_1fac_fuel(): 
+    assert number_within_tolerance1['ma'] == 0
+
+def test_scenario_2_arma_1fac_fuel(): 
+    assert(number_within_tolerance1['arma'] == 0)
+
+def test_scenario_2_poly_1fac_fuel(): 
+    assert(number_within_tolerance1['poly'] == 0)
+
+def test_scenario_2_exp_smoothing_1fac_fuel(): 
+    assert(number_within_tolerance1['exp_smoothing'] == 0)
+
+def test_scenario_2_holt_winters_1fac_fuel(): 
+    assert(number_within_tolerance1['holt_winters'] == 0)
+
+
+# For commodity = Power 
+# check if supply of power is within two facility tolerance of demand 
+def test_scenario_2_ma_2fac_power(): 
+    assert number_within_tolerance_power['ma'] == 0
+
+def test_scenario_2_arma_2fac_power(): 
+    assert(number_within_tolerance_power['arma'] == 0)
+
+def test_scenario_2_poly_2fac_power(): 
+    assert(number_within_tolerance_power['poly'] == 0)
+
+def test_scenario_2_exp_smoothing_2fac_power(): 
+    assert(number_within_tolerance_power['exp_smoothing'] == 0)
+
+def test_scenario_2_holt_winters_2fac_power(): 
+    assert(number_within_tolerance_power['holt_winters'] == 0)
+
+# check if supply of fuel is within one facility tolerance of demand 
+def test_scenario_2_ma_1fac_power(): 
+    assert number_within_tolerance1_power['ma'] == 0
+
+def test_scenario_2_arma_1fac_power(): 
+    assert(number_within_tolerance1_power['arma'] == 0)
+
+def test_scenario_2_poly_1fac_power(): 
+    assert(number_within_tolerance1_power['poly'] == 0)
+
+def test_scenario_2_exp_smoothing_1fac_power(): 
+    assert(number_within_tolerance1_power['exp_smoothing'] == 0)
+
+def test_scenario_2_holt_winters_1fac_power(): 
+    assert(number_within_tolerance1_power['holt_winters'] == 0)
