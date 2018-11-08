@@ -178,10 +178,14 @@ class TimeSeriesInst(Institution):
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
+        print('Time', time)
         for commod, proto_cap in self.commodity_dict.items():
+            print('commodity', commod)
             if not bool(proto_cap):
                 raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
             diff, supply, demand = self.calc_diff(commod, time)
+            print('supply', supply)
+            print('demand', demand)
             lib.record_time_series(commod+'calc_supply', self, supply)
             lib.record_time_series(commod+'calc_demand', self, demand)
             if  diff < 0:
@@ -229,7 +233,7 @@ class TimeSeriesInst(Institution):
                                                     std_dev=self.supply_std_dev,
                                                     back_steps=self.back_steps)
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
-            supply = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
         else:
