@@ -71,7 +71,7 @@ class TimeSeriesInst(Institution):
         doc="The number of timesteps forward to predict supply and demand",
         tooltip="The number of predicted steps forward",
         uilabel="Timesteps for Prediction",
-        default=2
+        default=1
     )
 
     back_steps = ts.Int(
@@ -111,7 +111,7 @@ class TimeSeriesInst(Institution):
         self.rev_commodity_supply = {}
         self.rev_commodity_demand = {}
         self.fresh = True
-        CALC_METHODS['ma'] = no.moving_avg
+        CALC_METHODS['ma'] = no.predict_ma
         CALC_METHODS['arma'] = no.predict_arma
         CALC_METHODS['arch'] = no.predict_arch
         CALC_METHODS['poly'] = do.polyfit_regression
@@ -204,27 +204,22 @@ class TimeSeriesInst(Institution):
         """
         if time not in self.commodity_demand[commod]:
             t = 0
-            self.commodity_demand[commod][time] = int(eval(self.demand_eq))
-
+            self.commodity_demand[commod][time] = eval(self.demand_eq)
         if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = 0.0
         supply = self.predict_supply(commod)
         demand = self.predict_demand(commod, time)
-
         diff = supply - demand
         return diff, supply, demand
 
     def predict_supply(self, commod):
         if self.calc_method in ['arma', 'ma', 'arch']:
-            try:
-                supply = CALC_METHODS[self.cacl_method](self.commodity_supply[commod],
-                                                        steps=self.steps,
-                                                        std_dev=self.supply_std_dev,
-                                                        back_steps=self.back_steps)
-            except (ValueError, np.linalg.linalg.LinAlgError):
-                supply = CALC_METHODS['ma'](self.commodity_supply[commod])
-        elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters']:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
+                                                    steps=self.steps,
+                                                    std_dev=self.supply_std_dev,
+                                                    back_steps=self.back_steps)
+        elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters']:
+            supply = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
         else:
@@ -239,13 +234,10 @@ class TimeSeriesInst(Institution):
             self.commodity_demand[commod][time+1] = demand
         else:
             if self.calc_method in ['arma', 'ma', 'arch']:
-                try:
-                    demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
-                                                            steps=self.steps,
-                                                            std_dev=self.supply_std_dev,
-                                                            back_steps=self.back_steps)
-                except (ValueError, np.linalg.linalg.LinAlgError):
-                    demand = CALC_METHODS['ma'](self.commodity_demand[commod])
+                demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
+                                                        steps=self.steps,
+                                                        std_dev=self.supply_std_dev,
+                                                        back_steps=self.back_steps)
             elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters']:
                 demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                         back_steps=self.back_steps,
