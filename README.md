@@ -62,8 +62,8 @@ future value by using the observed values of returns or residuals.
 There are three methods implemented for the DO models. Polynomial fit regression,
 simple exponential smoothing, and triple exponential smoothing (holt-winters).
 There are two parameters users can define:
-- **back_steps**: Number of steps backwards from the current timestep to use for the prediction (defatul = 10)
-- **degree** : degree of polynomial fit (defatul = 1)
+- **back_steps**: Number of steps backwards from the current timestep to use for the prediction (default = 10)
+- **degree** : degree of polynomial fit (default = 1)
 
 ##### Polynomial fit regression (`poly`)
 The polynomial fit regression method fits a polynomial equation of
