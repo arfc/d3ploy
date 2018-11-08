@@ -5,17 +5,16 @@ can communicate. The goal of this package is to provide three types of mathemati
 basis for predicting supply and demand of commodities within Cyclus; Non-optimizing (NO)
 deterministing optimization (DO), and Stochastic optimization (SO). 
 
-Dependencies
-============
+## Dependencies
 **Cyclus**
 
 **statsmodels**: Python package for statistical analysis.
+
 **arch**: Python package for conditional heteroskidasticity models.
 
 
-timeseries_inst
-===============
-This represents Cyclus `Institution` archetype that performs demand-driven
+## timeseries_inst
+`timeseries_inst` is a  Cyclus `Institution` archetype that performs demand-driven
 deployment of Cyclus agents.
 
 The institution works by using the chosen method to predict supply and 
@@ -26,22 +25,19 @@ performed if the method chosen by the institution is 'moving average'. In this i
 the institution will schedule facilities for deployment only if there is a 
 deficit in the current time step. 
 
-Required Inputs
----------------
+### Required Inputs
 - **commodities**: This is a list of strings defining the commodity to track, the facility that supplies the commodity,
- and the (initial) capacity of the facility, given by format `[commodity]_[facility]_[capacity]`.
+ and the (initial) capacity of the facility, given by format `commodity_facility_capacity`.
 - **driving_commod**: The driving commodity for the institution.
 - **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable (e.g. `(1.01)**t`).
 - **calc_method**: This is the method used to predict the supply and demand.
 
 
-Prediction Methods
-==================
+### Prediction Methods
 Prediction methods are categorized in three - Non-optimizing, deterministic-optimizing,
 and stochastic-optimizing.
 
-Non-Optimizing Methods
-======================
+#### Non-Optimizing Methods
 There are three methods implemented for the NO models. Autoregressive
 moving average (ARMA), and autoregressive conditional heteroskedasticity (ARCH).
 There are four parameters users can define:
@@ -50,58 +46,49 @@ There are four parameters users can define:
 - **supply_std_dev** = Standard deviation adjustment for supply (default = 0)
 - **demand_std_dev** = Standard deviation adjustment for demand  (default = 0)
 
-MA (`ma`)
-----
+##### MA (`ma`)
 
 
-ARMA (`arma`)
-----
+##### ARMA (`arma`)
 The autoregressive moving average method takes a time series and uses an 
 auto regressive term and a moving average term. 
 
 
-ARCH (`arch`)
-----
+##### ARCH (`arch`)
 The Autoregressive Conditional Heteroskedasticity (ARCH) method predicts the
 future value by using the observed values of returns or residuals.
 
-Deterministic Optimization
-==========================
+#### Deterministic Optimization
 There are three methods implemented for the DO models. Polynomial fit regression,
 simple exponential smoothing, and triple exponential smoothing (holt-winters).
 There are two parameters users can define:
 - **back_steps**: Number of steps backwards from the current timestep to use for the prediction (defatul = 10)
 - **degree** : degree of polynomial fit (defatul = 1)
 
-Polynomial fit regression (`poly`)
-----
+##### Polynomial fit regression (`poly`)
 The polynomial fit regression method fits a polynomial equation of
 degree k (`degree`) for the  n (`back_steps`) previous values to predict the next value.
 A polynomial equation of degree 1 is a linear equation (`y = ax + b`)
 This method is suitable for values with a clear trend. 
 
-Exponential smoothing (`exp_smoothing`)
-----
+##### Exponential smoothing (`exp_smoothing`)
 The exponential smoothing method takes the weighted average of past n (`back_steps`),
 in which more weight is given to the last observation.
 This method is suitable for values with no clear trend or pattern.
 
-Triple exponential smoothing, Holt-Winters (`holt_winters`)
-----
+##### Triple exponential smoothing, Holt-Winters (`holt_winters`)
 The triple smoothing method combines three smoothing equations -
 one for the level, one for trend, and one for the seasonal component -
 to predict the next value. This method is suitable for values with
 seasonality.
 
 
-Stochastic Optimization
-=======================
+#### Stochastic Optimization
 Currently a work in progress
 
 
 
-Demand Fac
-==========
+## Demand Fac
 This facility is a test facility for D3ploy. It generates a random amount of
 supply and demand for commodities, and then reports these using the 
 **RecordTimeSeries** functions inside of Cyclus.Thus providing a supply and
@@ -112,8 +99,7 @@ their minimum and maximum values. If for instance you'd like variability in
 the production rate of your supply you can set these minimum and maximum 
 values to reflect that. 
 
-Required Inputs
---------------- 
+### Required Inputs 
 - **demand_commod**: This is the commodity that the facility demands in order to
 operate. 
 - **demand_rate_min**: Minimum amount of the demanded commodity needed. 
@@ -122,8 +108,7 @@ operate.
 - **supply_rate_min**: Minimum rate of production of the supplied commodity.
 - **supply_rate_max**: Maximum rate of production of the supplied commodity.
 
-Optional Inputs
----------------
+### Optional Inputs
 - **demand_ts**: The amount of time steps between demanding material. For
 example a reactor may only demand material every 18 months.
 - **supply_ts**: The amount of time steps between supplying material.
