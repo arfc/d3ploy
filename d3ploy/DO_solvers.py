@@ -40,7 +40,7 @@ def exp_smoothing(ts, back_steps=10, degree=1):
     ts: Array of floats
         An array of times series data to be used for the polyfit regression
     Returns:
-    --------import d3ploy.DO_solvers as do
+    --------
 
     x : The predicted value from the exponential smoothing method.
 
