@@ -85,14 +85,13 @@ class DemandFac(Facility):
         supply_rate = random.uniform(self.supply_rate_min, self.supply_rate_max)
         demand_rate = random.uniform(self.demand_rate_min, self.demand_rate_max)
         if self.supply_t == -1 or self.supply_t == self.supply_ts:
-            lib.record_time_series(self.supply_commod, self, supply_rate)
+            lib.record_time_series("supply"+self.supply_commod, self, supply_rate)
             self.supply_t = 0
         else:
-            lib.record_time_series(self.supply_commod, self, 0.)
+            lib.record_time_series("supply"+self.supply_commod, self, 0.)
         if self.demand_t == -1 or self.demand_t == self.demand_ts:
-            lib.record_time_series(self.demand_commod, self, demand_rate)
+            lib.record_time_series("demand"+self.demand_commod, self, demand_rate)
             self.demand_t = 0
         else:
-            lib.record_time_series(self.demand_commod, self, 0.)
-
+            lib.record_time_series("demand"+self.demand_commod, self, 0.)
 
