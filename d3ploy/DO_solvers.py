@@ -88,6 +88,7 @@ def holt_winters(ts, back_steps=10, degree=1):
 
 def fft(ts, back_steps=1e6, degree=1):
     timeseries = np.array(list(ts.values()))
+    timeseries = timeseries[-back_steps:]
     n = timeseries.size
     n_harm = 100                    # number of harmonics in model
     t = np.arange(0, n)
