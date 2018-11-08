@@ -45,6 +45,7 @@ def exp_smoothing(ts, back_steps=10, degree=1):
 
     """
     timeseries = np.array(list(ts.values()))
+    timeseries = timeseries[-back_steps:]
     if len(timeseries) == 1:
         timeseries = np.append(timeseries, timeseries[-1])
     # exponential smoothing errors when there are five datapoints
@@ -71,6 +72,7 @@ def holt_winters(ts, back_steps=10, degree=1):
     x : The predicted value from the holt-winters method.
     """
     timeseries = np.array(list(ts.values()))
+    timeseries = timeseries[-back_steps:]
     # exponential smoothing errors when there is only one datapoint
     if len(timeseries) == 1:
         timeseries = np.append(timeseries, timeseries[-1])
@@ -79,7 +81,6 @@ def holt_winters(ts, back_steps=10, degree=1):
     # https://github.com/statsmodels/statsmodels/issues/4878
     elif len(timeseries) == 5:
         timeseries = np.append(np.mean(timeseries), timeseries)
-
     model = hw.ExponentialSmoothing(timeseries)
     model_fit = model.fit()
     x = model_fit.predict(len(timeseries), len(timeseries))
