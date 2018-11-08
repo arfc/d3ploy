@@ -2,7 +2,7 @@
 This cyclus archetype uses time series methods to predict the demand and supply
 for future time steps and manages the deployment of facilities to ensure
 supply is greater than demand. Time series predicition methods can be used
-in this archetype. 
+in this archetype.
 """
 
 import random
@@ -110,7 +110,7 @@ class TimeSeriesInst(Institution):
         uilabel="Demand Std Dev",
         default=0
     )
-    
+
     degree = ts.Int(
         doc="The degree of the fitting polynomial.",
         tooltip="The degree of the fitting polynomial, if using calc method poly.",
@@ -131,7 +131,8 @@ class TimeSeriesInst(Institution):
         CALC_METHODS['poly'] = do.polyfit_regression
         CALC_METHODS['exp_smoothing'] = do.exp_smoothing
         CALC_METHODS['holt_winters'] = do.holt_winters
-        
+        CALC_METHODS['fft'] = do.fft
+
 
     def print_variables(self):
         print('commodities: %s' %self.commodity_dict)
@@ -173,7 +174,7 @@ class TimeSeriesInst(Institution):
 
     def decision(self):
         """
-        This is the tock method for the institution. Here the institution determines the difference
+        This is the tock method fordecision the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
@@ -194,7 +195,7 @@ class TimeSeriesInst(Institution):
                 out_text += " demand " + str(self.commodity_demand[commod][time]) + "\n"
                 with open(commod +".txt", 'a') as f:
                     f.write(out_text)
-        
+
     def calc_diff(self, commod, time):
         """
         This function calculates the different in supply and demand for a given facility
@@ -227,14 +228,14 @@ class TimeSeriesInst(Institution):
                                                     steps=self.steps,
                                                     std_dev=self.supply_std_dev,
                                                     back_steps=self.back_steps)
-        elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters']:
+        elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
             supply = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
         else:
             raise ValueError('The input calc_method is not valid. Check again.')
         return supply
-    
+
     def predict_demand(self, commod, time):
         if commod == self.driving_commod:
             demand = self.demand_calc(time+1)
@@ -245,7 +246,7 @@ class TimeSeriesInst(Institution):
                                                         steps=self.steps,
                                                         std_dev=self.supply_std_dev,
                                                         back_steps=self.back_steps)
-            elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters']:
+            elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
                 demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                         back_steps=self.back_steps,
                                                         degree=self.degree)
