@@ -140,7 +140,7 @@ for x in range(0,len(calc_methods)):
 
     dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(output_file,demand_eq,'fuel')
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method 
-    #functions.plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_supply,'fuel',name)
+    functions.plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_supply,'fuel',name)
 
     # scoring 
     residuals[calc_methods[x]] = functions.residuals(dict_demand,dict_supply)
