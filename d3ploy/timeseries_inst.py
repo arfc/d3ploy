@@ -2,7 +2,7 @@
 This cyclus archetype uses time series methods to predict the demand and supply
 for future time steps and manages the deployment of facilities to ensure
 supply is greater than demand. Time series predicition methods can be used
-in this archetype. 
+in this archetype.
 """
 
 import random
@@ -117,6 +117,8 @@ class TimeSeriesInst(Institution):
         CALC_METHODS['poly'] = do.polyfit_regression
         CALC_METHODS['exp_smoothing'] = do.exp_smoothing
         CALC_METHODS['holt_winters'] = do.holt_winters
+        CALC_METHODS['fft'] = do.fft
+
 
     def print_variables(self):
         print('commodities: %s' % self.commodity_dict)
@@ -159,7 +161,7 @@ class TimeSeriesInst(Institution):
 
     def decision(self):
         """
-        This is the tock method for the institution. Here the institution determines the difference
+        This is the tock method for decision the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
@@ -218,8 +220,8 @@ class TimeSeriesInst(Institution):
                                                     steps=self.steps,
                                                     std_dev=self.supply_std_dev,
                                                     back_steps=self.back_steps)
-        elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters']:
-            supply = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
+        elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
         else:
@@ -238,7 +240,7 @@ class TimeSeriesInst(Institution):
                                                         steps=self.steps,
                                                         std_dev=self.supply_std_dev,
                                                         back_steps=self.back_steps)
-            elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters']:
+            elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
                 demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                         back_steps=self.back_steps,
                                                         degree=self.degree)
