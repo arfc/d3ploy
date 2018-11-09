@@ -4,6 +4,7 @@ This supports Autoregressiving Moving Average (ARMA) and Autoregressive
 Conditional Heteroskedasticisty.  
 """
 import numpy as np
+import math
 
 import statsmodels.api as sm
 from arch import arch_model
@@ -31,7 +32,7 @@ def predict_ma(ts, steps=5, std_dev = 0, back_steps=5):
     x = np.average(supply[steps:])
     return x
 
-def predict_arma(ts, steps=5, std_dev = 0, back_steps=5):
+def predict_arma(ts, steps=5, std_dev=0, back_steps=5):
     """
     Predict the value of supply or demand at a given time step using the
     currently available time series data. This method impliments an ARMA
@@ -53,25 +54,25 @@ def predict_arma(ts, steps=5, std_dev = 0, back_steps=5):
         forecast = fit.forecast(steps)
         x = forecast[0][steps-1] + forecast[1][steps-1]*std_dev
     except (ValueError, np.linalg.linalg.LinAlgError):
-        x = v[-1] 
+        x = predict_ma(ts) 
     return x
 
-def predict_arch(ts, steps=1, std_dev = 0, back_steps=10):
+def predict_arch(ts, steps=1, std_dev=0, back_steps=2):
     """
     Predict the value of supply or demand at a given time step using the
     currently available time series data. This method impliments an ARCH
     calculation to perform the prediciton.
     """
     v = list(ts.values())
-    if len(v) == 1:
-        return v[-1]
+    v = v[-1*2:]
     try:
         model = arch_model(v)
-        fit = model.fit(disp='nothing', update_freq=0, show_warning=False)
+        fit = model.fit(disp="off")
         forecast = fit.forecast(horizon=steps)
         step = 'h.' + str(steps)
         x = forecast.mean.get(step)[len(v)-steps]
-        x += math.sqrt(forecast.variance.get(step)[len(v)-steps]) * std_dev
     except:
-        x = v[-1]
+        x = predict_ma(ts, steps=1)
+    if math.isnan(x):
+        x = predict_ma(ts, steps=1)
     return x

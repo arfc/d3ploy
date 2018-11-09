@@ -87,7 +87,7 @@ class TimeSeriesInst(Institution):
             "then the calculation will use all values in the time series.",
         tooltip="",
         uilabel="Back Steps",
-        default=10
+        default=5
     )
 
     supply_std_dev = ts.Double(
@@ -228,7 +228,7 @@ class TimeSeriesInst(Institution):
                                                     std_dev=self.supply_std_dev,
                                                     back_steps=self.back_steps)
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters']:
-            supply = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
         else:
