@@ -10,6 +10,15 @@ jobs:
         - run: apt-get -qq update; apt-get -y install git openssh-client
         - checkout
         - run:
+            name: conda packages
+            command: |
+                conda install -c bashtage arch -y
+                conda install statsmodels -y
+                conda install matplotlib -y
+        - run: 
+            name: install arima
+            command: pip install pyramid-arima
+        - run:
             name: build d3ploy
             command: python setup.py install
         - run:
