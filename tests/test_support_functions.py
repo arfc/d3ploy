@@ -118,7 +118,7 @@ def calculate_total_neg(dict_demand, dict_supply):
     start = int(list(dict_demand.keys())[0]) 
     for x in range(start-1,len(dict_demand)):
         y = x+1
-        diff[y] = dict_supply[y] -dict_demand[y]
+        diff[y] = abs(dict_supply[y] -dict_demand[y])
         total = total + diff[y]
         if diff[y] < 0: 
             num_negative = num_negative + 1
