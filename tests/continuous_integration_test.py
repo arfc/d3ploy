@@ -20,7 +20,7 @@ ENV = dict(os.environ)
 ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 
 #######################################################
-# Checking if cyclus simulations are created for each calc method 
+# Checking if cyclus simulations and cyclus output files are created and populated for each calc method 
 
 calc_methods = ["ma","arma","arch","poly","exp_smoothing","holt_winters","fft"]
 
@@ -116,9 +116,11 @@ for x in range(0,len(calc_methods)):
     fuel_supply = cur.execute("select time, sum(value) from timeseriessupplyfreshfuel group by time").fetchall()
     power_demand = cur.execute("select time, sum(value) from timeseriespower group by time").fetchall()
     power_supply = cur.execute("select time, sum(value) from timeseriessupplypower group by time").fetchall()
-
+    # Adding up the first time step of each table  
     total[calc_methods[x]] = fuel_demand[0][0]+fuel_supply[0][0]+power_demand[0][0]+power_supply[0][0] 
 
+
+# checking if the first time step for each table occured
 def test_cont_integ_ma(): 
     assert(total['ma'] == 4)
 
