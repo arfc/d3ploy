@@ -87,7 +87,7 @@ class TimeSeriesInst(Institution):
             "then the calculation will use all values in the time series.",
         tooltip="",
         uilabel="Back Steps",
-        default=5
+        default=10
     )
 
     supply_std_dev = ts.Double(
@@ -131,7 +131,8 @@ class TimeSeriesInst(Institution):
         CALC_METHODS['poly'] = do.polyfit_regression
         CALC_METHODS['exp_smoothing'] = do.exp_smoothing
         CALC_METHODS['holt_winters'] = do.holt_winters
-        
+        CALC_METHODS['fft'] = do.fft
+
 
     def print_variables(self):
         print('commodities: %s' %self.commodity_dict)
@@ -164,8 +165,10 @@ class TimeSeriesInst(Institution):
             # convert list of strings to dictionary
             self.commodity_dict = self.parse_commodities(self.commodities)
             for commod in self.commodity_dict:
-                lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
-                lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
+                lib.TIME_SERIES_LISTENERS["supply" +
+                                          commod].append(self.extract_supply)
+                lib.TIME_SERIES_LISTENERS["demand" +
+                                          commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
             self.fresh = False
@@ -173,28 +176,33 @@ class TimeSeriesInst(Institution):
 
     def decision(self):
         """
-        This is the tock method for the institution. Here the institution determines the difference
+        This is the tock method for decision the institution. Here the institution determines the difference
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
         for commod, proto_cap in self.commodity_dict.items():
             if not bool(proto_cap):
-                raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
+                raise ValueError(
+                    'Prototype and capacity definition for commodity "%s" is missing' % commod)
             diff, supply, demand = self.calc_diff(commod, time)
             lib.record_time_series(commod+'calc_supply', self, supply)
             lib.record_time_series(commod+'calc_demand', self, demand)
-            if  diff < 0:
-                deploy_dict = solver.deploy_solver(self.commodity_dict, commod, diff)
+            if diff < 0:
+                deploy_dict = solver.deploy_solver(
+                    self.commodity_dict, commod, diff)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
             if self.record:
-                out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
-                out_text += " supply " + str(self.commodity_supply[commod][time])
-                out_text += " demand " + str(self.commodity_demand[commod][time]) + "\n"
-                with open(commod +".txt", 'a') as f:
+                out_text = "Time " + str(time) + \
+                    " Deployed " + str(len(self.children))
+                out_text += " supply " + \
+                    str(self.commodity_supply[commod][time])
+                out_text += " demand " + \
+                    str(self.commodity_demand[commod][time]) + "\n"
+                with open(commod + ".txt", 'a') as f:
                     f.write(out_text)
-        
+
     def calc_diff(self, commod, time):
         """
         This function calculates the different in supply and demand for a given facility
@@ -227,12 +235,14 @@ class TimeSeriesInst(Institution):
                                                     steps=self.steps,
                                                     std_dev=self.supply_std_dev,
                                                     back_steps=self.back_steps)
-        elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters']:
+        elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
         else:
-            raise ValueError('The input calc_method is not valid. Check again.')
+            raise ValueError(
+                'The input calc_method is not valid. Check again.')
+
         return supply
     
     def predict_demand(self, commod, time):
@@ -245,12 +255,14 @@ class TimeSeriesInst(Institution):
                                                         steps=self.steps,
                                                         std_dev=self.supply_std_dev,
                                                         back_steps=self.back_steps)
-            elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters']:
+            elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
                 demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                         back_steps=self.back_steps,
                                                         degree=self.degree)
             else:
-                raise ValueError('The input calc_method is not valid. Check again.')
+                raise ValueError(
+                    'The input calc_method is not valid. Check again.')
+
         return demand
 
 
