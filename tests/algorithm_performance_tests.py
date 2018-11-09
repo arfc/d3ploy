@@ -593,7 +593,7 @@ for x in range(0,len(calc_methods)):
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method 
     functions.plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_supply,'power',name)
     name2 = "scenario_4_input_"+calc_methods[x]+"fuel"
-    #functions.plot_demand_supply(dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2,'fuel',name2)
+    functions.plot_demand_supply(dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2,'fuel',name2)
 
     # scoring 
     residuals_power[calc_methods[x]] = functions.residuals(dict_demand,dict_supply)
