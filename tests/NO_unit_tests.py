@@ -60,7 +60,7 @@ TEMPLATE = {
                 {"lib": "cycamore", "name": "Source"},
                 {"lib": "cycamore", "name": "Reactor"},
                 {"lib": "cycamore", "name": "Sink"},
-                {"lib": "d3ploy.no_inst", "name": "TimeSeriesInst"}
+                {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
             ]
         },
         "control": {"duration": "15", "startmonth": "1", "startyear": "2000"},
@@ -123,7 +123,7 @@ INIT_DEMAND["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
         "config": {
-            "TimeSeries": {
+            "TimeSeriesInst": {
                 "calc_method": "arma",
                 "demand_commod": "POWER",
                 "demand_std_dev": "0.0",

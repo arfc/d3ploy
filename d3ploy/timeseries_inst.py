@@ -2,7 +2,7 @@
 This cyclus archetype uses time series methods to predict the demand and supply
 for future time steps and manages the deployment of facilities to ensure
 supply is greater than demand. Time series predicition methods can be used
-in this archetype.
+in this archetype. 
 """
 
 import random
@@ -21,7 +21,6 @@ import d3ploy.DO_solvers as do
 
 CALC_METHODS = {}
 
-
 class TimeSeriesInst(Institution):
     """
     This institution deploys facilities based on demand curves using
@@ -36,24 +35,32 @@ class TimeSeriesInst(Institution):
         uitype="oneOrMore"
     )
 
+    reverse_commodities = ts.VectorString(
+        doc="A list of commodities that the institution will manage.",
+        tooltip="List of commodities in the institution.",
+        uilabel="Reversed Commodities",
+        uitype="oneOrMore",
+        default=[]
+    )
+
     demand_eq = ts.String(
         doc="This is the string for the demand equation of the driving commodity. " +
-        "The equation should use `t' as the dependent variable",
+              "The equation should use `t' as the dependent variable",
         tooltip="Demand equation for driving commodity",
         uilabel="Demand Equation")
 
     calc_method = ts.String(
         doc="This is the calculated method used to determine the supply and demand " +
-        "for the commodities of this institution. Currently this can be ma for " +
-        "moving average, or arma for autoregressive moving average.",
+              "for the commodities of this institution. Currently this can be ma for " +
+              "moving average, or arma for autoregressive moving average.",
         tooltip="Calculation method used to predict supply/demand",
         uilabel="Calculation Method"
     )
 
     record = ts.Bool(
         doc="Indicates whether or not the institution should record it's output to text " +
-        "file outputs. The output files match the name of the demand commodity of the " +
-        "institution.",
+              "file outputs. The output files match the name of the demand commodity of the " +
+              "institution.",
         tooltip="Boolean to indicate whether or not to record output to text file.",
         uilabel="Record to Text",
         default=False
@@ -97,6 +104,13 @@ class TimeSeriesInst(Institution):
         default=0
     )
 
+    demand_std_dev = ts.Double(
+        doc="The standard deviation adjustment for the demand side.",
+        tooltip="The standard deviation adjustment for the demand side.",
+        uilabel="Demand Std Dev",
+        default=0
+    )
+    
     degree = ts.Int(
         doc="The degree of the fitting polynomial.",
         tooltip="The degree of the fitting polynomial, if using calc method poly.",
@@ -121,14 +135,14 @@ class TimeSeriesInst(Institution):
 
 
     def print_variables(self):
-        print('commodities: %s' % self.commodity_dict)
-        print('demand_eq: %s' % self.demand_eq)
-        print('calc_method: %s' % self.calc_method)
-        print('record: %s' % str(self.record))
-        print('steps: %i' % self.steps)
-        print('back_steps: %i' % self.back_steps)
-        print('supply_std_dev: %f' % self.supply_std_dev)
-        print('demand_std_dev: %f' % self.demand_std_dev)
+        print('commodities: %s' %self.commodity_dict)
+        print('demand_eq: %s' %self.demand_eq)
+        print('calc_method: %s' %self.calc_method)
+        print('record: %s' %str(self.record))
+        print('steps: %i' %self.steps)
+        print('back_steps: %i' %self.back_steps)
+        print('supply_std_dev: %f' %self.supply_std_dev)
+        print('demand_std_dev: %f' %self.demand_std_dev)
 
     def parse_commodities(self, commodities):
         """ This function parses the vector of strings commodity variable
@@ -158,6 +172,7 @@ class TimeSeriesInst(Institution):
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
             self.fresh = False
+
 
     def decision(self):
         """
@@ -229,7 +244,7 @@ class TimeSeriesInst(Institution):
                 'The input calc_method is not valid. Check again.')
 
         return supply
-
+    
     def predict_demand(self, commod, time):
         if commod == self.driving_commod:
             demand = self.demand_calc(time+1)
@@ -249,6 +264,7 @@ class TimeSeriesInst(Institution):
                     'The input calc_method is not valid. Check again.')
 
         return demand
+
 
     def extract_supply(self, agent, time, value, commod):
         """
@@ -285,6 +301,7 @@ class TimeSeriesInst(Institution):
         """
         commod = commod[6:]
         self.commodity_demand[commod][time] += value
+
 
     def demand_calc(self, time):
         """
