@@ -6,11 +6,11 @@ import numpy as np
 
 """
 This solver.py file contains auxillary functions that
-aid `no_inst.py'.
+aid `timeseries_inst.py'.
 """
 
 
-def deploy_solver(commodity_dict, commod, diff):
+def deploy_solver(commodity_dict, pref_dict, commod, diff, time):
     """ This function optimizes prototypes to deploy to minimize over
         deployment of prototypes.
     Paramters:
@@ -23,10 +23,20 @@ def deploy_solver(commodity_dict, commod, diff):
                 prototype name
             value: float
                 prototype capacity
+    pref_dict: dictionary
+        key: str
+            commodity name
+        value: dictionary
+            key: str
+                prototype name
+            value: str
+                preference as an equation
     commod: str
         commodity driving deployment
     diff: float
         lack in supply
+    time: int
+        time of evaluation
 
     Returns:
     --------
@@ -36,27 +46,100 @@ def deploy_solver(commodity_dict, commod, diff):
     """
     diff = -1.0 * diff
     proto_commod = commodity_dict[commod]
+    remainder = diff
+    print('protocommod', proto_commod)
+    print('remainder', remainder)
+    # if the preference is defined
+    if commod in pref_dict.keys():
+        pref_fac = pref_dict[commod]
+        # evalute the preference functions
+        # at the current time
+        print('we here')
+        print(pref_fac)
+        t = time
+        eval_pref_fac = {}
+        for facility, preference_eq in pref_fac.items():
+            eval_pref_fac[facility] = eval(preference_eq)
+        # check if the preference values are different
+        print('check yoself')
+        if len(set(eval_pref_fac.values())) != 1:
+            # if there is a difference,
+            # deploy the one with highest preference
+            # until it oversupplies
+            return preference_deploy(proto_commod, eval_pref_fac, remainder)
+
+    # if preference is not given,
+    # or all the preference values are the same,
+    # deploy to minimize number of deployment
+    return minimize_number_of_deployment(proto_commod, remainder)
+
+
+def preference_deploy(proto_commod, pref_fac, remainder):
+    """ This function deploys the facility with the highest preference only.
+    Paramters:
+    ----------
+    proto_commod: dictionary
+        key: prototype name
+        value: prototype capacity
+    pref_fac: dictionary
+        key: prototype name
+        value: preference value
+    remainder: float
+        amount of capacity that is needed
+    
+    Returns:
+    --------
+    deploy_dict: dictionary
+        key: prototype name
+        value: number of prototype to deploy
+    """
+    # get the facility with highest preference
+    deploy_dict = {}
+    proto = get_asc_key_list(pref_fac)[0]
+    if remainder >= proto_commod[proto]:
+        deploy_dict[proto] = 1
+        remainder -= proto_commod[proto]
+        while remainder > proto_commod[proto]:
+            deploy_dict[proto] += 1
+            remainder -= proto_commod[proto]
+        if remainder == 0:
+            return deploy_dict
+        else:
+            deploy_dict[proto] += 1
+    return deploy_dict
+
+def minimize_number_of_deployment(proto_commod, remainder):
+    """ This function deploys facilities to meet the lack in
+    capacity by deploying the least number of facilities.
+
+    Paramters:
+    ----------
+    proto_commod: dictionary
+        key: prototype name
+        value: prototype capacity
+    remainder: float
+        amount of capacity that is needed
+    
+    Returns:
+    --------
+    deploy_dict: dictionary
+        key: prototype name
+        value: number of prototype to deploy
+    """
+    deploy_dict = {}
     min_cap = min(proto_commod.values())
     key_list = get_asc_key_list(proto_commod)
-
-    remainder = diff
-    deploy_dict = {}
     for proto in key_list:
         # if diff still smaller than the proto capacity,
         if remainder >= proto_commod[proto]:
-            # get one
             deploy_dict[proto] = 1
-            # see what the diff is now
             remainder -= proto_commod[proto]
-            # if this is not enough, keep deploying
-            # until it's smaller than its cap
             while remainder > proto_commod[proto]:
                 deploy_dict[proto] += 1
                 remainder -= proto_commod[proto]
-
     if remainder == 0:
         return deploy_dict
-
+    
     for proto in list(reversed(key_list)):
         # see if the prototype cap is bigger than remainder
         if remainder > proto_commod[proto]:
@@ -66,9 +149,8 @@ def deploy_solver(commodity_dict, commod, diff):
         else:
             deploy_dict[proto] = 1
         break
-
+    
     return deploy_dict
-
 
 def get_asc_key_list(dicti):
     """ This function sorts keys in ascending order
