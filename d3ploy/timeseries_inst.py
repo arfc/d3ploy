@@ -21,6 +21,7 @@ import d3ploy.DO_solvers as do
 
 CALC_METHODS = {}
 
+
 class TimeSeriesInst(Institution):
     """
     This institution deploys facilities based on demand curves using
@@ -35,32 +36,24 @@ class TimeSeriesInst(Institution):
         uitype="oneOrMore"
     )
 
-    reverse_commodities = ts.VectorString(
-        doc="A list of commodities that the institution will manage.",
-        tooltip="List of commodities in the institution.",
-        uilabel="Reversed Commodities",
-        uitype="oneOrMore",
-        default=[]
-    )
-
     demand_eq = ts.String(
         doc="This is the string for the demand equation of the driving commodity. " +
-              "The equation should use `t' as the dependent variable",
+        "The equation should use `t' as the dependent variable",
         tooltip="Demand equation for driving commodity",
         uilabel="Demand Equation")
 
     calc_method = ts.String(
         doc="This is the calculated method used to determine the supply and demand " +
-              "for the commodities of this institution. Currently this can be ma for " +
-              "moving average, or arma for autoregressive moving average.",
+        "for the commodities of this institution. Currently this can be ma for " +
+        "moving average, or arma for autoregressive moving average.",
         tooltip="Calculation method used to predict supply/demand",
         uilabel="Calculation Method"
     )
 
     record = ts.Bool(
         doc="Indicates whether or not the institution should record it's output to text " +
-              "file outputs. The output files match the name of the demand commodity of the " +
-              "institution.",
+        "file outputs. The output files match the name of the demand commodity of the " +
+        "institution.",
         tooltip="Boolean to indicate whether or not to record output to text file.",
         uilabel="Record to Text",
         default=False
@@ -104,13 +97,6 @@ class TimeSeriesInst(Institution):
         default=0
     )
 
-    demand_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the demand side.",
-        tooltip="The standard deviation adjustment for the demand side.",
-        uilabel="Demand Std Dev",
-        default=0
-    )
-
     degree = ts.Int(
         doc="The degree of the fitting polynomial.",
         tooltip="The degree of the fitting polynomial, if using calc method poly.",
@@ -135,14 +121,14 @@ class TimeSeriesInst(Institution):
 
 
     def print_variables(self):
-        print('commodities: %s' %self.commodity_dict)
-        print('demand_eq: %s' %self.demand_eq)
-        print('calc_method: %s' %self.calc_method)
-        print('record: %s' %str(self.record))
-        print('steps: %i' %self.steps)
-        print('back_steps: %i' %self.back_steps)
-        print('supply_std_dev: %f' %self.supply_std_dev)
-        print('demand_std_dev: %f' %self.demand_std_dev)
+        print('commodities: %s' % self.commodity_dict)
+        print('demand_eq: %s' % self.demand_eq)
+        print('calc_method: %s' % self.calc_method)
+        print('record: %s' % str(self.record))
+        print('steps: %i' % self.steps)
+        print('back_steps: %i' % self.back_steps)
+        print('supply_std_dev: %f' % self.supply_std_dev)
+        print('demand_std_dev: %f' % self.demand_std_dev)
 
     def parse_commodities(self, commodities):
         """ This function parses the vector of strings commodity variable
@@ -165,12 +151,13 @@ class TimeSeriesInst(Institution):
             # convert list of strings to dictionary
             self.commodity_dict = self.parse_commodities(self.commodities)
             for commod in self.commodity_dict:
-                lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
-                lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
+                lib.TIME_SERIES_LISTENERS["supply" +
+                                          commod].append(self.extract_supply)
+                lib.TIME_SERIES_LISTENERS["demand" +
+                                          commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
             self.fresh = False
-
 
     def decision(self):
         """
@@ -180,20 +167,25 @@ class TimeSeriesInst(Institution):
         time = self.context.time
         for commod, proto_cap in self.commodity_dict.items():
             if not bool(proto_cap):
-                raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
+                raise ValueError(
+                    'Prototype and capacity definition for commodity "%s" is missing' % commod)
             diff, supply, demand = self.calc_diff(commod, time)
             lib.record_time_series(commod+'calc_supply', self, supply)
             lib.record_time_series(commod+'calc_demand', self, demand)
-            if  diff < 0:
-                deploy_dict = solver.deploy_solver(self.commodity_dict, commod, diff)
+            if diff < 0:
+                deploy_dict = solver.deploy_solver(
+                    self.commodity_dict, commod, diff)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
             if self.record:
-                out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
-                out_text += " supply " + str(self.commodity_supply[commod][time])
-                out_text += " demand " + str(self.commodity_demand[commod][time]) + "\n"
-                with open(commod +".txt", 'a') as f:
+                out_text = "Time " + str(time) + \
+                    " Deployed " + str(len(self.children))
+                out_text += " supply " + \
+                    str(self.commodity_supply[commod][time])
+                out_text += " demand " + \
+                    str(self.commodity_demand[commod][time]) + "\n"
+                with open(commod + ".txt", 'a') as f:
                     f.write(out_text)
 
     def calc_diff(self, commod, time):
@@ -233,7 +225,9 @@ class TimeSeriesInst(Institution):
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
         else:
-            raise ValueError('The input calc_method is not valid. Check again.')
+            raise ValueError(
+                'The input calc_method is not valid. Check again.')
+
         return supply
 
     def predict_demand(self, commod, time):
@@ -251,9 +245,10 @@ class TimeSeriesInst(Institution):
                                                         back_steps=self.back_steps,
                                                         degree=self.degree)
             else:
-                raise ValueError('The input calc_method is not valid. Check again.')
-        return demand
+                raise ValueError(
+                    'The input calc_method is not valid. Check again.')
 
+        return demand
 
     def extract_supply(self, agent, time, value, commod):
         """
@@ -290,7 +285,6 @@ class TimeSeriesInst(Institution):
         """
         commod = commod[6:]
         self.commodity_demand[commod][time] += value
-
 
     def demand_calc(self, time):
         """
