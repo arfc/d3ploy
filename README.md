@@ -27,9 +27,10 @@ deficit in the current time step.
 
 ### Required Inputs
 - **commodities**: This is a list of strings defining the commodity to track, the facility that supplies the commodity,
- the (initial) capacity of the facility, and the preference of the facility, given by format `commodity_facility_capacity_preference`.
+ the (initial) capacity of the facility, and the preference of the facility, given by format `commodity_facility_capacity_preference`. The preference can be given as an equation, using
+ `t` as the dependent variable (e.g. `(1.01)**t`).
 - **driving_commod**: The driving commodity for the institution.
-- **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable (e.g. `(1.01)**t`).
+- **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable.
 - **calc_method**: This is the method used to predict the supply and demand.
 
 
