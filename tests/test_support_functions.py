@@ -27,7 +27,25 @@ def get_cursor(file_name):
     con.row_factory = lite.Row
     return con.cursor()
 
-def supply_demand_dict_driving(sqlite,demand,commod):
+def supply_demand_dict_driving(sqlite,demand_eq,commod):
+    """ Puts supply, demand, calculated demand and 
+    calculated supply into a nice dictionary format 
+    if given the sql file, demand_eq of driving commodity 
+    and commodity name 
+
+    for a driving commodity 
+
+    Parameters
+    ----------
+    sqlite: sql file to analyze 
+    demand_eq: string of demand equation 
+    commod: string of commod name 
+
+    Returns
+    -------
+    returns 4 dicts: dictionaries of supply, demand, calculated
+    demand and calculated supply
+    """
     cur = get_cursor(sqlite)
     tables = {}
     tables[0] = "timeseriessupply"+commod
@@ -45,7 +63,7 @@ def supply_demand_dict_driving(sqlite,demand,commod):
         dict_calc_demand[fuel_supply[x][0]+1] = calc_fuel_demand[x][1]
         dict_calc_supply[fuel_supply[x][0]+1] = calc_fuel_supply[x][1]
     t = np.fromiter(dict_supply.keys(),dtype=float)
-    fuel_demand = eval(demand)
+    fuel_demand = eval(demand_eq)
     if isinstance(fuel_demand,int):
         fuel_demand = fuel_demand*np.ones(len(t))
     for x in range(0,len(fuel_supply)):
@@ -55,6 +73,23 @@ def supply_demand_dict_driving(sqlite,demand,commod):
 
 
 def supply_demand_dict_nondriving(sqlite,commod):
+    """ Puts supply, demand, calculated demand and 
+    calculated supply into a nice dictionary format 
+    if given the sql file and commodity name 
+
+    for a non-driving commodity 
+
+    Parameters
+    ----------
+    sqlite: sql file to analyze 
+    demand_eq: string of demand equation 
+    commod: string of commod name 
+
+    Returns
+    -------
+    returns 4 dicts: dictionaries of supply, demand, calculated
+    demand and calculated supply
+    """
     cur = get_cursor(sqlite)
     tables = {}
     tables[0] = "timeseriessupply"+commod
@@ -89,7 +124,20 @@ def supply_demand_dict_nondriving(sqlite,commod):
 
 
 def plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_supply,commod,test):
+    """ Plots demand, supply, calculated demand and calculated supply on a curve 
 
+    for a non-driving commodity 
+
+    Parameters
+    ----------
+    4 dicts: dictionaries of supply, demand, calculated
+    demand and calculated supply
+
+    Returns
+    -------
+    plot of all four dicts 
+
+    """
     fig, ax = plt.subplots(figsize=(15, 7))
     ax.plot(*zip(*sorted(dict_demand.items())),'*',label = 'Demand')
     ax.plot(*zip(*sorted(dict_supply.items())),'*',label = 'Supply')
@@ -111,7 +159,50 @@ def plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_sup
     ax.set_title('%s Demand Supply plot' % commod)
     plt.savefig(test, dpi=300,bbox_inches='tight')
 
+
+def residuals(dict_demand, dict_supply):
+    """ Conducts a chi2 goodness of fit test 
+
+    Parameters
+    ----------
+    dict_demand: timeseries dictionary of demand values
+    dict_supply: timeseries dictionary of supply values
+
+    Returns
+    -------
+    returns an int of the chi2 (goodness of fit value) for 
+    the two input timeseries dictionaries 
+    """    
+
+    start = int(list(dict_demand.keys())[0]) 
+    demand_total = 0 
+    for x in range(start-1,len(dict_demand)):
+        y = x+1
+        demand_total += dict_demand[y]
+    demand_mean = (1/len(dict_demand))*demand_total    
+    SStot = 0 
+    SSres = 0 
+    for x in range(start-1,len(dict_demand)):
+        y = x+1
+        SStot += (dict_demand[y]-demand_mean)**2
+        SSres += (dict_demand[y]-dict_supply[y])**2
+    
+    Rsquared = 1-SSres / SStot 
+    return Rsquared 
+
 def chi_goodness_test(dict_demand, dict_supply):
+    """ Conducts a chi2 goodness of fit test 
+
+    Parameters
+    ----------
+    dict_demand: timeseries dictionary of demand values
+    dict_supply: timeseries dictionary of supply values
+
+    Returns
+    -------
+    returns an int of the chi2 (goodness of fit value) for 
+    the two input timeseries dictionaries 
+    """    
     chi2 = 0 
     start = int(list(dict_demand.keys())[0]) 
     for x in range(start-1,len(dict_demand)):
@@ -124,6 +215,19 @@ def chi_goodness_test(dict_demand, dict_supply):
     return chi2 
 
 def supply_under_demand(dict_demand,dict_supply):
+    """ Calculates the number of time steps supply is 
+    under demand 
+
+    Parameters
+    ----------
+    dict_demand: timeseries dictionary of demand values
+    dict_supply: timeseries dictionary of supply values
+
+    Returns
+    -------
+    returns an int of the number of time steps supply is 
+    under demand 
+    """ 
     num_negative = 0
     start = int(list(dict_demand.keys())[0]) 
     for x in range(start-1,len(dict_demand)):
@@ -133,60 +237,28 @@ def supply_under_demand(dict_demand,dict_supply):
 
     return num_negative
 
-def best_calc_method(in_dict,max):
-    if max:  
-        best = max(in_dict, key=in_dict.get)
+def best_calc_method(in_dict,maximum):
+    """ Calculates the number of time steps supply is 
+    under demand 
+
+    Parameters
+    ----------
+    in_dict: keys => calc methods, values => results from 
+    tests of each calc method (chi2 goodness of fit etc)
+    max: true/false boolean, true => find max of in_dict, 
+    false => find min of in_dict 
+
+    Returns
+    -------
+    returns a list of the calc methods that have the max 
+    or min (depending on input) in the in_dict  
+    """ 
+    if maximum:  
+        highest = max(in_dict.values())
+        best = [k for k,v in in_dict.items() if v == highest]
     else: 
-        best = min(in_dict, key=in_dict.get)
+        lowest = min(in_dict.values())
+        best = [k for k,v in in_dict.items() if v == lowest]
     
     return best 
 
-
-def demand_curve(demand_eq,time_point):
-    """ Uses initial demand, growth rate and list of timesteps to 
-    output the corresponding demand curve points 
-    Parameters
-    ----------
-    type: string, string of test name 
-    time_point: int, a time step in the simulation  
-    Returns
-    -------
-    demand_values : int, demand point corresponding to time_point  
-    """
-    t = time_point
-    demand_point = eval(demand_eq)
-    return demand_point
-
-def supply_within_demand_fac_tol(sql_file,demand_eq,no_fac,commod):
-    """ Analyzes if the fuelsupply provided in the SQL file is within no_fac tolerance of 
-    demand and returns a number of timesteps that it is within the tolerance. 
-    Parameters
-    ----------
-    sql_file: sqlite file to analyze 
-    type: string, string of test name to input into demand_curve function 
-    no_fac = int, Acceptable number of facility tolerance 
-    Returns
-    -------
-    num : int, number of time steps where fuelsupply is not within no_fac
-    tolerance of fueldemand   
-    """
-    # getting the sqlite file
-    cur = get_cursor(sql_file)
-
-    # check if supply of fuel is within facility_tolerance & catchup_tolerance
-    name = "timeseriessupply"+commod
-    fuel_supply = cur.execute("select time, sum(value) from "+name+" group by time").fetchall()
-    num = 0
-    for pt in range(0,len(fuel_supply)):
-        fuel_supply_point = fuel_supply[pt][1]
-        time_point = fuel_supply[pt][0]
-        # if supply curve value is larger/smaller than demand curve by no_fac amount
-        # at any timestep the num counter will be larger 
-        # than 1 and the test will fail
-        fuel_demand_point = demand_curve(demand_eq,time_point)
-        diff = fuel_supply_point - fuel_demand_point
-        if diff>no_fac*3000:
-            num = num + 1
-        else: 
-            num = num+0 
-    return num
