@@ -120,7 +120,7 @@ def calculate_total_neg(dict_demand, dict_supply):
         y = x+1
         diff[y] = abs(dict_supply[y] -dict_demand[y])
         total = total + diff[y]
-        if diff[y] < 0: 
+        if dict_supply[y] < dict_demand[y]: 
             num_negative = num_negative + 1
 
     return total, num_negative
