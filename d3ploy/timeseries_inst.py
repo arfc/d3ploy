@@ -192,21 +192,14 @@ class TimeSeriesInst(Institution):
         """
         time = self.context.time
 
-        print('decision for time ', time)
         for commod, proto_cap in self.commodity_dict.items():
             if not bool(proto_cap):
                 raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
             diff, supply, demand = self.calc_diff(commod, time)
             lib.record_time_series(commod+'calc_supply', self, supply)
             lib.record_time_series(commod+'calc_demand', self, demand)
-            print('commodity', commod)
-            print('supply', supply)
-            print('demand', demand)
             if  diff < 0:
-                print('we going in')
-                print('diff', diff)
                 deploy_dict = solver.deploy_solver(self.commodity_dict, self.pref_dict, commod, diff, time)
-                print('we got out')
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)

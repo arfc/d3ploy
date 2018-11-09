@@ -47,21 +47,16 @@ def deploy_solver(commodity_dict, pref_dict, commod, diff, time):
     diff = -1.0 * diff
     proto_commod = commodity_dict[commod]
     remainder = diff
-    print('protocommod', proto_commod)
-    print('remainder', remainder)
     # if the preference is defined
     if commod in pref_dict.keys():
         pref_fac = pref_dict[commod]
         # evalute the preference functions
         # at the current time
-        print('we here')
-        print(pref_fac)
         t = time
         eval_pref_fac = {}
         for facility, preference_eq in pref_fac.items():
             eval_pref_fac[facility] = eval(preference_eq)
         # check if the preference values are different
-        print('check yoself')
         if len(set(eval_pref_fac.values())) != 1:
             # if there is a difference,
             # deploy the one with highest preference
