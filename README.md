@@ -6,11 +6,13 @@ basis for predicting supply and demand of commodities within Cyclus; Non-optimiz
 deterministing optimization (DO), and Stochastic optimization (SO). 
 
 ## Dependencies
-**Cyclus**
+**Cyclus**: Fuel cycle simulation tool. [Documentation](fuelcycle.org)
 
-**statsmodels**: Python package for statistical analysis.
+**statsmodels**: Python package for statistical analysis.[Documentation](https://www.statsmodels.org/stable/index.html)
 
-**arch**: Python package for conditional heteroskidasticity models.
+**arch**: Python package for conditional heteroskidasticity models.[Documentation](https://arch.readthedocs.io/en/latest/index.html)
+
+**Pyramid**: A python package for ARIMA/SARIMA methods. [Documentation](https://www.alkaline-ml.com/pyramid/index.html)
 
 
 ## timeseries_inst
