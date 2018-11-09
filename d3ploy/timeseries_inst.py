@@ -2,7 +2,7 @@
 This cyclus archetype uses time series methods to predict the demand and supply
 for future time steps and manages the deployment of facilities to ensure
 supply is greater than demand. Time series predicition methods can be used
-in this archetype.
+in this archetype. 
 """
 
 import random
@@ -110,7 +110,7 @@ class TimeSeriesInst(Institution):
         uilabel="Demand Std Dev",
         default=0
     )
-
+    
     degree = ts.Int(
         doc="The degree of the fitting polynomial.",
         tooltip="The degree of the fitting polynomial, if using calc method poly.",
@@ -165,8 +165,10 @@ class TimeSeriesInst(Institution):
             # convert list of strings to dictionary
             self.commodity_dict = self.parse_commodities(self.commodities)
             for commod in self.commodity_dict:
-                lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
-                lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
+                lib.TIME_SERIES_LISTENERS["supply" +
+                                          commod].append(self.extract_supply)
+                lib.TIME_SERIES_LISTENERS["demand" +
+                                          commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
             self.fresh = False
@@ -180,20 +182,25 @@ class TimeSeriesInst(Institution):
         time = self.context.time
         for commod, proto_cap in self.commodity_dict.items():
             if not bool(proto_cap):
-                raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
+                raise ValueError(
+                    'Prototype and capacity definition for commodity "%s" is missing' % commod)
             diff, supply, demand = self.calc_diff(commod, time)
             lib.record_time_series(commod+'calc_supply', self, supply)
             lib.record_time_series(commod+'calc_demand', self, demand)
-            if  diff < 0:
-                deploy_dict = solver.deploy_solver(self.commodity_dict, commod, diff)
+            if diff < 0:
+                deploy_dict = solver.deploy_solver(
+                    self.commodity_dict, commod, diff)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
             if self.record:
-                out_text = "Time " + str(time) + " Deployed " + str(len(self.children))
-                out_text += " supply " + str(self.commodity_supply[commod][time])
-                out_text += " demand " + str(self.commodity_demand[commod][time]) + "\n"
-                with open(commod +".txt", 'a') as f:
+                out_text = "Time " + str(time) + \
+                    " Deployed " + str(len(self.children))
+                out_text += " supply " + \
+                    str(self.commodity_supply[commod][time])
+                out_text += " demand " + \
+                    str(self.commodity_demand[commod][time]) + "\n"
+                with open(commod + ".txt", 'a') as f:
                     f.write(out_text)
 
     def calc_diff(self, commod, time):
@@ -233,9 +240,11 @@ class TimeSeriesInst(Institution):
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
         else:
-            raise ValueError('The input calc_method is not valid. Check again.')
-        return supply
+            raise ValueError(
+                'The input calc_method is not valid. Check again.')
 
+        return supply
+    
     def predict_demand(self, commod, time):
         if commod == self.driving_commod:
             demand = self.demand_calc(time+1)
@@ -251,7 +260,9 @@ class TimeSeriesInst(Institution):
                                                         back_steps=self.back_steps,
                                                         degree=self.degree)
             else:
-                raise ValueError('The input calc_method is not valid. Check again.')
+                raise ValueError(
+                    'The input calc_method is not valid. Check again.')
+
         return demand
 
 
