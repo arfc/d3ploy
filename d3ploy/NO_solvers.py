@@ -67,7 +67,7 @@ def predict_arch(ts, steps=1, std_dev=0, back_steps=2):
     v = v[-1*2:]
     try:
         model = arch_model(v)
-        fit = model.fit(disp="off")
+        fit = model.fit(disp="off", show_warning=False)
         forecast = fit.forecast(horizon=steps)
         step = 'h.' + str(steps)
         x = forecast.mean.get(step)[len(v)-steps]
