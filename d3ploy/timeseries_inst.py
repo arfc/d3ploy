@@ -144,12 +144,14 @@ class TimeSeriesInst(Institution):
         print('supply_std_dev: %f' %self.supply_std_dev)
         print('demand_std_dev: %f' %self.demand_std_dev)
 
+
     def parse_commodities(self, commodities):
         """ This function parses the vector of strings commodity variable
             and replaces the variable as a dictionary. This function should be deleted
             after the map connection is fixed."""
         temp = commodities
         commodity_dict = {}
+        pref_dict = {}
         for entry in temp:
             z = entry.split('_')
             if z[0] not in commodity_dict.keys():
@@ -157,13 +159,24 @@ class TimeSeriesInst(Institution):
                 commodity_dict[z[0]].update({z[1]: float(z[2])})
             else:
                 commodity_dict[z[0]].update({z[1]: float(z[2])})
-        return commodity_dict
+            
+            # preference is optional
+            # also for backwards compatibility
+            if len(z) == 4:
+                if z[0] not in pref_dict.keys():
+                    pref_dict[z[0]] = {}
+                    pref_dict[z[0]].update({z[1]: z[3]})
+                else:
+                    pref_dict[z[0]].update({z[1]: z[3]})
+
+        return commodity_dict, pref_dict
+
 
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
             # convert list of strings to dictionary
-            self.commodity_dict = self.parse_commodities(self.commodities)
+            self.commodity_dict, self.pref_dict = self.parse_commodities(self.commodities)
             for commod in self.commodity_dict:
                 lib.TIME_SERIES_LISTENERS["supply"+commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand"+commod].append(self.extract_demand)
@@ -178,14 +191,22 @@ class TimeSeriesInst(Institution):
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
+
+        print('decision for time ', time)
         for commod, proto_cap in self.commodity_dict.items():
             if not bool(proto_cap):
                 raise ValueError('Prototype and capacity definition for commodity "%s" is missing' %commod)
             diff, supply, demand = self.calc_diff(commod, time)
             lib.record_time_series(commod+'calc_supply', self, supply)
             lib.record_time_series(commod+'calc_demand', self, demand)
+            print('commodity', commod)
+            print('supply', supply)
+            print('demand', demand)
             if  diff < 0:
-                deploy_dict = solver.deploy_solver(self.commodity_dict, commod, diff)
+                print('we going in')
+                print('diff', diff)
+                deploy_dict = solver.deploy_solver(self.commodity_dict, self.pref_dict, commod, diff, time)
+                print('we got out')
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
@@ -229,7 +250,7 @@ class TimeSeriesInst(Institution):
                                                     std_dev=self.supply_std_dev,
                                                     back_steps=self.back_steps)
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
-            supply = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
         else:
