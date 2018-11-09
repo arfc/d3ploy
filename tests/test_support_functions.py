@@ -111,39 +111,38 @@ def plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_sup
     ax.set_title('%s Demand Supply plot' % commod)
     plt.savefig(test, dpi=300,bbox_inches='tight')
 
-def calculate_total_neg(dict_demand, dict_supply):
-    diff = {}
-    total = 0 
+def chi_goodness_test(dict_demand, dict_supply):
+    chi2 = 0 
+    start = int(list(dict_demand.keys())[0]) 
+    for x in range(start-1,len(dict_demand)):
+        y = x+1
+        try: 
+            chi2 += (dict_supply[y]-dict_demand[y])**2 / dict_demand[y]
+        except ZeroDivisionError: 
+            chi2 += 0 
+    
+    return chi2 
+
+def supply_under_demand(dict_demand,dict_supply):
     num_negative = 0
     start = int(list(dict_demand.keys())[0]) 
     for x in range(start-1,len(dict_demand)):
         y = x+1
-        diff[y] = abs(dict_supply[y] -dict_demand[y])
-        total = total + diff[y]
         if dict_supply[y] < dict_demand[y]: 
             num_negative = num_negative + 1
 
-    return total, num_negative
+    return num_negative
 
-def find_best(dict_total,dict_negative): 
-    maximum_dict_total = dict_total[max(dict_total, key=dict_total.get)]
-    maximum_dict_negative = dict_negative[max(dict_negative, key=dict_negative.get)]
+def best_calc_method(in_dict,max):
+    if max:  
+        best = max(in_dict, key=in_dict.get)
+    else: 
+        best = min(in_dict, key=in_dict.get)
+    
+    return best 
 
-    if maximum_dict_negative ==0: 
-        maximum_dict_negative = 1
 
-    normalized_dict_total = {}
-    normalized_dict_negative = {}
-    score = {}
-    for x in range(0,len(dict_total)): 
-        normalized_dict_total[x] = dict_total[x]/maximum_dict_total
-        normalized_dict_negative[x] = dict_negative[x]/maximum_dict_negative
-        score[x] = normalized_dict_total[x] + normalized_dict_negative[x]
-
-    best_calc_method = min(score, key=score.get)
-    return best_calc_method, score 
-
-def demand_curve(type,time_point):
+def demand_curve(demand_eq,time_point):
     """ Uses initial demand, growth rate and list of timesteps to 
     output the corresponding demand curve points 
     Parameters
@@ -154,15 +153,11 @@ def demand_curve(type,time_point):
     -------
     demand_values : int, demand point corresponding to time_point  
     """
-    if type == 'a-const-1':
-        demand_point = 3000
-    elif type == 'a-grow-1':
-        demand_point = 100*time_point
-    elif type == 'a-grow-2':
-        demand_point = 10*(1+1.5)**(time_point/12)
+    t = time_point
+    demand_point = eval(demand_eq)
     return demand_point
 
-def supply_within_demand_fac_tol(sql_file,type,no_fac,commod):
+def supply_within_demand_fac_tol(sql_file,demand_eq,no_fac,commod):
     """ Analyzes if the fuelsupply provided in the SQL file is within no_fac tolerance of 
     demand and returns a number of timesteps that it is within the tolerance. 
     Parameters
@@ -188,7 +183,7 @@ def supply_within_demand_fac_tol(sql_file,type,no_fac,commod):
         # if supply curve value is larger/smaller than demand curve by no_fac amount
         # at any timestep the num counter will be larger 
         # than 1 and the test will fail
-        fuel_demand_point = demand_curve(type,time_point)
+        fuel_demand_point = demand_curve(demand_eq,time_point)
         diff = fuel_supply_point - fuel_demand_point
         if diff>no_fac*3000:
             num = num + 1
