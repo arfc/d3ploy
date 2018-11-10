@@ -72,6 +72,31 @@
     </config>
     <name>reactor</name>
   </facility>
+  <facility>
+  <config>
+    <Reactor>
+      <assem_size>1</assem_size>
+      <cycle_time>1</cycle_time>
+      <fuel_incommods>
+        <val>fuel</val>
+      </fuel_incommods>
+      <fuel_inrecipes>
+        <val>fresh_uox</val>
+      </fuel_inrecipes>
+      <fuel_outcommods>
+        <val>spent_uox</val>
+      </fuel_outcommods>
+      <fuel_outrecipes>
+        <val>spent_uox</val>
+      </fuel_outrecipes>
+      <n_assem_batch>1</n_assem_batch>
+      <n_assem_core>1</n_assem_core>
+      <power_cap>1</power_cap>
+      <refuel_time>0</refuel_time>
+    </Reactor>
+  </config>
+  <name>reactor2</name>
+</facility>
   <recipe>
     <basis>mass</basis>
     <name>fresh_uox</name>
@@ -104,11 +129,15 @@
     <institution>
       <config>
         <TimeSeriesInst>
-	  <calc_method>ma</calc_method>
+          <calc_method>poly</calc_method>
           <record>1</record>
 	  <demand_std_dev>0.0</demand_std_dev>
           <demand_eq>3*t</demand_eq>
-          <commodities><val>POWER_reactor_1</val><val>fuel_source_1</val></commodities>
+          <commodities>
+              <val>POWER_reactor_1_50-t</val>
+              <val>POWER_reactor2_1_t</val>
+              <val>fuel_source_1</val>
+          </commodities>
           <steps>1</steps>
         </TimeSeriesInst>
       </config>
