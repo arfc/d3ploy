@@ -51,8 +51,8 @@ jobs:
                 command: |
                     pip install -U pytest
                     python setup.py install
-                    pytest ./tests/solver_unit_tests.py
-                    pytest ./tests/no_inst_fleet_unit_tests.py
+                    pytest ./tests/unit_tests/solver_unit_tests.py
+                    pytest ./tests/NO_fleet_unit_tests.py
     
 
 workflows:
