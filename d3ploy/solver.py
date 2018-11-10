@@ -81,7 +81,7 @@ def preference_deploy(proto_commod, pref_fac, remainder):
         value: preference value
     remainder: float
         amount of capacity that is needed
-    
+
     Returns:
     --------
     deploy_dict: dictionary
@@ -103,6 +103,7 @@ def preference_deploy(proto_commod, pref_fac, remainder):
             deploy_dict[proto] += 1
     return deploy_dict
 
+
 def minimize_number_of_deployment(proto_commod, remainder):
     """ This function deploys facilities to meet the lack in
     capacity by deploying the least number of facilities.
@@ -114,7 +115,7 @@ def minimize_number_of_deployment(proto_commod, remainder):
         value: prototype capacity
     remainder: float
         amount of capacity that is needed
-    
+
     Returns:
     --------
     deploy_dict: dictionary
@@ -134,7 +135,7 @@ def minimize_number_of_deployment(proto_commod, remainder):
                 remainder -= proto_commod[proto]
     if remainder == 0:
         return deploy_dict
-    
+
     for proto in list(reversed(key_list)):
         # see if the prototype cap is bigger than remainder
         if remainder > proto_commod[proto]:
@@ -144,8 +145,9 @@ def minimize_number_of_deployment(proto_commod, remainder):
         else:
             deploy_dict[proto] = 1
         break
-    
+
     return deploy_dict
+
 
 def get_asc_key_list(dicti):
     """ This function sorts keys in ascending order
