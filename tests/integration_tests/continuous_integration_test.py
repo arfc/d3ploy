@@ -7,7 +7,7 @@ import pytest
 import copy
 import glob
 import sys
-import test_support_functions as functions
+import d3ploy.tester as functions
 from nose.tools import assert_in, assert_true, assert_equals
 
 # Delete previously generated files

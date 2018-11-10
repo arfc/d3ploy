@@ -14,7 +14,7 @@ import glob
 import sys
 from matplotlib import pyplot as plt
 import numpy as np
-import test_support_functions as functions
+import d3ploy.tester as functions
 
 from nose.tools import assert_in, assert_true, assert_equals
 
