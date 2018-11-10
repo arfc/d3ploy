@@ -9,7 +9,7 @@ import glob
 import sys
 from matplotlib import pyplot as plt
 import numpy as np
-import operator 
+import operator
 
 def get_cursor(file_name):
     """ Connects and returns a cursor to an sqlite output file
