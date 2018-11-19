@@ -6,11 +6,13 @@ basis for predicting supply and demand of commodities within Cyclus; Non-optimiz
 deterministing optimization (DO), and Stochastic optimization (SO). 
 
 ## Dependencies
-**Cyclus**
+**Cyclus**: Fuel cycle simulation tool. [Documentation](fuelcycle.org)
 
-**statsmodels**: Python package for statistical analysis.
+**statsmodels**: Python package for statistical analysis.[Documentation](https://www.statsmodels.org/stable/index.html)
 
-**arch**: Python package for conditional heteroskidasticity models.
+**arch**: Python package for conditional heteroskidasticity models.[Documentation](https://arch.readthedocs.io/en/latest/index.html)
+
+**Pyramid**: A python package for ARIMA/SARIMA methods. [Documentation](https://www.alkaline-ml.com/pyramid/index.html)
 
 
 ## timeseries_inst
@@ -27,9 +29,10 @@ deficit in the current time step.
 
 ### Required Inputs
 - **commodities**: This is a list of strings defining the commodity to track, the facility that supplies the commodity,
- and the (initial) capacity of the facility, given by format `commodity_facility_capacity`.
+ the (initial) capacity of the facility, and the preference of the facility, given by format `commodity_facility_capacity_preference`. The preference can be given as an equation, using
+ `t` as the dependent variable (e.g. `(1.01)**t`).
 - **driving_commod**: The driving commodity for the institution.
-- **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable (e.g. `(1.01)**t`).
+- **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable.
 - **calc_method**: This is the method used to predict the supply and demand.
 
 

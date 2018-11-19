@@ -14,7 +14,7 @@
     </spec>
   </archetypes>
   <control>
-    <duration>50</duration>
+    <duration>40</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
   </control>
@@ -65,7 +65,7 @@
     <institution>
       <config>
         <TimeSeriesInst>
-          <calc_method>arch</calc_method>
+	  <calc_method>sw_seasonal</calc_method>
           <demand_eq>300*t</demand_eq>
           <commodities>
             <val>POWER_Reactor_1000</val>
