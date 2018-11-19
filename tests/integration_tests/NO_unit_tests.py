@@ -116,7 +116,6 @@ TEMPLATE = {
 # decommissioning existing facilities.
 
 
-
 # Test A-const-1
 INIT_DEMAND = copy.deepcopy(TEMPLATE)
 INIT_DEMAND["simulation"].update({"region": {
@@ -200,6 +199,7 @@ INIT_DEMAND_WITH_INIT_FACILITIES["simulation"].update({"region": {
 }
 )
 
+
 @pytest.mark.base
 def test_a_const_2():
     # tests if TimeSeriesInst deploys a source given
@@ -254,6 +254,7 @@ INCREASING_DEMAND['simulation'].update(
     }
 )
 
+
 @pytest.mark.base
 def test_a_grow_1():
     # tests if TimeSeriesInst deploys a source according to increasing demand
@@ -282,6 +283,7 @@ def test_a_grow_1_exact():
     assert(source_exact1[0] == 2)
     source_exact2 = cur.execute(query + " AND EnterTime = 12").fetchone()
     assert(source_exact2[0] == 1)
+
 
 # Test A-grow-2
 INCREASING_DEMAND_WITH_INIT_FACILITIES = copy.deepcopy(TEMPLATE)
@@ -341,8 +343,6 @@ def test_a_grow_2_exact():
     assert(source_exact1[0] == 2)
     source_exact2 = cur.execute(query + " AND EnterTime = 12").fetchone()
     assert(source_exact2[0] == 1)
-
-
 
 
 def test_a_const_3():
@@ -471,7 +471,7 @@ def test_b_const_1():
 
     # getting the sqlite file
     cur = get_cursor(output_file)
-    
+
     # check base solution
     reactor_base = cur.execute(query.replace('source', 'reactor')).fetchone()
     assert(1 <= reactor_base[0] <= 1 + tol)
@@ -483,11 +483,11 @@ def test_b_const_1():
 def test_b_const_1_exact():
     output_file = 'reactor_source_init_demand.sqlite'
     cur = get_cursor(output_file)
-    reactor_exact = cur.execute(query.replace('source', 'reactor') + " AND EnterTime = 1").fetchone()
+    reactor_exact = cur.execute(query.replace(
+        'source', 'reactor') + " AND EnterTime = 1").fetchone()
     assert(reactor_exact[0] == 1)
     source_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact[0] == 1)
-
 
 
 # Test B-const-2
@@ -568,7 +568,8 @@ def test_b_const_2():
 def test_b_const_2_exact():
     output_file = 'reactor_source_init_demand_with_init_facilities.sqlite'
     cur = get_cursor(output_file)
-    reactor_exact = cur.execute(query.replace('source', 'reactor') + " AND EnterTime = 1").fetchone()
+    reactor_exact = cur.execute(query.replace(
+        'source', 'reactor') + " AND EnterTime = 1").fetchone()
     assert(reactor_exact[0] == 1)
     source_exact = cur.execute(query + " AND EnterTime = 1").fetchone()
     assert(source_exact[0] == 1)
@@ -655,7 +656,6 @@ def test_b_grow_1_exact():
     source_exact2 = cur.execute(query.replace(
         'source', 'reactor') + " AND EnterTime = 12").fetchone()
     assert(source_exact2[0] == 1)
-
 
 
 # Test A-const-3
