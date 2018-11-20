@@ -52,7 +52,7 @@ jobs:
                     pip install -U pytest
                     python setup.py install
                     pytest ./tests/unit_tests/deploy_solver_unit_tests.py
-                    pytest ./tests/NO_fleet_unit_tests.py
+                    pytest ./tests/integration_unit_tests/NO_fleet_unit_tests.py
     
 
 workflows:
