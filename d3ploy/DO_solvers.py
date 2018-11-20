@@ -60,6 +60,7 @@ def exp_smoothing(ts, back_steps=10, degree=1):
     x = model_fit.predict(len(timeseries), len(timeseries))
     return x[0]
 
+
 def holt_winters(ts, back_steps=10, degree=1):
     """
     Predicts next value using triple exponential smoothing
@@ -87,6 +88,7 @@ def holt_winters(ts, back_steps=10, degree=1):
     x = model_fit.predict(len(timeseries), len(timeseries))
     return x[0]
 
+
 def fft(ts, back_steps=1e6, degree=1):
     timeseries = np.array(list(ts.values()))
     timeseries = timeseries[-back_steps:]
@@ -99,7 +101,7 @@ def fft(ts, back_steps=1e6, degree=1):
     f = np.fft.fftfreq(n)              # frequencies
     indexes = list(range(n))
     # sort indexes by frequency, lower -> higher
-    indexes.sort(key = lambda i: np.absolute(f[i]))
+    indexes.sort(key=lambda i: np.absolute(f[i]))
 
     t = np.arange(0, n + 1)
     restored_sig = np.zeros(t.size)

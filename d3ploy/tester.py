@@ -9,7 +9,8 @@ import glob
 import sys
 from matplotlib import pyplot as plt
 import numpy as np
-import operator 
+import operator
+
 
 def get_cursor(file_name):
     """ Connects and returns a cursor to an sqlite output file
@@ -27,7 +28,8 @@ def get_cursor(file_name):
     con.row_factory = lite.Row
     return con.cursor()
 
-def supply_demand_dict_driving(sqlite,demand_eq,commod):
+
+def supply_demand_dict_driving(sqlite, demand_eq, commod):
     """ Puts supply, demand, calculated demand and 
     calculated supply into a nice dictionary format 
     if given the sql file, demand_eq of driving commodity 
@@ -51,28 +53,31 @@ def supply_demand_dict_driving(sqlite,demand_eq,commod):
     tables[0] = "timeseriessupply"+commod
     tables[1] = "timeseries"+commod+"calc_demand"
     tables[2] = "timeseries"+commod+"calc_supply"
-    fuel_supply = cur.execute("select time, sum(value) from "+tables[0]+" group by time").fetchall()
-    calc_fuel_demand = cur.execute("select time, sum(value) from "+tables[1]+" group by time").fetchall()
-    calc_fuel_supply = cur.execute("select time, sum(value) from "+tables[2]+" group by time").fetchall()
+    fuel_supply = cur.execute(
+        "select time, sum(value) from "+tables[0]+" group by time").fetchall()
+    calc_fuel_demand = cur.execute(
+        "select time, sum(value) from "+tables[1]+" group by time").fetchall()
+    calc_fuel_supply = cur.execute(
+        "select time, sum(value) from "+tables[2]+" group by time").fetchall()
     dict_demand = {}
     dict_supply = {}
     dict_calc_demand = {}
     dict_calc_supply = {}
-    for x in range(0,len(fuel_supply)):
+    for x in range(0, len(fuel_supply)):
         dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
         dict_calc_demand[fuel_supply[x][0]+1] = calc_fuel_demand[x][1]
         dict_calc_supply[fuel_supply[x][0]+1] = calc_fuel_supply[x][1]
-    t = np.fromiter(dict_supply.keys(),dtype=float)
+    t = np.fromiter(dict_supply.keys(), dtype=float)
     fuel_demand = eval(demand_eq)
-    if isinstance(fuel_demand,int):
+    if isinstance(fuel_demand, int):
         fuel_demand = fuel_demand*np.ones(len(t))
-    for x in range(0,len(fuel_supply)):
+    for x in range(0, len(fuel_supply)):
         dict_demand[fuel_supply[x][0]] = fuel_demand[x]
 
     return dict_demand, dict_supply, dict_calc_demand, dict_calc_supply
 
 
-def supply_demand_dict_nondriving(sqlite,commod):
+def supply_demand_dict_nondriving(sqlite, commod):
     """ Puts supply, demand, calculated demand and 
     calculated supply into a nice dictionary format 
     if given the sql file and commodity name 
@@ -96,34 +101,36 @@ def supply_demand_dict_nondriving(sqlite,commod):
     tables[1] = "timeseries"+commod+"calc_demand"
     tables[2] = "timeseries"+commod+"calc_supply"
     tables[3] = "timeseriesdemand"+commod
-    fuel_demand = cur.execute("select time, sum(value) from "+tables[3]+" group by time").fetchall()
-    fuel_supply = cur.execute("select time, sum(value) from "+tables[0]+" group by time").fetchall()
-    calc_fuel_demand = cur.execute("select time, sum(value) from "+tables[1]+" group by time").fetchall()
-    calc_fuel_supply = cur.execute("select time, sum(value) from "+tables[2]+" group by time").fetchall()
+    fuel_demand = cur.execute(
+        "select time, sum(value) from "+tables[3]+" group by time").fetchall()
+    fuel_supply = cur.execute(
+        "select time, sum(value) from "+tables[0]+" group by time").fetchall()
+    calc_fuel_demand = cur.execute(
+        "select time, sum(value) from "+tables[1]+" group by time").fetchall()
+    calc_fuel_supply = cur.execute(
+        "select time, sum(value) from "+tables[2]+" group by time").fetchall()
     dict_demand = {}
     dict_supply = {}
     dict_calc_demand = {}
     dict_calc_supply = {}
-    for x in range(0,len(fuel_supply)):
+    for x in range(0, len(fuel_supply)):
         dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
         dict_calc_demand[fuel_supply[x][0]+1] = calc_fuel_demand[x][1]
         dict_calc_supply[fuel_supply[x][0]+1] = calc_fuel_supply[x][1]
 
-    t = np.fromiter(dict_supply.keys(),dtype=float)
-    for x in range(0,len(t)):
-        dict_demand[t[x]] = 0 
+    t = np.fromiter(dict_supply.keys(), dtype=float)
+    for x in range(0, len(t)):
+        dict_demand[t[x]] = 0
 
-    for x in range(0,len(fuel_supply)):
-        for y in range(0,len(fuel_demand)):
-            if fuel_demand[y][0] == fuel_supply[x][0]: 
-                dict_demand[fuel_supply[x][0]] = fuel_demand[y][1] 
-
+    for x in range(0, len(fuel_supply)):
+        for y in range(0, len(fuel_demand)):
+            if fuel_demand[y][0] == fuel_supply[x][0]:
+                dict_demand[fuel_supply[x][0]] = fuel_demand[y][1]
 
     return dict_demand, dict_supply, dict_calc_demand, dict_calc_supply
 
 
-
-def plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_supply,commod,test):
+def plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, commod, test):
     """ Plots demand, supply, calculated demand and calculated supply on a curve 
 
     for a non-driving commodity 
@@ -139,25 +146,25 @@ def plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_sup
 
     """
     fig, ax = plt.subplots(figsize=(15, 7))
-    ax.plot(*zip(*sorted(dict_demand.items())),'*',label = 'Demand')
-    ax.plot(*zip(*sorted(dict_supply.items())),'*',label = 'Supply')
-    ax.plot(*zip(*sorted(dict_calc_demand.items())),'o',alpha = 0.5,label = 'Calculated Demand')
-    ax.plot(*zip(*sorted(dict_calc_supply.items())),'o',alpha = 0.5,label = 'Calculated Supply')
+    ax.plot(*zip(*sorted(dict_demand.items())), '*', label='Demand')
+    ax.plot(*zip(*sorted(dict_supply.items())), '*', label='Supply')
+    ax.plot(*zip(*sorted(dict_calc_demand.items())), 'o', alpha=0.5, label='Calculated Demand')
+    ax.plot(*zip(*sorted(dict_calc_supply.items())), 'o', alpha=0.5, label='Calculated Supply')
     ax.grid()
     ax.set_xlabel('Time (month timestep)', fontsize=14)
-    ax.set_ylabel('Mass (kg)' , fontsize=14)
+    ax.set_ylabel('Mass (kg)', fontsize=14)
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(
-            handles,
-            labels,
-            fontsize=11,
-            loc='upper center',
-            bbox_to_anchor=(
-                1.1,
-                1.0),
-            fancybox=True)
+        handles,
+        labels,
+        fontsize=11,
+        loc='upper center',
+        bbox_to_anchor=(
+            1.1,
+            1.0),
+        fancybox=True)
     ax.set_title('%s Demand Supply plot' % commod)
-    plt.savefig(test, dpi=300,bbox_inches='tight')
+    plt.savefig(test, dpi=300, bbox_inches='tight')
 
 
 def residuals(dict_demand, dict_supply):
@@ -172,23 +179,24 @@ def residuals(dict_demand, dict_supply):
     -------
     returns an int of the chi2 (goodness of fit value) for 
     the two input timeseries dictionaries 
-    """    
+    """
 
-    start = int(list(dict_demand.keys())[0]) 
-    demand_total = 0 
-    for x in range(start-1,len(dict_demand)):
+    start = int(list(dict_demand.keys())[0])
+    demand_total = 0
+    for x in range(start-1, len(dict_demand)):
         y = x+1
         demand_total += dict_demand[y]
-    demand_mean = (1/len(dict_demand))*demand_total    
-    SStot = 0 
-    SSres = 0 
-    for x in range(start-1,len(dict_demand)):
+    demand_mean = (1/len(dict_demand))*demand_total
+    SStot = 0
+    SSres = 0
+    for x in range(start-1, len(dict_demand)):
         y = x+1
         SStot += (dict_demand[y]-demand_mean)**2
         SSres += (dict_demand[y]-dict_supply[y])**2
-    
-    Rsquared = 1-SSres / SStot 
-    return Rsquared 
+
+    Rsquared = 1-SSres / SStot
+    return Rsquared
+
 
 def chi_goodness_test(dict_demand, dict_supply):
     """ Conducts a chi2 goodness of fit test 
@@ -202,19 +210,20 @@ def chi_goodness_test(dict_demand, dict_supply):
     -------
     returns an int of the chi2 (goodness of fit value) for 
     the two input timeseries dictionaries 
-    """    
-    chi2 = 0 
-    start = int(list(dict_demand.keys())[0]) 
-    for x in range(start-1,len(dict_demand)):
+    """
+    chi2 = 0
+    start = int(list(dict_demand.keys())[0])
+    for x in range(start-1, len(dict_demand)):
         y = x+1
-        try: 
+        try:
             chi2 += (dict_supply[y]-dict_demand[y])**2 / dict_demand[y]
-        except ZeroDivisionError: 
-            chi2 += 0 
-    
-    return chi2 
+        except ZeroDivisionError:
+            chi2 += 0
 
-def supply_under_demand(dict_demand,dict_supply):
+    return chi2
+
+
+def supply_under_demand(dict_demand, dict_supply):
     """ Calculates the number of time steps supply is 
     under demand 
 
@@ -227,17 +236,18 @@ def supply_under_demand(dict_demand,dict_supply):
     -------
     returns an int of the number of time steps supply is 
     under demand 
-    """ 
+    """
     num_negative = 0
-    start = int(list(dict_demand.keys())[0]) 
-    for x in range(start-1,len(dict_demand)):
+    start = int(list(dict_demand.keys())[0])
+    for x in range(start-1, len(dict_demand)):
         y = x+1
-        if dict_supply[y] < dict_demand[y]: 
+        if dict_supply[y] < dict_demand[y]:
             num_negative = num_negative + 1
 
     return num_negative
 
-def best_calc_method(in_dict,maximum):
+
+def best_calc_method(in_dict, maximum):
     """ Calculates the number of time steps supply is 
     under demand 
 
@@ -252,13 +262,12 @@ def best_calc_method(in_dict,maximum):
     -------
     returns a list of the calc methods that have the max 
     or min (depending on input) in the in_dict  
-    """ 
-    if maximum:  
+    """
+    if maximum:
         highest = max(in_dict.values())
-        best = [k for k,v in in_dict.items() if v == highest]
-    else: 
+        best = [k for k, v in in_dict.items() if v == highest]
+    else:
         lowest = min(in_dict.values())
-        best = [k for k,v in in_dict.items() if v == lowest]
-    
-    return best 
+        best = [k for k, v in in_dict.items() if v == lowest]
 
+    return best
