@@ -321,7 +321,7 @@ best_frac_supply_under_demand_fuel = functions.best_calc_method(
 
 with open("scenario_2_output.txt", "w") as text_file:
     text_file.write("SCENARIO 2 \n")
-    text_file.write("source -> reactor (cycle time = 1, refuel time = 0) -> sink, demand equation: \n")
+    text_file.write("source -> (fuel) -> reactor (cycle time = 1, refuel time = 0) -> sink, demand equation: \n")
     text_file.write("%s \n \n" % demand_eq)
     text_file.write("COMMOD: POWER \n \n")
     text_file.write("R squared test results: \n")
