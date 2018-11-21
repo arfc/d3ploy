@@ -159,7 +159,7 @@ best_frac_supply_under_demand = functions.best_calc_method(
 
 with open("scenario_1_output.txt", "w") as text_file:
     text_file.write("SCENARIO 1 \n")
-    text_file.write("source -> sink, demand equation: \n")
+    text_file.write("source -> (fuel) -> sink, demand equation: \n")
     text_file.write("%s \n \n" % demand_eq)
     text_file.write("R squared test results: \n")
     text_file.write("%s \n \n" % residuals)
