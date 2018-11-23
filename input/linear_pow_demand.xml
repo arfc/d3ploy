@@ -135,7 +135,7 @@
           <demand_eq>t</demand_eq>
           <commodities>
               <val>POWER_reactor1_1_3*t</val>
-              <val>POWER_reactor2_1_0.5*t</val>
+              <val>POWER_reactor2_1_t</val>
               <val>fuel_source_1</val>
           </commodities>
           <steps>1</steps>
