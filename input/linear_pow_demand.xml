@@ -22,7 +22,7 @@
     </spec>
   </archetypes>
   <control>
-    <duration>10</duration>
+    <duration>100</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
   </control>
@@ -70,7 +70,7 @@
         <refuel_time>0</refuel_time>
       </Reactor>
     </config>
-    <name>reactor</name>
+    <name>reactor1</name>
   </facility>
   <facility>
   <config>
@@ -134,7 +134,7 @@
 	  <demand_std_dev>0.0</demand_std_dev>
           <demand_eq>3*t</demand_eq>
           <commodities>
-              <val>POWER_reactor_1_50-t</val>
+              <val>POWER_reactor1_1_50-t</val>
               <val>POWER_reactor2_1_t</val>
               <val>fuel_source_1</val>
           </commodities>
