@@ -132,7 +132,7 @@
           <calc_method>poly</calc_method>
           <record>1</record>
 	  <demand_std_dev>0.0</demand_std_dev>
-          <demand_eq>t</demand_eq>
+          <demand_eq>3*t</demand_eq>
           <commodities>
               <val>POWER_reactor1_1_3*t</val>
               <val>POWER_reactor2_1_t</val>
