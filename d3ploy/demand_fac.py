@@ -21,42 +21,42 @@ class DemandFac(Facility):
     """
 
     demand_rate_min = ts.Double(
-        doc="The minimum rate at which this facility produces it's commodity. ", 
+        doc="The minimum rate at which this facility produces it's commodity. ",
         tooltip="The minimum rate at which this facility produces its product.",
         uilabel="Min Production"
     )
 
     demand_rate_max = ts.Double(
-        doc="The maximum rate at which this facility produces it's commodity.", 
+        doc="The maximum rate at which this facility produces it's commodity.",
         tooltip="The maximum rate at which this facility produces its product.",
         uilabel="Max Production"
     )
 
     demand_ts = ts.Int(
-        doc="The number of timesteps between demand calls by the agent", 
-        tooltip="The number of timesteps between demand calls by the agent", 
+        doc="The number of timesteps between demand calls by the agent",
+        tooltip="The number of timesteps between demand calls by the agent",
         uilabel="Demand Timestep",
         default=1
     )
 
     supply_rate_max = ts.Double(
-        doc="The maximum rate at which this facility produces it's commodity.", 
+        doc="The maximum rate at which this facility produces it's commodity.",
         tooltip="The maximum rate at which this facility produces its product.",
         uilabel="Max Production"
     )
 
     supply_rate_min = ts.Double(
-        doc="The maximum rate at which this facility produces it's commodity.", 
+        doc="The maximum rate at which this facility produces it's commodity.",
         tooltip="The maximum rate at which this facility produces its product.",
         uilabel="Max Production"
     )
 
     supply_ts = ts.Int(
-        doc="The number of timesteps between supply calls by the agent", 
-        tooltip="The number of timesteps between supply calls by the agent", 
+        doc="The number of timesteps between supply calls by the agent",
+        tooltip="The number of timesteps between supply calls by the agent",
         uilabel="Supply Timestep",
         default=1
-    )    
+    )
 
     supply_commod = ts.String(
         doc="The commodity supplied by this facility.",
@@ -82,16 +82,19 @@ class DemandFac(Facility):
         """
         self.demand_t += 1
         self.supply_t += 1
-        supply_rate = random.uniform(self.supply_rate_min, self.supply_rate_max)
-        demand_rate = random.uniform(self.demand_rate_min, self.demand_rate_max)
+        supply_rate = random.uniform(
+            self.supply_rate_min, self.supply_rate_max)
+        demand_rate = random.uniform(
+            self.demand_rate_min, self.demand_rate_max)
         if self.supply_t == -1 or self.supply_t == self.supply_ts:
-            lib.record_time_series("supply"+self.supply_commod, self, supply_rate)
+            lib.record_time_series(
+                "supply"+self.supply_commod, self, supply_rate)
             self.supply_t = 0
         else:
             lib.record_time_series("supply"+self.supply_commod, self, 0.)
         if self.demand_t == -1 or self.demand_t == self.demand_ts:
-            lib.record_time_series("demand"+self.demand_commod, self, demand_rate)
+            lib.record_time_series(
+                "demand"+self.demand_commod, self, demand_rate)
             self.demand_t = 0
         else:
             lib.record_time_series("demand"+self.demand_commod, self, 0.)
-

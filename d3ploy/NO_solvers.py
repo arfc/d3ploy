@@ -9,7 +9,8 @@ import math
 import statsmodels.api as sm
 from arch import arch_model
 
-def predict_ma(ts, steps=5, std_dev = 0, back_steps=5):
+
+def predict_ma(ts, steps=5, std_dev=0, back_steps=5):
     """
     Calculates the moving average of a previous [order] entries in
     timeseries [ts]. It will automatically reduce the order if the
@@ -32,6 +33,7 @@ def predict_ma(ts, steps=5, std_dev = 0, back_steps=5):
     x = np.average(supply[steps:])
     return x
 
+
 def predict_arma(ts, steps=5, std_dev=0, back_steps=5):
     """
     Predict the value of supply or demand at a given time step using the
@@ -49,13 +51,14 @@ def predict_arma(ts, steps=5, std_dev=0, back_steps=5):
     """
     v = list(ts.values())
     v = v[-1*back_steps:]
-    try:    
-        fit = sm.tsa.ARMA(v, (1,0)).fit(disp=-1)
+    try:
+        fit = sm.tsa.ARMA(v, (1, 0)).fit(disp=-1)
         forecast = fit.forecast(steps)
         x = forecast[0][steps-1] + forecast[1][steps-1]*std_dev
     except (ValueError, np.linalg.linalg.LinAlgError):
-        x = predict_ma(ts) 
+        x = predict_ma(ts)
     return x
+
 
 def predict_arch(ts, steps=1, std_dev=0, back_steps=2):
     """
