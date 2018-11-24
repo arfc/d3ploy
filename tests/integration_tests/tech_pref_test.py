@@ -122,7 +122,7 @@ input = {
 # This occurs when the preference has the same value at a certain timestep. 
 # In this scenario, the error occurs at time step 0 when both preferences give a
 # 0 value. 
-def test_tech_pref:
+def test_tech_pref():
     output_file = 'test_tech_pref.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
     with open(input_file, 'w') as f:
