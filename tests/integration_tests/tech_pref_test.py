@@ -1,5 +1,4 @@
-"""
-This python file contains tech pref capability tests for TimeSeriesInst
+""" This python file contains tech pref capability tests for TimeSeriesInst
 archetype. 
 """
 
@@ -105,14 +104,14 @@ TEMPLATE = {
 # This occurs when the preference has the same value at a certain timestep. 
 # In this scenario, the error occurs at time step 0 when both preferences give a
 # 0 value. 
-test_tech_pref_subprocess = copy.deepcopy(TEMPLATE)
-test_tech_pref_subprocess["simulation"].update({  "region": {
+tech_pref_subprocess_template = copy.deepcopy(TEMPLATE)
+tech_pref_subprocess_template["simulation"].update({"region": {
    "config": {"NullRegion": "\n      "},
    "institution": {
     "config": {
      "TimeSeriesInst": {
       "calc_method": "poly",
-      "commodities": {"val": ["POWER_reactor1_1_3*t", "POWER_reactor2_1_t", "fuel_source_1"]},
+      "commodities": {"val": ["POWER_reactor1_1_50-t", "POWER_reactor2_1_t", "fuel_source_1"]},
       "demand_eq": "3*t",
       "demand_std_dev": "0.0",
       "record": "1",
@@ -123,14 +122,13 @@ test_tech_pref_subprocess["simulation"].update({  "region": {
    },
    "name": "SingleRegion"
   }
-
 })
 
 def test_tech_pref_subprocess():
     output_file = 'test_tech_pref.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
     with open(input_file, 'w') as f:
-        json.dump(test_tech_pref_subprocess, f)
+        json.dump(tech_pref_subprocess_template, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
     # check if ran successfully and deployed facilities at time step 1 
@@ -142,3 +140,4 @@ def test_tech_pref_subprocess():
             passes = 1 
             break 
     assert(passes == 1)
+
