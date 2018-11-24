@@ -190,7 +190,7 @@ tech_pref_cross_template["simulation"].update({"region": {
     "config": {
      "TimeSeriesInst": {
       "calc_method": "poly",
-      "commodities": {"val": ["POWER_reactor1_1_t", "POWER_reactor2_1_11-t", "fuel_source_1"]},
+      "commodities": {"val": ["POWER_reactor1_1_11-t", "POWER_reactor2_1_t", "fuel_source_1"]},
       "demand_eq": "3*t",
       "demand_std_dev": "0.0",
       "record": "1",
