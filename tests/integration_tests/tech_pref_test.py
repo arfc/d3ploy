@@ -38,7 +38,7 @@ TEMPLATE = {
     {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
    ]
   },
-  "control": {"duration": "50", "startmonth": "1", "startyear": "2000"},
+  "control": {"duration": "10", "startmonth": "1", "startyear": "2000"},
   "facility": [
    {
     "config": {"Source": {"outcommod": "fuel", "outrecipe": "fresh_uox", "throughput": "1"}},
@@ -111,7 +111,7 @@ tech_pref_subprocess_template["simulation"].update({"region": {
     "config": {
      "TimeSeriesInst": {
       "calc_method": "poly",
-      "commodities": {"val": ["POWER_reactor1_1_50-t", "POWER_reactor2_1_t", "fuel_source_1"]},
+      "commodities": {"val": ["POWER_reactor1_1_3*t", "POWER_reactor2_1_t", "fuel_source_1"]},
       "demand_eq": "3*t",
       "demand_std_dev": "0.0",
       "record": "1",
