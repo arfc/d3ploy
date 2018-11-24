@@ -28,7 +28,7 @@ ENV = dict(os.environ)
 ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 
 
-input = {
+TEMPLATE = {
  "simulation": {
   "archetypes": {
    "spec": [
@@ -95,8 +95,18 @@ input = {
     "name": "spent_uox",
     "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
    }
-  ],
-  "region": {
+  ]
+ }
+}
+
+
+# This test will fail if there is a subprocess error occured in the cyclus run 
+# that results in no facilities being deployed. 
+# This occurs when the preference has the same value at a certain timestep. 
+# In this scenario, the error occurs at time step 0 when both preferences give a
+# 0 value. 
+test_tech_pref_subprocess = copy.deepcopy(TEMPLATE)
+test_tech_pref_subprocess["simulation"].update({  "region": {
    "config": {"NullRegion": "\n      "},
    "institution": {
     "config": {
@@ -113,20 +123,14 @@ input = {
    },
    "name": "SingleRegion"
   }
- }
-}
 
+})
 
-# This test will fail if there is a subprocess error occured in the cyclus run 
-# that results in no facilities being deployed. 
-# This occurs when the preference has the same value at a certain timestep. 
-# In this scenario, the error occurs at time step 0 when both preferences give a
-# 0 value. 
-def test_tech_pref():
+def test_tech_pref_subprocess():
     output_file = 'test_tech_pref.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
     with open(input_file, 'w') as f:
-        json.dump(input, f)
+        json.dump(test_tech_pref_subprocess, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
     # check if ran successfully and deployed facilities at time step 1 
