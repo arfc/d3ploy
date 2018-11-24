@@ -99,6 +99,7 @@ TEMPLATE = {
 }
 
 
+# ----------------------------------------------------------------------------- #
 # This test will fail if there is a subprocess error occured in the cyclus run 
 # that results in no facilities being deployed. 
 # This occurs when the preference has the same value at a certain timestep. 
@@ -142,6 +143,7 @@ def test_tech_pref_subprocess():
     assert(passes == 1)
 
 
+# ----------------------------------------------------------------------------- #
 # The preference for reactor2 is always less than reactor 1 in this scenario
 # This test will fail if there if reactor2 is deployed in this scenario. 
 tech_pref_allreactor1_template= copy.deepcopy(TEMPLATE)
@@ -183,6 +185,10 @@ def test_tech_pref_allreactor1():
     assert(passes == 0)
 
 
+# ----------------------------------------------------------------------------- #
+# In this scenario, the preference for reactor 2 is larger than reactor 1 
+# starting from time step 6 
+# This test will fail if there if reactor2 is not deployed at time step 6 
 tech_pref_cross_template= copy.deepcopy(TEMPLATE)
 tech_pref_cross_template["simulation"].update({"region": {
    "config": {"NullRegion": "\n      "},
