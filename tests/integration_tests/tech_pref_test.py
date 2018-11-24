@@ -102,7 +102,7 @@ input = {
     "config": {
      "TimeSeriesInst": {
       "calc_method": "poly",
-      "commodities": {"val": ["POWER_reactor1_1_50-t", "POWER_reactor2_1_t", "fuel_source_1"]},
+      "commodities": {"val": ["POWER_reactor1_1_3*t", "POWER_reactor2_1_t", "fuel_source_1"]},
       "demand_eq": "3*t",
       "demand_std_dev": "0.0",
       "record": "1",
@@ -116,6 +116,12 @@ input = {
  }
 }
 
+
+# This test will fail if there is a subprocess error occured in the cyclus run 
+# that results in no facilities being deployed. 
+# This occurs when the preference has the same value at a certain timestep. 
+# In this scenario, the error occurs at time step 0 when both preferences give a
+# 0 value. 
 def test_tech_pref:
     output_file = 'test_tech_pref.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
