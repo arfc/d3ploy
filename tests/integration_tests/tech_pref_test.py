@@ -141,8 +141,6 @@ def test_tech_pref_subprocess():
             break 
     assert(passes == 1)
 
-# The preference for reactor2 is always less than reactor 1 in this scenario
-# This test will fail if there if reactor2 is deployed in this scenario. 
 tech_pref_allreactor1_template= copy.deepcopy(TEMPLATE)
 tech_pref_allreactor1_template["simulation"].update({"region": {
    "config": {"NullRegion": "\n      "},
@@ -150,7 +148,7 @@ tech_pref_allreactor1_template["simulation"].update({"region": {
     "config": {
      "TimeSeriesInst": {
       "calc_method": "poly",
-      "commodities": {"val": ["POWER_reactor1_1_3*t", "POWER_reactor2_1_t", "fuel_source_1"]},
+      "commodities": {"val": ["POWER_reactor1_1_2", "POWER_reactor2_1_1", "fuel_source_1"]},
       "demand_eq": "3*t",
       "demand_std_dev": "0.0",
       "record": "1",
@@ -163,15 +161,22 @@ tech_pref_allreactor1_template["simulation"].update({"region": {
   }
 })
 
-#def test_tech_pref_allreactor1():
-output_file = 'test_tech_pref_allreactor1.sqlite'
-input_file = output_file.replace('.sqlite', '.json')
-with open(input_file, 'w') as f:
-    json.dump(tech_pref_allreactor1_template, f)
-s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                            universal_newlines=True, env=ENV)
-# check if ran successfully and deployed facilities at time step 1 
-cur = functions.get_cursor(output_file)
-agent_entry = cur.execute("select prototype from agententry").fetchall()
-passes = 0 
-print(type(agent_entry[0][0]))
+
+# The preference for reactor2 is always less than reactor 1 in this scenario
+# This test will fail if there if reactor2 is deployed in this scenario. 
+def test_tech_pref_allreactor1():
+    output_file = 'test_tech_pref_allreactor1.sqlite'
+    input_file = output_file.replace('.sqlite', '.json')
+    with open(input_file, 'w') as f:
+        json.dump(tech_pref_allreactor1_template, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=ENV)
+    # check if ran successfully and deployed facilities at time step 1 
+    cur = functions.get_cursor(output_file)
+    agent_entry = cur.execute("select prototype from agententry").fetchall()
+    passes = 0 
+    for x in range(0,len(agent_entry)): 
+        if agent_entry[x][0] == 'reactor2': 
+            passes = 1 
+            break 
+    assert(passes == 0)
