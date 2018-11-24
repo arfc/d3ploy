@@ -141,14 +141,14 @@ def test_tech_pref_subprocess():
             break 
     assert(passes == 1)
 
-tech_pref_subprocess_allreactor1_template= copy.deepcopy(TEMPLATE)
-tech_pref_subprocess_allreactor1_template["simulation"].update({"region": {
+tech_pref_allreactor1_template= copy.deepcopy(TEMPLATE)
+tech_pref_allreactor1_template["simulation"].update({"region": {
    "config": {"NullRegion": "\n      "},
    "institution": {
     "config": {
      "TimeSeriesInst": {
       "calc_method": "poly",
-      "commodities": {"val": ["POWER_reactor1_1_3*t", "POWER_reactor2_1_t", "fuel_source_1"]},
+      "commodities": {"val": ["POWER_reactor1_1_2", "POWER_reactor2_1_1", "fuel_source_1"]},
       "demand_eq": "3*t",
       "demand_std_dev": "0.0",
       "record": "1",
@@ -176,4 +176,4 @@ def test_tech_pref_allreactor1():
         if agent_entry[x][0] == 'reactor2': 
             passes = 1 
             break 
-    assert(passes == 1)
+    assert(passes == 0)
