@@ -141,6 +141,9 @@ def test_tech_pref_subprocess():
             break 
     assert(passes == 1)
 
+
+# The preference for reactor2 is always less than reactor 1 in this scenario
+# This test will fail if there if reactor2 is deployed in this scenario. 
 tech_pref_allreactor1_template= copy.deepcopy(TEMPLATE)
 tech_pref_allreactor1_template["simulation"].update({"region": {
    "config": {"NullRegion": "\n      "},
@@ -162,8 +165,6 @@ tech_pref_allreactor1_template["simulation"].update({"region": {
 })
 
 
-# The preference for reactor2 is always less than reactor 1 in this scenario
-# This test will fail if there if reactor2 is deployed in this scenario. 
 def test_tech_pref_allreactor1():
     output_file = 'test_tech_pref_allreactor1.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
