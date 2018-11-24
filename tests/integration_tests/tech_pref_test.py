@@ -126,6 +126,7 @@ def test_tech_pref:
     # check if ran successfully and deployed facilities at time step 1 
     cur = functions.get_cursor(output_file)
     agent_entry = cur.execute("select entertime from agententry").fetchall()
+    passes = 0 
     for x in range(0,len(agent_entry)): 
         if agent_entry[x][0] == 1: 
             passes = 1 
