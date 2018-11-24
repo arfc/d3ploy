@@ -102,7 +102,7 @@ input = {
     "config": {
      "TimeSeriesInst": {
       "calc_method": "poly",
-      "commodities": {"val": ["POWER_reactor1_1_50-t", "POWER_reactor2_1_3*t", "fuel_source_1"]},
+      "commodities": {"val": ["POWER_reactor1_1_50-t", "POWER_reactor2_1_t", "fuel_source_1"]},
       "demand_eq": "3*t",
       "demand_std_dev": "0.0",
       "record": "1",
@@ -116,12 +116,18 @@ input = {
  }
 }
 
-def test_tech_pref():
+def test_tech_pref:
     output_file = 'test_tech_pref.sqlite'
     input_file = output_file.replace('.sqlite', '.json')
     with open(input_file, 'w') as f:
         json.dump(input, f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
-    # check if ran successfully
-    assert("Cyclus run successful!" in s)
+    # check if ran successfully and deployed facilities at time step 1 
+    cur = functions.get_cursor(output_file)
+    agent_entry = cur.execute("select entertime from agententry").fetchall()
+    for x in range(0,len(agent_entry)): 
+        if agent_entry[x][0] == 1: 
+            passes = 1 
+            break 
+    assert(passes == 1)
