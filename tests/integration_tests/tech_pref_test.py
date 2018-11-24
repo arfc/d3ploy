@@ -181,3 +181,37 @@ def test_tech_pref_allreactor1():
             passes = 1 
             break 
     assert(passes == 0)
+
+
+tech_pref_cross_template= copy.deepcopy(TEMPLATE)
+tech_pref_cross_template["simulation"].update({"region": {
+   "config": {"NullRegion": "\n      "},
+   "institution": {
+    "config": {
+     "TimeSeriesInst": {
+      "calc_method": "poly",
+      "commodities": {"val": ["POWER_reactor1_1_t", "POWER_reactor2_1_11-t", "fuel_source_1"]},
+      "demand_eq": "3*t",
+      "demand_std_dev": "0.0",
+      "record": "1",
+      "steps": "1"
+     }
+    },
+    "name": "source_inst"
+   },
+   "name": "SingleRegion"
+  }
+})
+
+
+def test_tech_pref_cross():
+    output_file = 'test_tech_pref_cross.sqlite'
+    input_file = output_file.replace('.sqlite', '.json')
+    with open(input_file, 'w') as f:
+        json.dump(tech_pref_cross_template, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=ENV)
+    # check if ran successfully and deployed facilities at time step 1 
+    cur = functions.get_cursor(output_file)
+    agent_entry = cur.execute("select entertime, prototype from agententry").fetchall()
+    
