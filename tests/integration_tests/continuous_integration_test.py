@@ -23,7 +23,7 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 # Checking if cyclus simulations and cyclus output files are created and populated for each calc method
 
 calc_methods = ["ma", "arma", "arch", "poly",
-                "exp_smoothing", "holt_winters"]
+                "exp_smoothing", "holt_winters", 'fft']
 
 test_cont_input = {}
 
@@ -88,7 +88,7 @@ for x in range(0, len(calc_methods)):
                         "TimeSeriesInst": {
                             "calc_method": calc_methods[x],
                             "commodities": {"val": ["POWER_reactor_1000", "freshfuel_source_3000"]},
-                            "demand_eq": "1000",
+                            "demand_eq": "1000*t",
                             "demand_std_dev": "0.0",
                             "record": "1",
                             "steps": "1"
@@ -154,3 +154,6 @@ def test_cont_integ_exp_smoothing():
 def test_cont_integ_holt_winters():
     assert(total['holt_winters'] == 4)
 
+
+def test_cont_fft():
+    assert(total['fft'] == 4)
