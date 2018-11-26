@@ -91,7 +91,6 @@ def preference_deploy(proto_commod, pref_fac, diff):
     deploy_dict = {}
     proto = get_asc_key_list(pref_fac)[0]
     remainder = diff
-
     if remainder >= proto_commod[proto]:
         deploy_dict[proto] = 1
         remainder -= proto_commod[proto]
@@ -170,7 +169,17 @@ def get_asc_key_list(dicti):
     """
     key_list = [' '] * len(dicti.values())
     sorted_caps = sorted(dicti.values(), reverse=True)
+    # store previous indx list to prevent
+    # error caused by prototypes with same capacity
+    prev_indx_list = []
     for key, val in dicti.items():
-        indx = sorted_caps.index(val)
-        key_list[indx] = key
+        indx_list = [i for i, x in enumerate(sorted_caps) if x == val]
+        for indx in indx_list:
+            if indx in prev_indx_list:
+                continue
+            else:
+                chosen_indx = indx
+                prev_indx_list.append(chosen_indx)
+                break
+        key_list[chosen_indx] = key
     return key_list
