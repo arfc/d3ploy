@@ -39,7 +39,7 @@ for x in range(0, len(calc_methods)):
                     {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
                 ]
             },
-            "control": {"duration": "10", "startmonth": "1", "startyear": "2000"},
+            "control": {"duration": "30", "startmonth": "1", "startyear": "2000"},
             "facility": [
                 {
                     "config": {
