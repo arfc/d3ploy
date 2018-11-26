@@ -154,6 +154,3 @@ def test_cont_integ_exp_smoothing():
 def test_cont_integ_holt_winters():
     assert(total['holt_winters'] == 4)
 
-
-def test_cont_integ_fft():
-    assert(total['fft'] >= 4)
