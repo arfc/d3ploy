@@ -48,7 +48,7 @@ for x in range(0, len(calc_methods)):
                     "name": "source"
                 },
                 {
-                    "config": {"Sink": {"in_commods": {"val": "spent_fuel"}, "max_inv_size": "1e6"}},
+                    "config": {"Sink": {"in_commods": {"v   al": "spent_fuel"}, "max_inv_size": "1e6"}},
                     "name": "sink"
                 },
                 {
