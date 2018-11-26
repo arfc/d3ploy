@@ -39,7 +39,7 @@ for x in range(0, len(calc_methods)):
                     {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
                 ]
             },
-            "control": {"duration": "30", "startmonth": "1", "startyear": "2000"},
+            "control": {"duration": "10", "startmonth": "1", "startyear": "2000"},
             "facility": [
                 {
                     "config": {
@@ -88,7 +88,7 @@ for x in range(0, len(calc_methods)):
                         "TimeSeriesInst": {
                             "calc_method": calc_methods[x],
                             "commodities": {"val": ["POWER_reactor_1000", "freshfuel_source_3000"]},
-                            "demand_eq": "1000*t",
+                            "demand_eq": "1000",
                             "demand_std_dev": "0.0",
                             "record": "1",
                             "steps": "1"

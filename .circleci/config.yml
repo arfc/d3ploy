@@ -42,6 +42,7 @@ jobs:
                     conda install statsmodels -y
                     conda install matplotlib -y
                     conda install scipy -y
+                    conda install numpy -y
           - run: 
                 name: install arima
                 command: pip install pyramid-arima
