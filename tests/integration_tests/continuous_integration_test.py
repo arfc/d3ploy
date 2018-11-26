@@ -23,7 +23,7 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 # Checking if cyclus simulations and cyclus output files are created and populated for each calc method
 
 calc_methods = ["ma", "arma", "arch", "poly",
-                "exp_smoothing", "holt_winters", 'fft']
+                "exp_smoothing", "holt_winters", "fft"]
 
 test_cont_input = {}
 
@@ -155,5 +155,5 @@ def test_cont_integ_holt_winters():
     assert(total['holt_winters'] == 4)
 
 
-def test_cont_fft():
+def test_cont_integ_fft():
     assert(total['fft'] == 4)
