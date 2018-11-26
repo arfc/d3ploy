@@ -41,6 +41,9 @@ jobs:
                     conda install -c bashtage arch -y
                     conda install statsmodels -y
                     conda install matplotlib -y
+          - run: 
+                name: install arima
+                command: pip install pyramid-arima
           - checkout
           - run:
                 name: build
