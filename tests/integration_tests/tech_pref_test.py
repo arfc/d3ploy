@@ -224,7 +224,7 @@ def test_tech_pref_cross():
     # check that it deploys a reactor 2 at time step 6 
     passes = 0 
     for x in range(0,len(agent_entry)): 
-        if agent_entry[x][0] == 6: 
+        if agent_entry[x][0] == 7: 
             if agent_entry[x][1] == 'reactor2':
                 passes = 1 
                 break 
