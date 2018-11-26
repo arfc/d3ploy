@@ -109,11 +109,12 @@ for x in range(0, len(calc_methods)):
     output_file = name+".sqlite"
     with open(input_file, 'w') as f:
         json.dump(test_cont_input[x], f)
+
     try:
         subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
     except subprocess.CalledProcessError as e:
-        print e.output
+        print(e.output)
 
     cur = functions.get_cursor(output_file)
     fuel_demand = cur.execute(
