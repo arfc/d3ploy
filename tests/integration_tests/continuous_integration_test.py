@@ -115,7 +115,7 @@ for x in range(0, len(calc_methods)):
                                 universal_newlines=True, env=ENV)
     except subprocess.CalledProcessError as e:
         print(e.output)
-
+    print(output_file)
     cur = functions.get_cursor(output_file)
     fuel_demand = cur.execute(
         "select time, sum(value) from timeseriesdemandfreshfuel group by time").fetchall()
