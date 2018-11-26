@@ -46,7 +46,6 @@ def deploy_solver(commodity_dict, pref_dict, commod, diff, time):
     """
     diff = -1.0 * diff
     proto_commod = commodity_dict[commod]
-    remainder = diff
     # if the preference is defined
     if commod in pref_dict.keys():
         pref_fac = pref_dict[commod]
@@ -55,21 +54,21 @@ def deploy_solver(commodity_dict, pref_dict, commod, diff, time):
         t = time
         eval_pref_fac = {}
         for facility, preference_eq in pref_fac.items():
-            eval_pref_fac[facility] = eval(preference_eq)
+            eval_pref_fac[facility] = eval(str(preference_eq))
         # check if the preference values are different
         if len(set(eval_pref_fac.values())) != 1:
             # if there is a difference,
             # deploy the one with highest preference
             # until it oversupplies
-            return preference_deploy(proto_commod, eval_pref_fac, remainder)
+            return preference_deploy(proto_commod, eval_pref_fac, diff)
 
     # if preference is not given,
     # or all the preference values are the same,
     # deploy to minimize number of deployment
-    return minimize_number_of_deployment(proto_commod, remainder)
+    return minimize_number_of_deployment(proto_commod, diff)
 
 
-def preference_deploy(proto_commod, pref_fac, remainder):
+def preference_deploy(proto_commod, pref_fac, diff):
     """ This function deploys the facility with the highest preference only.
     Paramters:
     ----------
@@ -79,7 +78,7 @@ def preference_deploy(proto_commod, pref_fac, remainder):
     pref_fac: dictionary
         key: prototype name
         value: preference value
-    remainder: float
+    diff: float
         amount of capacity that is needed
 
     Returns:
@@ -91,6 +90,8 @@ def preference_deploy(proto_commod, pref_fac, remainder):
     # get the facility with highest preference
     deploy_dict = {}
     proto = get_asc_key_list(pref_fac)[0]
+    remainder = diff
+
     if remainder >= proto_commod[proto]:
         deploy_dict[proto] = 1
         remainder -= proto_commod[proto]
@@ -101,6 +102,9 @@ def preference_deploy(proto_commod, pref_fac, remainder):
             return deploy_dict
         else:
             deploy_dict[proto] += 1
+    elif remainder > 0:
+        deploy_dict[proto] = 1
+    
     return deploy_dict
 
 
