@@ -2,6 +2,7 @@ import random
 import copy
 import math
 from collections import defaultdict
+from collections import OrderedDict
 import numpy as np
 
 """
@@ -89,21 +90,19 @@ def preference_deploy(proto_commod, pref_fac, diff):
     """
     # get the facility with highest preference
     deploy_dict = {}
-    proto = get_asc_key_list(pref_fac)[0]
-    remainder = diff
-    if remainder >= proto_commod[proto]:
+    proto = sorted(pref_fac, key=pref_fac.get, reverse=True)[0]
+    if diff >= proto_commod[proto]:
         deploy_dict[proto] = 1
-        remainder -= proto_commod[proto]
-        while remainder > proto_commod[proto]:
+        diff -= proto_commod[proto]
+        while diff > proto_commod[proto]:
             deploy_dict[proto] += 1
-            remainder -= proto_commod[proto]
-        if remainder == 0:
+            diff -= proto_commod[proto]
+        if diff == 0:
             return deploy_dict
         else:
             deploy_dict[proto] += 1
-    elif remainder > 0:
-        deploy_dict[proto] = 1
-    
+    elif diff > 0:
+        deploy_dict[proto] = 1  
     return deploy_dict
 
 
@@ -127,7 +126,7 @@ def minimize_number_of_deployment(proto_commod, remainder):
     """
     deploy_dict = {}
     min_cap = min(proto_commod.values())
-    key_list = get_asc_key_list(proto_commod)
+    key_list = sorted(proto_commod, key=proto_commod.get, reverse=True)
     for proto in key_list:
         # if diff still smaller than the proto capacity,
         if remainder >= proto_commod[proto]:
@@ -150,36 +149,3 @@ def minimize_number_of_deployment(proto_commod, remainder):
         break
 
     return deploy_dict
-
-
-def get_asc_key_list(dicti):
-    """ This function sorts keys in ascending order
-        of their values
-
-    Parameters:
-    -----------
-    dictionary: dict
-        key: key
-        value: value to be sorted
-
-    Returns:
-    --------
-    key_list: list
-        list of keys in ascending order of values
-    """
-    key_list = [' '] * len(dicti.values())
-    sorted_caps = sorted(dicti.values(), reverse=True)
-    # store previous indx list to prevent
-    # error caused by prototypes with same capacity
-    prev_indx_list = []
-    for key, val in dicti.items():
-        indx_list = [i for i, x in enumerate(sorted_caps) if x == val]
-        for indx in indx_list:
-            if indx in prev_indx_list:
-                continue
-            else:
-                chosen_indx = indx
-                prev_indx_list.append(chosen_indx)
-                break
-        key_list[chosen_indx] = key
-    return key_list
