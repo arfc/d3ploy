@@ -38,6 +38,7 @@ jobs:
           - run:
                 name: install cyclus
                 command: |
+                    conda install -c conda-forge blas
                     git clone https://github.com/cyclus/cyclus
                     cd cyclus
                     python install.py
