@@ -22,13 +22,10 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 #######################################################
 # Checking if cyclus simulations and cyclus output files are created and populated for each calc method
 
-calc_methods = ["ma", "arma", "arch", "poly",
-                "exp_smoothing", "holt_winters", "fft"]
 
-test_cont_input = {}
 
-for x in range(0, len(calc_methods)):
-    test_cont_input[x] = {
+def run_test(method):
+    test_input = {
         "simulation": {
             "archetypes": {
                 "spec": [
@@ -86,7 +83,7 @@ for x in range(0, len(calc_methods)):
                 "institution": {
                     "config": {
                         "TimeSeriesInst": {
-                            "calc_method": calc_methods[x],
+                            "calc_method": method,
                             "commodities": {"val": ["POWER_reactor_1000", "freshfuel_source_3000"]},
                             "demand_eq": "1000",
                             "demand_std_dev": "0.0",
@@ -101,59 +98,23 @@ for x in range(0, len(calc_methods)):
         }
     }
 
-total = {}
-
-for x in range(0, len(calc_methods)):
-    name = "test_cont_"+calc_methods[x]
+    name = "test_cont_"+method
     input_file = name+".json"
     output_file = name+".sqlite"
     with open(input_file, 'w') as f:
-        json.dump(test_cont_input[x], f)
+        json.dump(test_input, f)
 
     try:
         subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
     except subprocess.CalledProcessError as e:
         print(e.output)
-    print(output_file)
     cur = functions.get_cursor(output_file)
-    fuel_demand = cur.execute(
-        "select time, sum(value) from timeseriesdemandfreshfuel group by time").fetchall()
-    fuel_supply = cur.execute(
-        "select time, sum(value) from timeseriessupplyfreshfuel group by time").fetchall()
-    power_demand = cur.execute(
-        "select time, sum(value) from timeseriespower group by time").fetchall()
-    power_supply = cur.execute(
-        "select time, sum(value) from timeseriessupplypower group by time").fetchall()
-    # Adding up the first time step of each table
-    total[calc_methods[x]] = fuel_demand[0][0] + \
-        fuel_supply[0][0]+power_demand[0][0]+power_supply[0][0]
+    query = 'SELECT COUNT(*) from agententry WHERE Prototype = "_"'
+    
+    for prototype in ['reactor', 'source']:
+        row_count = cur.execute(query.replace('_', prototype)).fetchone()[0]
+        assert (row_count >= 1)
 
-
-# checking if the first time step for each table occured
-def test_cont_integ_ma():
-    assert(total['ma'] == 4)
-
-
-def test_cont_integ_arma():
-    assert(total['arma'] == 4)
-
-
-def test_cont_integ_arch():
-    assert(total['arch'] == 4)
-
-
-def test_cont_integ_poly():
-    assert(total['poly'] == 4)
-
-
-def test_cont_integ_exp_smoothing():
-    assert(total['exp_smoothing'] == 4)
-
-
-def test_cont_integ_holt_winters():
-    assert(total['holt_winters'] == 4)
-
-
-def test_cont_integ_fft():
-    assert(total['fft'] == 4)
+def test_d3ploy(calc_method):
+    run_test(calc_method)
