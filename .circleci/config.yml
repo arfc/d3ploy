@@ -36,6 +36,18 @@ jobs:
         working_directory: ~/d3ploy
         steps:
           - run:
+                name: install cyclus
+                command: |
+                    git clone https://github.com/cyclus/cyclus
+                    cd cyclus
+                    python install.py
+          - run:
+                name: install cycamore
+                command: |
+                    git clone https://github.com/cyclus/cycamore
+                    cd cycamore
+                    python install.py
+          - run:
                 name: conda install
                 command: |
                     conda install -c bashtage arch -y
