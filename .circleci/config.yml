@@ -32,7 +32,7 @@ jobs:
 
     unit_test:
         docker:
-            - image: cyclus/cycamore
+            - image: cyclus/cyclus-deps
         working_directory: ~/d3ploy
         steps:
           - run:
