@@ -22,9 +22,7 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 #######################################################
 # Checking if cyclus simulations and cyclus output files are created and populated for each calc method
 
-
-
-def run_test(method):
+def test_d3ploy(calc_method):
     test_input = {
         "simulation": {
             "archetypes": {
@@ -115,6 +113,3 @@ def run_test(method):
     for prototype in ['reactor', 'source']:
         row_count = cur.execute(query.replace('_', prototype)).fetchone()[0]
         assert (row_count >= 1)
-
-def test_d3ploy(calc_method):
-    run_test(calc_method)
