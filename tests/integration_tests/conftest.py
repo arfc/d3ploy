@@ -7,7 +7,6 @@ import pytest
 import copy
 import glob
 import sys
-import d3ploy.tester as functions
 from nose.tools import assert_in, assert_true, assert_equals
 
 calc_methods = ["ma", "arma", "arch", "poly",
