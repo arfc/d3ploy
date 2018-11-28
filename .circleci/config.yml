@@ -43,6 +43,7 @@ jobs:
                     conda install matplotlib -y
                     conda install scipy -y
                     conda install numpy -y
+                    conda update --all -y
           - run: 
                 name: install arima
                 command: pip install pyramid-arima
