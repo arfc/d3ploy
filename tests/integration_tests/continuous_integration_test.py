@@ -81,7 +81,7 @@ def test_d3ploy(calc_method):
                 "institution": {
                     "config": {
                         "TimeSeriesInst": {
-                            "calc_method": method,
+                            "calc_method": calc_method,
                             "commodities": {"val": ["POWER_reactor_1000", "freshfuel_source_3000"]},
                             "demand_eq": "1000",
                             "demand_std_dev": "0.0",
@@ -96,9 +96,9 @@ def test_d3ploy(calc_method):
         }
     }
 
-    name = "test_cont_"+method
-    input_file = name+".json"
-    output_file = name+".sqlite"
+    name = "test_cont_"+ calc_method
+    input_file = name + ".json"
+    output_file = name + ".sqlite"
     with open(input_file, 'w') as f:
         json.dump(test_input, f)
 
