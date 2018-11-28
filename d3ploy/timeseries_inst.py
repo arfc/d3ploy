@@ -244,6 +244,8 @@ class TimeSeriesInst(Institution):
             self.commodity_supply[commod][time] = 0.0
         supply = self.predict_supply(commod)
         demand = self.predict_demand(commod, time)
+        print('supply', commod, ' ->' supply)
+        print('demand', commod, '->', demand)
         diff = supply - demand
         return diff, supply, demand
 
