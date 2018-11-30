@@ -206,8 +206,8 @@ class SupplyInst(Institution):
             diff, supply, demand = self.calc_diff(commod, time)
             print('SUPPLY',supply)
             print('demand',demand)
-            lib.record_time_series(commod+'calc_supply', self, supply)
-            lib.record_time_series(commod+'calc_demand', self, demand)
+            lib.record_time_series(commod+'calc_supply', self, demand)
+            lib.record_time_series(commod+'calc_demand', self, supply)
 
             if diff < 0:
                 deploy_dict = solver.deploy_solver(
