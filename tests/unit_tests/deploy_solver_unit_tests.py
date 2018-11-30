@@ -31,6 +31,7 @@ def test_min_deploy_solver():
 
 def test_pref_solver_const():
     """ Tests if the preference_deploy function works correctly
+        for constant preference values
         by deploying only the most preferred prototype to meet diff """
     for i in range(100):
         diff = -1.0 * random.uniform(0.01, 30.0)
