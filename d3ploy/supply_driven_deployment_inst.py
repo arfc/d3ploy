@@ -37,14 +37,6 @@ class SupplyInst(Institution):
         uitype="oneOrMore"
     )
 
-    reverse_commodities = ts.VectorString(
-        doc="A list of commodities that the institution will manage.",
-        tooltip="List of commodities in the institution.",
-        uilabel="Reversed Commodities",
-        uitype="oneOrMore",
-        default=[]
-    )
-
     demand_eq = ts.String(
         doc="This is the string for the demand equation of the driving commodity. " +
         "The equation should use `t' as the dependent variable",
