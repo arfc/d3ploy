@@ -190,15 +190,11 @@ class SupplyInst(Institution):
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
-        print('TIME',time)
         for commod, proto_cap in self.commodity_dict.items():
-            print('COMMOD',commod)
             if not bool(proto_cap):
                 raise ValueError(
                     'Prototype and capacity definition for commodity "%s" is missing' % commod)
             diff, supply, demand = self.calc_diff(commod, time)
-            print('SUPPLY',supply)
-            print('demand',demand)
             lib.record_time_series(commod+'calc_supply', self, demand)
             lib.record_time_series(commod+'calc_demand', self, supply)
 
