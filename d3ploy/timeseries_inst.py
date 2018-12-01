@@ -31,7 +31,8 @@ class TimeSeriesInst(Institution):
 
     commodities = ts.VectorString(
         doc="A list of commodities that the institution will manage. " +
-            "commodity_prototype_capacity format",
+            "commodity_prototype_capacity format" + 
+            " where the commoditity is what the facility supplies",
         tooltip="List of commodities in the institution.",
         uilabel="Commodities",
         uitype="oneOrMore"
