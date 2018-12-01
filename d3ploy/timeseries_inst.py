@@ -1,7 +1,7 @@
 """
-This cyclus archetype uses time series methods to predict the demand and supply
+This cyclus archetype uses time series methods to predict the supply and capacity
 for future time steps and manages the deployment of facilities to ensure
-supply is greater than demand. Time series predicition methods can be used
+capacity is greater than supply. Time series predicition methods can be used
 in this archetype. 
 """
 
@@ -35,14 +35,6 @@ class TimeSeriesInst(Institution):
         tooltip="List of commodities in the institution.",
         uilabel="Commodities",
         uitype="oneOrMore"
-    )
-
-    reverse_commodities = ts.VectorString(
-        doc="A list of commodities that the institution will manage.",
-        tooltip="List of commodities in the institution.",
-        uilabel="Reversed Commodities",
-        uitype="oneOrMore",
-        default=[]
     )
 
     demand_eq = ts.String(
