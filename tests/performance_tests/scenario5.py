@@ -159,10 +159,10 @@ for calc_method in calc_methods:
         output_file, demand_eq, 'power')
 
     dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2 = functions.supply_demand_dict_nondriving(
-        output_file, 'fuel')
+        output_file, 'fuel',True)
     
     dict_demand3, dict_supply3, dict_calc_demand3, dict_calc_supply3 = functions.supply_demand_dict_nondriving(
-        output_file, 'spentfuel')
+        output_file, 'spentfuel',False)
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
     functions.plot_demand_supply(
         dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name)

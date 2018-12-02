@@ -77,7 +77,7 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
     return dict_demand, dict_supply, dict_calc_demand, dict_calc_supply
 
 
-def supply_demand_dict_nondriving(sqlite, commod):
+def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     """ Puts supply, demand, calculated demand and 
     calculated supply into a nice dictionary format 
     if given the sql file and commodity name 
@@ -87,8 +87,9 @@ def supply_demand_dict_nondriving(sqlite, commod):
     Parameters
     ----------
     sqlite: sql file to analyze 
-    demand_eq: string of demand equation 
     commod: string of commod name 
+    demand_driven: Boolean. If true, the commodity is demand driven, 
+    if false, the commodity is supply driven 
 
     Returns
     -------
@@ -98,9 +99,13 @@ def supply_demand_dict_nondriving(sqlite, commod):
     cur = get_cursor(sqlite)
     tables = {}
     tables[0] = "timeseriessupply"+commod
-    tables[1] = "timeseries"+commod+"calc_demand"
     tables[2] = "timeseries"+commod+"calc_supply"
-    tables[3] = "timeseriesdemand"+commod
+    if True: 
+        tables[1] = "timeseries"+commod+"calc_demand"
+        tables[3] = "timeseriesdemand"+commod
+    else: 
+        tables[1] = "timeseries"+commod+"calc_capacity"
+        tables[3] = "timeseriescapacity"+commod
     fuel_demand = cur.execute(
         "select time, sum(value) from "+tables[3]+" group by time").fetchall()
     fuel_supply = cur.execute(
@@ -130,7 +135,7 @@ def supply_demand_dict_nondriving(sqlite, commod):
     return dict_demand, dict_supply, dict_calc_demand, dict_calc_supply
 
 
-def plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, commod, test):
+def plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, commod, test, demand_driven):
     """ Plots demand, supply, calculated demand and calculated supply on a curve 
 
     for a non-driving commodity 
@@ -139,6 +144,8 @@ def plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_sup
     ----------
     4 dicts: dictionaries of supply, demand, calculated
     demand and calculated supply
+    demand_driven: Boolean. If true, the commodity is demand driven, 
+    if false, the commodity is supply driven 
 
     Returns
     -------
@@ -146,9 +153,15 @@ def plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_sup
 
     """
     fig, ax = plt.subplots(figsize=(15, 7))
-    ax.plot(*zip(*sorted(dict_demand.items())), '*', label='Demand')
+    if demand_driven: 
+        ax.plot(*zip(*sorted(dict_demand.items())), '*', label='Demand')
+        ax.plot(*zip(*sorted(dict_calc_demand.items())), 'o', alpha=0.5, label='Calculated Demand')
+        ax.set_title('%s Demand Supply plot' % commod)
+    else: 
+        ax.plot(*zip(*sorted(dict_demand.items())), '*', label='Capacity')
+        ax.plot(*zip(*sorted(dict_calc_demand.items())), 'o', alpha=0.5, label='Calculated Capacity')
+        ax.set_title('%s Capacity Supply plot' % commod)
     ax.plot(*zip(*sorted(dict_supply.items())), '*', label='Supply')
-    ax.plot(*zip(*sorted(dict_calc_demand.items())), 'o', alpha=0.5, label='Calculated Demand')
     ax.plot(*zip(*sorted(dict_calc_supply.items())), 'o', alpha=0.5, label='Calculated Supply')
     ax.grid()
     ax.set_xlabel('Time (month timestep)', fontsize=14)
@@ -163,7 +176,6 @@ def plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_sup
             1.1,
             1.0),
         fancybox=True)
-    ax.set_title('%s Demand Supply plot' % commod)
     plt.savefig(test, dpi=300, bbox_inches='tight')
 
 

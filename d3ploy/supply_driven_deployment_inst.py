@@ -196,8 +196,8 @@ class SupplyDrivenDeploymentInst(Institution):
                 raise ValueError(
                     'Prototype and capacity definition for commodity "%s" is missing' % commod)
             diff, capacity, supply = self.calc_diff(commod, time)
-            lib.record_time_series(commod+'calc_capacity', self, supply)
-            lib.record_time_series(commod+'calc_supply', self, capacity)
+            lib.record_time_series(commod+'calc_supply', self, supply)
+            lib.record_time_series(commod+'calc_capacity', self, capacity)
 
             if diff < 0:
                 deploy_dict = solver.deploy_solver(
