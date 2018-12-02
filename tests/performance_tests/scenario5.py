@@ -57,7 +57,7 @@ for calc_method in calc_methods:
     {"lib": "cycamore", "name": "Reactor"},
     {"lib": "cycamore", "name": "Sink"},
     {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"},
-    {"lib": "d3ploy.supply_inst", "name": "SupplyInst"}
+    {"lib": "d3ploy.supply_driven_deployment_inst", "name": "SupplyDrivenDeploymentInst"}
    ]
   },
   "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
@@ -117,11 +117,11 @@ for calc_method in calc_methods:
        "steps": "1"
       }
      },
-     "name": "source_inst"
+     "name": "demand_inst"
     },
     {
      "config": {
-      "SupplyInst": {
+      "SupplyDrivenDeploymentInst": {
        "calc_method": "ma",
        "commodities": {"val": "spentfuel_sink_100000"},
        "demand_eq": "1000*t",
@@ -131,7 +131,7 @@ for calc_method in calc_methods:
        "steps": "1"
       }
      },
-     "name": "hello_inst"
+     "name": "supply_inst"
     }
    ],
    "name": "SingleRegion"
