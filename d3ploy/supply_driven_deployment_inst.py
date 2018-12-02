@@ -1,7 +1,7 @@
 """
-This cyclus archetype uses time series methods to predict the demand and supply
+This cyclus archetype uses time series methods to predict the supply and capacity
 for future time steps and manages the deployment of facilities to ensure
-supply is greater than demand. Time series predicition methods can be used
+capacity is greater than supply. Time series predicition methods can be used
 in this archetype. 
 """
 
@@ -23,7 +23,7 @@ import d3ploy.ML_solvers as ml
 CALC_METHODS = {}
 
 
-class SupplyInst(Institution):
+class SupplyDrivenDeploymentInst(Institution):
     """
     This institution deploys facilities based on demand curves using
     time series methods.
@@ -45,10 +45,10 @@ class SupplyInst(Institution):
         uilabel="Demand Equation")
 
     calc_method = ts.String(
-        doc="This is the calculated method used to determine the supply and demand " +
+        doc="This is the calculated method used to determine the supply and capacity " +
         "for the commodities of this institution. Currently this can be ma for " +
         "moving average, or arma for autoregressive moving average.",
-        tooltip="Calculation method used to predict supply/demand",
+        tooltip="Calculation method used to predict supply/capacity",
         uilabel="Calculation Method"
     )
 
@@ -70,7 +70,7 @@ class SupplyInst(Institution):
     )
 
     steps = ts.Int(
-        doc="The number of timesteps forward to predict supply and demand",
+        doc="The number of timesteps forward to predict supply and capacity",
         tooltip="The number of predicted steps forward",
         uilabel="Timesteps for Prediction",
         default=1
@@ -85,24 +85,24 @@ class SupplyInst(Institution):
         default=10
     )
 
-    supply_std_dev = ts.Double(
+    capacity_std_dev = ts.Double(
         doc="The standard deviation adjustment for the supple side.",
         tooltip="The standard deviation adjustment for the supple side.",
-        uilabel="Supply Std Dev",
+        uilabel="capacity Std Dev",
         default=0
     )
 
-    demand_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the demand side.",
-        tooltip="The standard deviation adjustment for the demand side.",
-        uilabel="Demand Std Dev",
+    supply_std_dev = ts.Double(
+        doc="The standard deviation adjustment for the supply side.",
+        tooltip="The standard deviation adjustment for the supply side.",
+        uilabel="supply Std Dev",
         default=0
     )
 
-    demand_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the demand side.",
-        tooltip="The standard deviation adjustment for the demand side.",
-        uilabel="Demand Std Dev",
+    supply_std_dev = ts.Double(
+        doc="The standard deviation adjustment for the supply side.",
+        tooltip="The standard deviation adjustment for the supply side.",
+        uilabel="supply Std Dev",
         default=0
     )
 
@@ -118,10 +118,10 @@ class SupplyInst(Institution):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.commodity_capacity = {}
         self.commodity_supply = {}
-        self.commodity_demand = {}
+        self.rev_commodity_capacity = {}
         self.rev_commodity_supply = {}
-        self.rev_commodity_demand = {}
         self.fresh = True
         CALC_METHODS['ma'] = no.predict_ma
         CALC_METHODS['arma'] = no.predict_arma
@@ -139,8 +139,8 @@ class SupplyInst(Institution):
         print('record: %s' % str(self.record))
         print('steps: %i' % self.steps)
         print('back_steps: %i' % self.back_steps)
+        print('capacity_std_dev: %f' % self.capacity_std_dev)
         print('supply_std_dev: %f' % self.supply_std_dev)
-        print('demand_std_dev: %f' % self.demand_std_dev)
 
     def parse_commodities(self, commodities):
         """ This function parses the vector of strings commodity variable
@@ -175,28 +175,29 @@ class SupplyInst(Institution):
             self.commodity_dict, self.pref_dict = self.parse_commodities(
                 self.commodities)
             for commod in self.commodity_dict:
-                # swap supply and demand for supply_inst 
+                # swap supply and demand for supply_inst
+                # change demand into capacity 
                 lib.TIME_SERIES_LISTENERS["supply" +
-                                          commod].append(self.extract_demand)
-                lib.TIME_SERIES_LISTENERS["demand" +
                                           commod].append(self.extract_supply)
+                lib.TIME_SERIES_LISTENERS["demand" +
+                                          commod].append(self.extract_capacity)
+                self.commodity_capacity[commod] = defaultdict(float)
                 self.commodity_supply[commod] = defaultdict(float)
-                self.commodity_demand[commod] = defaultdict(float)
             self.fresh = False
 
     def decision(self):
         """
         This is the tock method for decision the institution. Here the institution determines the difference
-        in supply and demand and makes the the decision to deploy facilities or not.
+        in supply and capacity and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
         for commod, proto_cap in self.commodity_dict.items():
             if not bool(proto_cap):
                 raise ValueError(
                     'Prototype and capacity definition for commodity "%s" is missing' % commod)
-            diff, supply, demand = self.calc_diff(commod, time)
-            lib.record_time_series(commod+'calc_supply', self, demand)
-            lib.record_time_series(commod+'calc_demand', self, supply)
+            diff, capacity, supply = self.calc_diff(commod, time)
+            lib.record_time_series(commod+'calc_capacity', self, supply)
+            lib.record_time_series(commod+'calc_supply', self, capacity)
 
             if diff < 0:
                 deploy_dict = solver.deploy_solver(
@@ -207,16 +208,16 @@ class SupplyInst(Institution):
             if self.record:
                 out_text = "Time " + str(time) + \
                     " Deployed " + str(len(self.children))
+                out_text += " capacity " + \
+                    str(self.commodity_capacity[commod][time])
                 out_text += " supply " + \
-                    str(self.commodity_supply[commod][time])
-                out_text += " demand " + \
-                    str(self.commodity_demand[commod][time]) + "\n"
+                    str(self.commodity_supply[commod][time]) + "\n"
                 with open(commod + ".txt", 'a') as f:
                     f.write(out_text)
 
     def calc_diff(self, commod, time):
         """
-        This function calculates the different in supply and demand for a given facility
+        This function calculates the different in capacity and supply for a given facility
         Parameters
         ----------
         time : int
@@ -224,65 +225,84 @@ class SupplyInst(Institution):
         Returns
         -------
         diff : double
-            This is the difference between supply and demand at [time]
+            This is the difference between capacity and supply at [time]
+        capacity : double
+            The calculated capacity of the capacity commodity at [time].
         supply : double
-            The calculated supply of the supply commodity at [time].
-        demand : double
-            The calculated demand of the demand commodity at [time]
+            The calculated supply of the supply commodity at [time]
         """
-        if time not in self.commodity_demand[commod]:
-            t = 0
-            self.commodity_demand[commod][time] = eval(self.demand_eq)
         if time not in self.commodity_supply[commod]:
-            self.commodity_supply[commod][time] = 0.0
-        supply = self.predict_supply(commod)
-        demand = self.predict_demand(commod, time)
-        diff = supply - demand
-        return diff, supply, demand
+            t = 0
+            self.commodity_supply[commod][time] = eval(self.demand_eq)
+        if time not in self.commodity_capacity[commod]:
+            self.commodity_capacity[commod][time] = 0.0
+        capacity = self.predict_capacity(commod)
+        supply = self.predict_supply(commod, time)
+        diff = capacity - supply
+        return diff, capacity, supply
 
-    def predict_supply(self, commod):
+    def predict_capacity(self, commod):
         if self.calc_method in ['arma', 'ma', 'arch']:
-            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
+            capacity = CALC_METHODS[self.calc_method](self.commodity_capacity[commod],
                                                     steps=self.steps,
-                                                    std_dev=self.supply_std_dev,
+                                                    std_dev=self.capacity_std_dev,
                                                     back_steps=self.back_steps)
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
-            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
+            capacity = CALC_METHODS[self.calc_method](self.commodity_capacity[commod],
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
         elif self.calc_method in ['sw_seasonal']:
-            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
+            capacity = CALC_METHODS[self.calc_method](self.commodity_capacity[commod],
                                                     period=self.degree)
         else:
             raise ValueError(
                 'The input calc_method is not valid. Check again.')
-        return supply
+        return capacity
 
-    def predict_demand(self, commod, time):
+    def predict_supply(self, commod, time):
         if commod == self.driving_commod:
-            demand = self.demand_calc(time+1)
-            self.commodity_demand[commod][time+1] = demand
+            supply = self.supply_calc(time+1)
+            self.commodity_supply[commod][time+1] = supply
         else:
             if self.calc_method in ['arma', 'ma', 'arch']:
-                demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
+                supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                         steps=self.steps,
-                                                        std_dev=self.supply_std_dev,
+                                                        std_dev=self.capacity_std_dev,
                                                         back_steps=self.back_steps)
             elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
-                demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
+                supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                         back_steps=self.back_steps,
                                                         degree=self.degree)
             elif self.calc_method in ['sw_seasonal']:
-                demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
+                supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                         period=self.degree)
             else:
                 raise ValueError(
                     'The input calc_method is not valid. Check again.')
-        return demand
+        return supply
+
+    def extract_capacity(self, agent, time, value, commod):
+        """
+        Gather information on the available capacity of a commodity over the
+        lifetime of the simulation.
+        Parameters
+        ----------
+        agent : cyclus agent
+            This is the agent that is making the call to the listener.
+        time : int
+            Timestep that the call is made.
+        value : object
+            This is the value of the object being recorded in the time
+            series.
+        """
+        commod = commod[6:]
+        self.commodity_capacity[commod][time] += value
+        # update commodities
+        #self.commodity_dict[commod] = {agent.prototype: value}
 
     def extract_supply(self, agent, time, value, commod):
         """
-        Gather information on the available supply of a commodity over the
+        Gather information on the capacity of a commodity over the
         lifetime of the simulation.
         Parameters
         ----------
@@ -296,37 +316,18 @@ class SupplyInst(Institution):
         """
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
-        # update commodities
-        #self.commodity_dict[commod] = {agent.prototype: value}
 
-    def extract_demand(self, agent, time, value, commod):
+    def supply_calc(self, time):
         """
-        Gather information on the demand of a commodity over the
-        lifetime of the simulation.
-        Parameters
-        ----------
-        agent : cyclus agent
-            This is the agent that is making the call to the listener.
-        time : int
-            Timestep that the call is made.
-        value : object
-            This is the value of the object being recorded in the time
-            series.
-        """
-        commod = commod[6:]
-        self.commodity_demand[commod][time] += value
-
-    def demand_calc(self, time):
-        """
-        Calculate the electrical demand at a given timestep (time).
+        Calculate the electrical supply at a given timestep (time).
         Parameters
         ----------
         time : int
-            The timestep that the demand will be calculated at.
+            The timestep that the supply will be calculated at.
         Returns
         -------
-        demand : The calculated demand at a given timestep.
+        supply : The calculated supply at a given timestep.
         """
         t = time
-        demand = eval(self.demand_eq)
-        return demand
+        supply = eval(self.demand_eq)
+        return supply
