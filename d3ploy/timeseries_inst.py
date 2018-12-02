@@ -1,7 +1,7 @@
 """
-This cyclus archetype uses time series methods to predict the supply and capacity
+This cyclus archetype uses time series methods to predict the supply and cdemand
 for future time steps and manages the deployment of facilities to ensure
-capacity is greater than supply. Time series predicition methods can be used
+supply is greater than demand. Time series predicition methods can be used
 in this archetype. 
 """
 
