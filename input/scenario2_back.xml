@@ -21,8 +21,8 @@
       <name>TimeSeriesInst</name>
     </spec>
     <spec>
-      <lib>d3ploy.supply_inst</lib>
-      <name>SupplyInst</name>
+      <lib>d3ploy.supply_driven_deployment_inst</lib>
+      <name>SupplyDrivenDeploymentInst</name>
     </spec>
   </archetypes>
   <control>
@@ -124,17 +124,17 @@
     </institution>
      <institution>
       <config>
-        <SupplyInst>
+        <SupplyDrivenDeploymentInst>
           <calc_method>ma</calc_method>
           <commodities>
             <val>spentfuel_sink_100000</val>
           </commodities>
           <demand_eq>1000*t</demand_eq>
-          <demand_std_dev>1.0</demand_std_dev>
+          <capacity_std_dev>1.0</capacity_std_dev>
           <driving_commod>POWER</driving_commod>
           <record>1</record>
           <steps>1</steps>
-        </SupplyInst>
+        </SupplyDrivenDeploymentInst>
       </config>
       <name>hello_inst</name>
     </institution>
