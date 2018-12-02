@@ -235,7 +235,7 @@ def chi_goodness_test(dict_demand, dict_supply):
     return chi2
 
 
-def supply_under_demand(dict_demand, dict_supply):
+def supply_under_demand(dict_demand, dict_supply, demand_driven):
     """ Calculates the number of time steps supply is 
     under demand 
 
@@ -256,7 +256,11 @@ def supply_under_demand(dict_demand, dict_supply):
         if dict_supply[y] < dict_demand[y]:
             num_negative = num_negative + 1
 
-    return num_negative
+    if demand_driven:
+        number_under = num_negative
+    else: 
+        number_under = len(dict_demand) - num_negative
+    return number_under 
 
 
 def best_calc_method(in_dict, maximum):

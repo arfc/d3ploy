@@ -165,32 +165,32 @@ for calc_method in calc_methods:
         output_file, 'spentfuel',False)
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
     functions.plot_demand_supply(
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name)
+        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name, True)
     name2 = "scenario_5_input_"+ calc_method +"_fuel"
     functions.plot_demand_supply(
-        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2)
+        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2, True)
     name3 = "scenario_5_input_"+ calc_method +"_spentfuel"
     functions.plot_demand_supply(
-        dict_demand3, dict_supply3, dict_calc_demand3, dict_calc_supply3, 'spentfuel', name3)
+        dict_demand3, dict_supply3, dict_calc_demand3, dict_calc_supply3, 'spentfuel', name3, False)
 
     metric_dict['POWER_residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
     metric_dict['POWER_chi2'][calc_method] = functions.chi_goodness_test(dict_demand, dict_supply)
     metric_dict['POWER_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand, dict_supply)
+        dict_demand, dict_supply, True)
 
     metric_dict['fuel_residuals'][calc_method] = functions.residuals(
         dict_demand2, dict_supply2)
     metric_dict['fuel_chi2'][calc_method] = functions.chi_goodness_test(
         dict_demand2, dict_supply2)
     metric_dict['fuel_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand2, dict_supply2)
+        dict_demand2, dict_supply2, True)
 
     metric_dict['spentfuel_residuals'][calc_method] = functions.residuals(
         dict_demand3, dict_supply3)
     metric_dict['spentfuel_chi2'][calc_method] = functions.chi_goodness_test(
         dict_demand3, dict_supply3)
     metric_dict['spentfuel_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand3, dict_supply3)
+        dict_demand3, dict_supply3, False)
         
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_5_output.csv')
