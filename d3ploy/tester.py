@@ -100,7 +100,7 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     tables = {}
     tables[0] = "timeseriessupply"+commod
     tables[2] = "timeseries"+commod+"calc_supply"
-    if True: 
+    if demand_driven: 
         tables[1] = "timeseries"+commod+"calc_demand"
         tables[3] = "timeseriesdemand"+commod
     else: 
