@@ -191,18 +191,11 @@ class SupplyDrivenDeploymentInst(Institution):
         in supply and capacity and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
-        print('TIME',time)
-        print('commoditysupply',self.commodity_supply)
-        print('commoditycapacity',self.commodity_capacity)
         for commod, proto_cap in self.commodity_dict.items():
             if not bool(proto_cap):
                 raise ValueError(
                     'Prototype and capacity definition for commodity "%s" is missing' % commod)
             diff, capacity, supply = self.calc_diff(commod, time)
-            print('COMMOD',commod)
-            print('CAPACITY',capacity)
-            print('supply',supply)
-            print('diff',diff)
             lib.record_time_series(commod+'calc_supply', self, supply)
             lib.record_time_series(commod+'calc_capacity', self, capacity)
 
@@ -244,7 +237,6 @@ class SupplyDrivenDeploymentInst(Institution):
         if time not in self.commodity_capacity[commod]:
             self.commodity_capacity[commod][time] = 0.0
         capacity = self.predict_capacity(commod)
-        print('calcdiff capacity ',capacity)
         supply = self.predict_supply(commod, time)
         diff = capacity - supply
         return diff, capacity, supply
@@ -265,7 +257,6 @@ class SupplyDrivenDeploymentInst(Institution):
         else:
             raise ValueError(
                 'The input calc_method is not valid. Check again.')
-        print('predict capacity capacity ',capacity)
         return capacity
 
     def predict_supply(self, commod, time):
