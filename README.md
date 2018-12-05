@@ -86,6 +86,7 @@ to predict the next value. This method is suitable for values with
 seasonality.
 
 #### Fast Fourier Transform (`fft`)
+(EXPERIMENTAL)
 The method builds a function that represents the data as a sumation of harmonics of different order. In the case of having a set of data that presents oscilations the user should set the degree to 2.
 
 #### Stochastic Optimization
