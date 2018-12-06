@@ -38,12 +38,6 @@ class SupplyDrivenDeploymentInst(Institution):
         uitype="oneOrMore"
     )
 
-    demand_eq = ts.String(
-        doc="This is the string for the demand equation of the driving commodity. " +
-        "The equation should use `t' as the dependent variable",
-        tooltip="Demand equation for driving commodity",
-        uilabel="Demand Equation")
-
     calc_method = ts.String(
         doc="This is the calculated method used to determine the supply and capacity " +
         "for the commodities of this institution. Currently this can be ma for " +
@@ -59,14 +53,6 @@ class SupplyDrivenDeploymentInst(Institution):
         tooltip="Boolean to indicate whether or not to record output to text file.",
         uilabel="Record to Text",
         default=False
-    )
-
-    driving_commod = ts.String(
-        doc="Sets the driving commodity for the institution. That is the " +
-            "commodity that no_inst will deploy against the demand equation.",
-        tooltip="Driving Commodity",
-        uilabel="Driving Commodity",
-        default="POWER"
     )
 
     steps = ts.Int(
@@ -134,7 +120,6 @@ class SupplyDrivenDeploymentInst(Institution):
 
     def print_variables(self):
         print('commodities: %s' % self.commodity_dict)
-        print('demand_eq: %s' % self.demand_eq)
         print('calc_method: %s' % self.calc_method)
         print('record: %s' % str(self.record))
         print('steps: %i' % self.steps)
@@ -260,25 +245,21 @@ class SupplyDrivenDeploymentInst(Institution):
         return capacity
 
     def predict_supply(self, commod, time):
-        if commod == self.driving_commod:
-            supply = self.supply_calc(time+1)
-            self.commodity_supply[commod][time+1] = supply
+        if self.calc_method in ['arma', 'ma', 'arch']:
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
+                                                    steps=self.steps,
+                                                    std_dev=self.capacity_std_dev,
+                                                    back_steps=self.back_steps)
+        elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
+                                                    back_steps=self.back_steps,
+                                                    degree=self.degree)
+        elif self.calc_method in ['sw_seasonal']:
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
+                                                    period=self.degree)
         else:
-            if self.calc_method in ['arma', 'ma', 'arch']:
-                supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
-                                                        steps=self.steps,
-                                                        std_dev=self.capacity_std_dev,
-                                                        back_steps=self.back_steps)
-            elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
-                supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
-                                                        back_steps=self.back_steps,
-                                                        degree=self.degree)
-            elif self.calc_method in ['sw_seasonal']:
-                supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
-                                                        period=self.degree)
-            else:
-                raise ValueError(
-                    'The input calc_method is not valid. Check again.')
+            raise ValueError(
+                'The input calc_method is not valid. Check again.')
         return supply
 
     def extract_capacity(self, agent, time, value, commod):
@@ -317,17 +298,4 @@ class SupplyDrivenDeploymentInst(Institution):
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
 
-    def supply_calc(self, time):
-        """
-        Calculate the electrical supply at a given timestep (time).
-        Parameters
-        ----------
-        time : int
-            The timestep that the supply will be calculated at.
-        Returns
-        -------
-        supply : The calculated supply at a given timestep.
-        """
-        t = time
-        supply = eval(self.demand_eq)
-        return supply
+

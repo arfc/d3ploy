@@ -129,9 +129,7 @@
           <commodities>
             <val>spentfuel_sink_100000</val>
           </commodities>
-          <demand_eq>1000*t</demand_eq>
           <capacity_std_dev>1.0</capacity_std_dev>
-          <driving_commod>POWER</driving_commod>
           <record>1</record>
           <steps>1</steps>
         </SupplyDrivenDeploymentInst>
