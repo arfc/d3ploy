@@ -233,7 +233,7 @@ class SupplyDrivenDeploymentInst(Institution):
         """
         if time not in self.commodity_supply[commod]:
             t = 0
-            self.commodity_supply[commod][time] = eval(self.demand_eq)
+            self.commodity_supply[commod][time] = 0
         if time not in self.commodity_capacity[commod]:
             self.commodity_capacity[commod][time] = 0.0
         capacity = self.predict_capacity(commod)
