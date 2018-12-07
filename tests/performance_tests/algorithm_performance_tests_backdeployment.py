@@ -288,7 +288,7 @@ for calc_method in calc_methods:
     {
      "config": {
       "SupplyDrivenDeploymentInst": {
-       "calc_method": "ma",
+       "calc_method": calc_method,
        "capacity_std_dev": "1.0",
        "commodities": {"val": ["spentfuel_storage_1000000", "coolspentfuel_sink_1000000"]},
        "record": "1",
