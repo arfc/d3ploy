@@ -22,7 +22,9 @@ import glob
 import sys
 from matplotlib import pyplot as plt
 import numpy as np
+import pandas as pd
 import d3ploy.tester as functions
+import collections
 
 from nose.tools import assert_in, assert_true, assert_equals
 
@@ -46,8 +48,8 @@ calc_methods = ["ma", "arma", "arch", "poly",
 scenario_1_input = {}
 demand_eq = "1000*t"
 
-for x in range(0, len(calc_methods)):
-    scenario_1_input[x] = {
+for calc_method in calc_methods:
+    scenario_1_input[calc_method] = {
         "simulation": {
             "archetypes": {
                 "spec": [
@@ -104,7 +106,7 @@ for x in range(0, len(calc_methods)):
                 "institution": {
                     "config": {
                         "TimeSeriesInst": {
-                            "calc_method": calc_methods[x],
+                            "calc_method": calc_method,
                             "commodities": {"val": ["fuel_source_3000"]},
                             "driving_commod": "fuel",
                             "demand_std_dev": "1.0",
@@ -120,61 +122,27 @@ for x in range(0, len(calc_methods)):
         }
     }
 
-dict_demand = {}
-dict_supply = {}
-dict_calc_demand = {}
-dict_calc_supply = {}
+metric_dict = collections.OrderedDict({'residuals': {}, 'chi2': {}, 'undersupply': {}})
 
-residuals = {}
-chi2 = {}
-frac_supply_under_demand = {}
-
-
-for x in range(0, len(calc_methods)):
-    name = "scenario_1_input_"+calc_methods[x]
-    input_file = name+".json"
-    output_file = name+".sqlite"
+for calc_method in calc_methods:
+    name = 'scenario_1_input_' + calc_method
+    input_file = name + '.json'
+    output_file = name + '.sqlite'
     with open(input_file, 'w') as f:
-        json.dump(scenario_1_input[x], f)
+        json.dump(scenario_1_input[calc_method], f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
-
     dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(
         output_file, demand_eq, 'fuel')
-    # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
     functions.plot_demand_supply(
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'fuel', name)
+        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'fuel', name,True)
+    
+    metric_dict['residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
+    metric_dict['chi2'][calc_method] = functions.chi_goodness_test(dict_demand, dict_supply)
+    metric_dict['undersupply'][calc_method] = functions.supply_under_demand(dict_demand, dict_supply,True)
 
-    # scoring
-    residuals[calc_methods[x]] = functions.residuals(dict_demand, dict_supply)
-    chi2[calc_methods[x]] = functions.chi_goodness_test(
-        dict_demand, dict_supply)
-    frac_supply_under_demand[calc_methods[x]] = functions.supply_under_demand(
-        dict_demand, dict_supply)
-
-best_residuals = functions.best_calc_method(residuals, True)
-best_chi2 = functions.best_calc_method(chi2, False)
-best_frac_supply_under_demand = functions.best_calc_method(
-    frac_supply_under_demand, False)
-
-with open("scenario_1_output.txt", "w") as text_file:
-    text_file.write("SCENARIO 1 \n")
-    text_file.write("source -> (fuel) -> sink, demand equation: \n")
-    text_file.write("%s \n \n" % demand_eq)
-    text_file.write("R squared test results: \n")
-    text_file.write("%s \n \n" % residuals)
-    text_file.write("Calc Method that performed best in R squared: \n")
-    text_file.write("%s \n \n" % best_residuals)
-    text_file.write("Chi square goodness of fit results: \n")
-    text_file.write("%s \n \n" % chi2)
-    text_file.write(
-        "Calc Method that performed best in Chi square goodness of fit: \n")
-    text_file.write("%s \n \n" % best_chi2)
-    text_file.write("Number of time steps where supply falls below demand: \n")
-    text_file.write("%s \n \n" % frac_supply_under_demand)
-    text_file.write(
-        "Calc Method that performed best in supply not falling below demand: \n")
-    text_file.write("%s \n \n" % best_frac_supply_under_demand)
+    df = pd.DataFrame(metric_dict)
+    df.to_csv('scenario_1_output.csv')
 
 ##########################################################################################
 
@@ -183,8 +151,8 @@ with open("scenario_1_output.txt", "w") as text_file:
 scenario_2_input = {}
 demand_eq = "1000*t"
 
-for x in range(0, len(calc_methods)):
-    scenario_2_input[x] = {
+for calc_method in calc_methods:
+    scenario_2_input[calc_method] = {
         "simulation": {
             "archetypes": {
                 "spec": [
@@ -241,7 +209,7 @@ for x in range(0, len(calc_methods)):
                 "institution": {
                     "config": {
                         "TimeSeriesInst": {
-                            "calc_method": calc_methods[x],
+                            "calc_method": calc_method,
                             "commodities": {"val": ["fuel_source_3000", "POWER_reactor_1000"]},
                             "driving_commod": "POWER",
                             "demand_std_dev": "1.0",
@@ -257,102 +225,47 @@ for x in range(0, len(calc_methods)):
         }
     }
 
-dict_demand = {}
-dict_supply = {}
-dict_calc_demand = {}
-dict_calc_supply = {}
-
-dict_demand2 = {}
-dict_supply2 = {}
-dict_calc_demand2 = {}
-dict_calc_supply2 = {}
-
-residuals_power = {}
-chi2_power = {}
-frac_supply_under_demand_power = {}
-residuals_fuel = {}
-chi2_fuel = {}
-frac_supply_under_demand_fuel = {}
+metric_dict = collections.OrderedDict(
+    {'POWER_residuals': {}, 'POWER_chi2': {}, 'POWER_undersupply': {},
+     'fuel_residuals': {}, 'fuel_chi2': {}, 'fuel_undersupply': {}})
 
 
-for x in range(0, len(calc_methods)):
-    name = "scenario_2_input_"+calc_methods[x]
-    input_file = name+".json"
-    output_file = name+".sqlite"
+for calc_method in calc_methods:
+    name = "scenario_2_input_" + calc_method
+    input_file = name + ".json"
+    output_file = name + ".sqlite"
     with open(input_file, 'w') as f:
-        json.dump(scenario_2_input[x], f)
+        json.dump(scenario_2_input[calc_method], f)
+
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
 
     dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
+
     dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2 = functions.supply_demand_dict_nondriving(
-        output_file, 'fuel')
+        output_file, 'fuel',True)
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
     functions.plot_demand_supply(
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name)
-    name2 = "scenario_2_input_"+calc_methods[x]+"fuel"
+        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name,True)
+    name2 = "scenario_2_input_"+ calc_method +"_fuel"
     functions.plot_demand_supply(
-        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2)
+        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2,True)
 
-    # scoring
-    residuals_power[calc_methods[x]] = functions.residuals(
-        dict_demand, dict_supply)
-    chi2_power[calc_methods[x]] = functions.chi_goodness_test(
-        dict_demand, dict_supply)
-    frac_supply_under_demand_power[calc_methods[x]] = functions.supply_under_demand(
-        dict_demand, dict_supply)
+    metric_dict['POWER_residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
+    metric_dict['POWER_chi2'][calc_method] = functions.chi_goodness_test(dict_demand, dict_supply)
+    metric_dict['POWER_undersupply'][calc_method] = functions.supply_under_demand(
+        dict_demand, dict_supply,True)
 
-    residuals_fuel[calc_methods[x]] = functions.residuals(
+    metric_dict['fuel_residuals'][calc_method] = functions.residuals(
         dict_demand2, dict_supply2)
-    chi2_fuel[calc_methods[x]] = functions.chi_goodness_test(
+    metric_dict['fuel_chi2'][calc_method] = functions.chi_goodness_test(
         dict_demand2, dict_supply2)
-    frac_supply_under_demand_fuel[calc_methods[x]] = functions.supply_under_demand(
-        dict_demand2, dict_supply2)
-
-best_residuals_power = functions.best_calc_method(residuals_power, True)
-best_chi2_power = functions.best_calc_method(chi2_power, False)
-best_frac_supply_under_demand_power = functions.best_calc_method(
-    frac_supply_under_demand_power, False)
-best_residuals_fuel = functions.best_calc_method(residuals_fuel, True)
-best_chi2_fuel = functions.best_calc_method(chi2_fuel, False)
-best_frac_supply_under_demand_fuel = functions.best_calc_method(
-    frac_supply_under_demand_fuel, False)
-
-with open("scenario_2_output.txt", "w") as text_file:
-    text_file.write("SCENARIO 2 \n")
-    text_file.write("source -> (fuel) -> reactor (cycle time = 1, refuel time = 0) -> sink, demand equation: \n")
-    text_file.write("%s \n \n" % demand_eq)
-    text_file.write("COMMOD: POWER \n \n")
-    text_file.write("R squared test results: \n")
-    text_file.write("%s \n \n" % residuals_power)
-    text_file.write("Calc Method that performed best in R squared test: \n")
-    text_file.write("%s \n \n" % best_residuals_power)
-    text_file.write("Chi square goodness of fit results: \n")
-    text_file.write("%s \n \n" % chi2_power)
-    text_file.write(
-        "Calc Method that performed best in Chi square goodness of fit: \n")
-    text_file.write("%s \n \n" % best_chi2_power)
-    text_file.write("Number of time steps where supply falls below demand: \n")
-    text_file.write("%s \n \n" % frac_supply_under_demand_power)
-    text_file.write(
-        "Calc Method that performed best in supply not falling below demand: \n")
-    text_file.write("%s \n \n" % best_frac_supply_under_demand_power)
-    text_file.write("COMMOD: FUEL \n \n")
-    text_file.write("R squared test results: \n")
-    text_file.write("%s \n \n" % residuals_fuel)
-    text_file.write("Calc Method that performed best in R squared test: \n")
-    text_file.write("%s \n \n" % best_residuals_fuel)
-    text_file.write("Chi square goodness of fit results: \n")
-    text_file.write("%s \n \n" % chi2_fuel)
-    text_file.write(
-        "Calc Method that performed best in Chi square goodness of fit: \n")
-    text_file.write("%s \n \n" % best_chi2_fuel)
-    text_file.write("Number of time steps where supply falls below demand: \n")
-    text_file.write("%s \n \n" % frac_supply_under_demand_fuel)
-    text_file.write(
-        "Calc Method that performed best in supply not falling below demand: \n")
-    text_file.write("%s \n \n" % best_frac_supply_under_demand_fuel)
+    metric_dict['fuel_undersupply'][calc_method] = functions.supply_under_demand(
+        dict_demand2, dict_supply2,True)
+        
+    df = pd.DataFrame(metric_dict)
+    df.to_csv('scenario_2_output.csv')
 
 
 ######################################SCENARIO 3##########################################
@@ -360,8 +273,8 @@ with open("scenario_2_output.txt", "w") as text_file:
 scenario_3_input = {}
 demand_eq = "1000*t"
 
-for x in range(0, len(calc_methods)):
-    scenario_3_input[x] = {
+for calc_method in calc_methods:
+    scenario_3_input[calc_method] = {
         "simulation": {
             "archetypes": {
                 "spec": [
@@ -418,7 +331,7 @@ for x in range(0, len(calc_methods)):
                 "institution": {
                     "config": {
                         "TimeSeriesInst": {
-                            "calc_method": calc_methods[x],
+                            "calc_method": calc_method,
                             "commodities": {"val": ["fuel_source_3000", "POWER_reactor_1000"]},
                             "driving_commod": "POWER",
                             "demand_std_dev": "1.0",
@@ -434,110 +347,56 @@ for x in range(0, len(calc_methods)):
         }
     }
 
-dict_demand = {}
-dict_supply = {}
-dict_calc_demand = {}
-dict_calc_supply = {}
-
-dict_demand2 = {}
-dict_supply2 = {}
-dict_calc_demand2 = {}
-dict_calc_supply2 = {}
-
-residuals_power = {}
-chi2_power = {}
-frac_supply_under_demand_power = {}
-residuals_fuel = {}
-chi2_fuel = {}
-frac_supply_under_demand_fuel = {}
 
 
-for x in range(0, len(calc_methods)):
-    name = "scenario_3_input_"+calc_methods[x]
-    input_file = name+".json"
-    output_file = name+".sqlite"
+metric_dict = collections.OrderedDict(
+    {'POWER_residuals': {}, 'POWER_chi2': {}, 'POWER_undersupply': {},
+     'fuel_residuals': {}, 'fuel_chi2': {}, 'fuel_undersupply': {}})
+
+
+
+for calc_method in calc_methods:
+    name = "scenario_3_input_" + calc_method
+    input_file = name + ".json"
+    output_file = name + ".sqlite"
     with open(input_file, 'w') as f:
-        json.dump(scenario_3_input[x], f)
+        json.dump(scenario_3_input[calc_method], f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
 
     dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
     dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2 = functions.supply_demand_dict_nondriving(
-        output_file, 'fuel')
+        output_file, 'fuel',True)
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
     functions.plot_demand_supply(
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name)
-    name2 = "scenario_3_input_"+calc_methods[x]+"fuel"
+        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name,True)
+    name2 = "scenario_3_input_"+ calc_method +"_fuel"
     functions.plot_demand_supply(
-        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2)
+        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2,True)
 
-    # scoring
-    residuals_power[calc_methods[x]] = functions.residuals(
-        dict_demand, dict_supply)
-    chi2_power[calc_methods[x]] = functions.chi_goodness_test(
-        dict_demand, dict_supply)
-    frac_supply_under_demand_power[calc_methods[x]] = functions.supply_under_demand(
-        dict_demand, dict_supply)
+    metric_dict['POWER_residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
+    metric_dict['POWER_chi2'][calc_method] = functions.chi_goodness_test(dict_demand, dict_supply)
+    metric_dict['POWER_undersupply'][calc_method] = functions.supply_under_demand(
+        dict_demand, dict_supply,True)
 
-    residuals_fuel[calc_methods[x]] = functions.residuals(
+    metric_dict['fuel_residuals'][calc_method] = functions.residuals(
         dict_demand2, dict_supply2)
-    chi2_fuel[calc_methods[x]] = functions.chi_goodness_test(
+    metric_dict['fuel_chi2'][calc_method] = functions.chi_goodness_test(
         dict_demand2, dict_supply2)
-    frac_supply_under_demand_fuel[calc_methods[x]] = functions.supply_under_demand(
-        dict_demand2, dict_supply2)
-
-best_residuals_power = functions.best_calc_method(residuals_power, True)
-best_chi2_power = functions.best_calc_method(chi2_power, False)
-best_frac_supply_under_demand_power = functions.best_calc_method(
-    frac_supply_under_demand_power, False)
-best_residuals_fuel = functions.best_calc_method(residuals_fuel, True)
-best_chi2_fuel = functions.best_calc_method(chi2_fuel, False)
-best_frac_supply_under_demand_fuel = functions.best_calc_method(
-    frac_supply_under_demand_fuel, False)
-
-with open("scenario_3_output.txt", "w") as text_file:
-    text_file.write("SCENARIO 3 \n")
-    text_file.write("source -> (fuel) -> reactor (cycle time = 3, refuel time = 1) -> sink, demand equation: \n")
-    text_file.write("%s \n \n" % demand_eq)
-    text_file.write("COMMOD: POWER \n \n")
-    text_file.write("R squared test results: \n")
-    text_file.write("%s \n \n" % residuals_power)
-    text_file.write("Calc Method that performed best in R squared test: \n")
-    text_file.write("%s \n \n" % best_residuals_power)
-    text_file.write("Chi square goodness of fit results: \n")
-    text_file.write("%s \n \n" % chi2_power)
-    text_file.write(
-        "Calc Method that performed best in Chi square goodness of fit: \n")
-    text_file.write("%s \n \n" % best_chi2_power)
-    text_file.write("Number of time steps where supply falls below demand: \n")
-    text_file.write("%s \n \n" % frac_supply_under_demand_power)
-    text_file.write(
-        "Calc Method that performed best in supply not falling below demand: \n")
-    text_file.write("%s \n \n" % best_frac_supply_under_demand_power)
-    text_file.write("COMMOD: FUEL \n \n")
-    text_file.write("R squared test results: \n")
-    text_file.write("%s \n \n" % residuals_fuel)
-    text_file.write("Calc Method that performed best in R squared test: \n")
-    text_file.write("%s \n \n" % best_residuals_fuel)
-    text_file.write("Chi square goodness of fit results: \n")
-    text_file.write("%s \n \n" % chi2_fuel)
-    text_file.write(
-        "Calc Method that performed best in Chi square goodness of fit: \n")
-    text_file.write("%s \n \n" % best_chi2_fuel)
-    text_file.write("Number of time steps where supply falls below demand: \n")
-    text_file.write("%s \n \n" % frac_supply_under_demand_fuel)
-    text_file.write(
-        "Calc Method that performed best in supply not falling below demand: \n")
-    text_file.write("%s \n \n" % best_frac_supply_under_demand_fuel)
+    metric_dict['fuel_undersupply'][calc_method] = functions.supply_under_demand(
+        dict_demand2, dict_supply2,True)
+        
+    df = pd.DataFrame(metric_dict)
+    df.to_csv('scenario_3_output.csv')
 
 ######################################SCENARIO 4##########################################
 # scenario 4, source -> reactor (cycle time = 1, refuel time = 0) -> sink
 scenario_4_input = {}
 demand_eq = "10*(1+1.5)**(t/12)"
 
-for x in range(0, len(calc_methods)):
-    scenario_4_input[x] = {
+for calc_method in calc_methods:
+    scenario_4_input[calc_method] = {
         "simulation": {
             "archetypes": {
                 "spec": [
@@ -594,7 +453,7 @@ for x in range(0, len(calc_methods)):
                 "institution": {
                     "config": {
                         "TimeSeriesInst": {
-                            "calc_method": calc_methods[x],
+                            "calc_method": calc_method,
                             "commodities": {"val": ["fuel_source_3000", "POWER_reactor_1000"]},
                             "driving_commod": "POWER",
                             "demand_std_dev": "1.0",
@@ -610,99 +469,45 @@ for x in range(0, len(calc_methods)):
         }
     }
 
-dict_demand = {}
-dict_supply = {}
-dict_calc_demand = {}
-dict_calc_supply = {}
 
-dict_demand2 = {}
-dict_supply2 = {}
-dict_calc_demand2 = {}
-dict_calc_supply2 = {}
-
-residuals_power = {}
-chi2_power = {}
-frac_supply_under_demand_power = {}
-residuals_fuel = {}
-chi2_fuel = {}
-frac_supply_under_demand_fuel = {}
+metric_dict = collections.OrderedDict(
+    {'POWER_residuals': {}, 'POWER_chi2': {}, 'POWER_undersupply': {},
+     'fuel_residuals': {}, 'fuel_chi2': {}, 'fuel_undersupply': {}})
 
 
-for x in range(0, len(calc_methods)):
-    name = "scenario_4_input_"+calc_methods[x]
-    input_file = name+".json"
-    output_file = name+".sqlite"
+for calc_method in calc_methods:
+    name = "scenario_4_input_" + calc_method
+    input_file = name + ".json"
+    output_file = name + ".sqlite"
     with open(input_file, 'w') as f:
-        json.dump(scenario_4_input[x], f)
+        json.dump(scenario_4_input[calc_method], f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
 
     dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
     dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2 = functions.supply_demand_dict_nondriving(
-        output_file, 'fuel')
+        output_file, 'fuel',True)
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
     functions.plot_demand_supply(
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name)
-    name2 = "scenario_4_input_"+calc_methods[x]+"fuel"
+        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name,True)
+    name2 = "scenario_4_input_"+ calc_method + "_fuel"
     functions.plot_demand_supply(
-        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2)
+        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2,True)
 
-    # scoring
-    residuals_power[calc_methods[x]] = functions.residuals(
-        dict_demand, dict_supply)
-    chi2_power[calc_methods[x]] = functions.chi_goodness_test(
-        dict_demand, dict_supply)
-    frac_supply_under_demand_power[calc_methods[x]] = functions.supply_under_demand(
-        dict_demand, dict_supply)
+    metric_dict['POWER_residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
+    metric_dict['POWER_chi2'][calc_method] = functions.chi_goodness_test(dict_demand, dict_supply)
+    metric_dict['POWER_undersupply'][calc_method] = functions.supply_under_demand(
+        dict_demand, dict_supply,True)
 
-    residuals_fuel[calc_methods[x]] = functions.residuals(
+    metric_dict['fuel_residuals'][calc_method] = functions.residuals(
         dict_demand2, dict_supply2)
-    chi2_fuel[calc_methods[x]] = functions.chi_goodness_test(
+    metric_dict['fuel_chi2'][calc_method] = functions.chi_goodness_test(
         dict_demand2, dict_supply2)
-    frac_supply_under_demand_fuel[calc_methods[x]] = functions.supply_under_demand(
-        dict_demand2, dict_supply2)
+    metric_dict['fuel_undersupply'][calc_method] = functions.supply_under_demand(
+        dict_demand2, dict_supply2,True)
+        
+    df = pd.DataFrame(metric_dict)
+    df.to_csv('scenario_4_output.csv')
 
-best_residuals_power = functions.best_calc_method(residuals_power, True)
-best_chi2_power = functions.best_calc_method(chi2_power, False)
-best_frac_supply_under_demand_power = functions.best_calc_method(
-    frac_supply_under_demand_power, False)
-best_residuals_fuel = functions.best_calc_method(residuals_fuel, True)
-best_chi2_fuel = functions.best_calc_method(chi2_fuel, False)
-best_frac_supply_under_demand_fuel = functions.best_calc_method(
-    frac_supply_under_demand_fuel, False)
 
-with open("scenario_4_output.txt", "w") as text_file:
-    text_file.write("SCENARIO 4 \n")
-    text_file.write("source -> (fuel) -> reactor (cycle time = 1, refuel time = 0) -> sink, demand equation: \n")
-    text_file.write("%s \n \n" % demand_eq)
-    text_file.write("COMMOD: POWER \n \n")
-    text_file.write("R squared test results: \n")
-    text_file.write("%s \n \n" % residuals_power)
-    text_file.write("Calc Method that performed best in R squared test: \n")
-    text_file.write("%s \n \n" % best_residuals_power)
-    text_file.write("Chi square goodness of fit results: \n")
-    text_file.write("%s \n \n" % chi2_power)
-    text_file.write(
-        "Calc Method that performed best in Chi square goodness of fit: \n")
-    text_file.write("%s \n \n" % best_chi2_power)
-    text_file.write("Number of time steps where supply falls below demand: \n")
-    text_file.write("%s \n \n" % frac_supply_under_demand_power)
-    text_file.write(
-        "Calc Method that performed best in supply not falling below demand: \n")
-    text_file.write("%s \n \n" % best_frac_supply_under_demand_power)
-    text_file.write("COMMOD: FUEL \n \n")
-    text_file.write("R squared test results: \n")
-    text_file.write("%s \n \n" % residuals_fuel)
-    text_file.write("Calc Method that performed best in R squared test: \n")
-    text_file.write("%s \n \n" % best_residuals_fuel)
-    text_file.write("Chi square goodness of fit results: \n")
-    text_file.write("%s \n \n" % chi2_fuel)
-    text_file.write(
-        "Calc Method that performed best in Chi square goodness of fit: \n")
-    text_file.write("%s \n \n" % best_chi2_fuel)
-    text_file.write("Number of time steps where supply falls below demand: \n")
-    text_file.write("%s \n \n" % frac_supply_under_demand_fuel)
-    text_file.write(
-        "Calc Method that performed best in supply not falling below demand: \n")
-    text_file.write("%s \n \n" % best_frac_supply_under_demand_fuel)
