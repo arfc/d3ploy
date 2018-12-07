@@ -39,7 +39,7 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 ##### List of types of calc methods that are to be tested #####
 calc_methods = ["ma", "arma", "arch", "poly",
                 "exp_smoothing", "holt_winters", "fft"]
-"""
+
 ######################################SCENARIO 5##########################################
 # scenario 5, source -> reactor (cycle time = 1, refuel time = 0) -> sink
 scenario_5_input = {}
@@ -190,7 +190,7 @@ for calc_method in calc_methods:
         
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_5_output.csv')
-"""
+
 
 ######################################SCENARIO 6##########################################
 # scenario 6, source -> reactor (cycle time = 1, refuel time = 0) -> storage -> sink
@@ -333,16 +333,16 @@ for calc_method in calc_methods:
         output_file, 'coolspentfuel',False)
 
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-    functions.plot_demand_supply(
+    plotter.plot_demand_supply(
         dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name, True)
     name2 = "scenario_6_input_"+ calc_method +"_fuel"
-    functions.plot_demand_supply(
+    plotter.plot_demand_supply(
         dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2, True)
     name3 = "scenario_6_input_"+ calc_method +"_spentfuel"
-    functions.plot_demand_supply(
+    plotter.plot_demand_supply(
         dict_demand3, dict_supply3, dict_calc_demand3, dict_calc_supply3, 'spentfuel', name3, False)
     name4 = "scenario_6_input_"+ calc_method +"_coolspentfuel"
-    functions.plot_demand_supply(
+    plotter.plot_demand_supply(
         dict_demand4, dict_supply4, dict_calc_demand4, dict_calc_supply4, 'coolspentfuel', name4, False)
 
     metric_dict['POWER_residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
