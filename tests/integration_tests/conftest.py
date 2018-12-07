@@ -10,7 +10,7 @@ import sys
 from nose.tools import assert_in, assert_true, assert_equals
 
 calc_methods = ["ma", "arma", "arch", "poly",
-                "exp_smoothing", "holt_winters"]
+                "exp_smoothing", "holt_winters", "fft"]
 
 def pytest_generate_tests(metafunc):
     if 'calc_method' in metafunc.fixturenames:
