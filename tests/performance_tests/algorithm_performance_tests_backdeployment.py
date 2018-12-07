@@ -16,7 +16,6 @@ import re
 import subprocess
 import os
 import sqlite3 as lite
-import pytest
 import copy
 import glob
 import sys
@@ -24,9 +23,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import d3ploy.tester as functions
+import d3ploy.plotter as plotter
 import collections
-
-from nose.tools import assert_in, assert_true, assert_equals
 
 # Delete previously generated files
 direc = os.listdir('./')
@@ -162,13 +160,13 @@ for calc_method in calc_methods:
     dict_demand3, dict_supply3, dict_calc_demand3, dict_calc_supply3 = functions.supply_demand_dict_nondriving(
         output_file, 'spentfuel',False)
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-    functions.plot_demand_supply(
+    plotter.plot_demand_supply(
         dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name, True)
     name2 = "scenario_5_input_"+ calc_method +"_fuel"
-    functions.plot_demand_supply(
+    plotter.plot_demand_supply(
         dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2, True)
     name3 = "scenario_5_input_"+ calc_method +"_spentfuel"
-    functions.plot_demand_supply(
+    plotter.plot_demand_supply(
         dict_demand3, dict_supply3, dict_calc_demand3, dict_calc_supply3, 'spentfuel', name3, False)
 
     metric_dict['POWER_residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
