@@ -274,7 +274,7 @@ for calc_method in calc_methods:
     {
      "config": {
       "TimeSeriesInst": {
-       "calc_method": "ma",
+       "calc_method": calc_method,
        "commodities": {"val": ["fuel_source_3000", "POWER_reactor_1000"]},
        "demand_eq": "1000*t",
        "demand_std_dev": "1.0",
