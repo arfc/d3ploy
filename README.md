@@ -1,4 +1,4 @@
-#  d3ploy
+# d3ploy
 A collection of Cyclus manager archetypes for demand driven deployment. It operates using
 global calls within a Cyclus simulation so that all agents within the simulation
 can communicate. The goal of this package is to provide three types of mathematical
