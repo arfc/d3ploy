@@ -30,7 +30,7 @@ from nose.tools import assert_in, assert_true, assert_equals
 
 # Delete previously generated files
 direc = os.listdir('./')
-hit_list = glob.glob('*.sqlite') + glob.glob('*.json') + glob.glob('*.png')
+hit_list = glob.glob('*.sqlite') + glob.glob('*.json') + glob.glob('*.png') + glob.glob('*.csv')
 for file in hit_list:
     os.remove(file)
 
