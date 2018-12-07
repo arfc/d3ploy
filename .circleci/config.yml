@@ -4,49 +4,19 @@ jobs:
 
     build:
       docker:
-        - image: cyclus/cycamore
+        - image: nuclearbae/d3ploy
       working_directory: ~/d3ploy
       steps:
-        - run: apt-get -qq update; apt-get -y install git openssh-client
         - checkout
-        - run:
-            name: conda packages
-            command: |
-                conda install -c bashtage arch -y
-                conda install statsmodels -y
-                conda install matplotlib -y
-        - run: 
-            name: install arima
-            command: pip install pyramid-arima
         - run:
             name: build d3ploy
             command: python setup.py install
-        - run:
-            name: save SHA to a file
-            command: echo $CIRCLE_SHA1 > .circle-sha
-        - save_cache:
-            key: v1-repo-{{ checksum ".circle-sha" }}
-            paths:
-              - /root
-
 
     unit_test:
         docker:
-            - image: cyclus/cycamore
+            - image: nuclearbae/d3ploy
         working_directory: ~/d3ploy
         steps:
-          - run:
-                name: conda install
-                command: |
-                    conda install -c bashtage arch -y
-                    conda install statsmodels -y
-                    conda install matplotlib -y
-                    conda install scipy -y
-                    conda install numpy -y
-                    conda update --all -y
-          - run: 
-                name: install arima
-                command: pip install pyramid-arima
           - checkout
           - run:
                 name: build
@@ -55,8 +25,6 @@ jobs:
           - run:
                 name: solver unit tests
                 command: |
-                    pip install -U pytest
-                    python setup.py install
                     pytest ./tests/unit_tests/deploy_solver_unit_tests.py
                     pytest ./tests/integration_tests/continuous_integration_test.py
     
