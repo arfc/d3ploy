@@ -28,7 +28,7 @@ import collections
 
 # Delete previously generated files
 direc = os.listdir('./')
-hit_list = glob.glob('*.sqlite') + glob.glob('*.json') + glob.glob('*.png') + glob.glob('*.csv')
+hit_list = glob.glob('*.sqlite') + glob.glob('*.json') + glob.glob('*.png') + glob.glob('*.csv') + glob.glob('*.txt')
 for file in hit_list:
     os.remove(file)
 
@@ -39,7 +39,7 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 ##### List of types of calc methods that are to be tested #####
 calc_methods = ["ma", "arma", "arch", "poly",
                 "exp_smoothing", "holt_winters", "fft"]
-"""
+
 ######################################SCENARIO 5##########################################
 # scenario 5, source -> reactor (cycle time = 1, refuel time = 0) -> sink
 scenario_5_input = {}
@@ -174,7 +174,7 @@ for calc_method in calc_methods:
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_5_output.csv')
 
-"""
+
 ######################################SCENARIO 6##########################################
 # scenario 6, source -> reactor (cycle time = 1, refuel time = 0) -> storage -> sink
 scenario_6_input = {}
