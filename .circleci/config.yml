@@ -22,6 +22,7 @@ jobs:
                 name: build
                 command: |
                     python setup.py install
+                    conda install pyqt -y
           - run:
                 name: solver unit tests
                 command: |
