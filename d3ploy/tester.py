@@ -73,7 +73,13 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
     for x in range(0, len(fuel_supply)):
         dict_demand[fuel_supply[x][0]] = fuel_demand[x]
 
-    return dict_demand, dict_supply, dict_calc_demand, dict_calc_supply
+    all_dict = {}
+    all_dict['dict_demand'] = dict_demand
+    all_dict['dict_supply'] = dict_supply
+    all_dict['dict_calc_demand'] = dict_calc_demand
+    all_dict['dict_calc_supply'] = dict_calc_supply
+
+    return all_dict 
 
 
 def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
@@ -130,11 +136,17 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
             if fuel_demand[y][0] == fuel_supply[x][0]:
                 dict_demand[fuel_supply[x][0]] = fuel_demand[y][1]
 
-    return dict_demand, dict_supply, dict_calc_demand, dict_calc_supply
+    all_dict = {}
+    all_dict['dict_demand'] = dict_demand
+    all_dict['dict_supply'] = dict_supply
+    all_dict['dict_calc_demand'] = dict_calc_demand
+    all_dict['dict_calc_supply'] = dict_calc_supply
+
+    return all_dict
 
 
 
-def residuals(dict_demand, dict_supply):
+def residuals(all_dict):
     """ Conducts a chi2 goodness of fit test 
 
     Parameters
@@ -147,6 +159,9 @@ def residuals(dict_demand, dict_supply):
     returns an int of the chi2 (goodness of fit value) for 
     the two input timeseries dictionaries 
     """
+
+    dict_demand = all_dict['dict_demand']
+    dict_supply = all_dict['dict_supply']
 
     start = int(list(dict_demand.keys())[0])
     demand_total = 0
@@ -165,7 +180,7 @@ def residuals(dict_demand, dict_supply):
     return Rsquared
 
 
-def chi_goodness_test(dict_demand, dict_supply):
+def chi_goodness_test(all_dict):
     """ Conducts a chi2 goodness of fit test 
 
     Parameters
@@ -178,6 +193,10 @@ def chi_goodness_test(dict_demand, dict_supply):
     returns an int of the chi2 (goodness of fit value) for 
     the two input timeseries dictionaries 
     """
+
+    dict_demand = all_dict['dict_demand']
+    dict_supply = all_dict['dict_supply']
+
     chi2 = 0
     start = int(list(dict_demand.keys())[0])
     for x in range(start-1, len(dict_demand)):
@@ -190,7 +209,7 @@ def chi_goodness_test(dict_demand, dict_supply):
     return chi2
 
 
-def supply_under_demand(dict_demand, dict_supply, demand_driven):
+def supply_under_demand(all_dict, demand_driven):
     """ Calculates the number of time steps supply is 
     under demand 
 
@@ -204,6 +223,10 @@ def supply_under_demand(dict_demand, dict_supply, demand_driven):
     returns an int of the number of time steps supply is 
     under demand 
     """
+
+    dict_demand = all_dict['dict_demand']
+    dict_supply = all_dict['dict_supply']
+
     num_negative = 0
     start = int(list(dict_demand.keys())[0])
     for x in range(start-1, len(dict_demand)):
@@ -242,3 +265,18 @@ def best_calc_method(in_dict, maximum):
         best = [k for k, v in in_dict.items() if v == lowest]
 
     return best
+
+
+def metrics(all_dict,metric_dict,calc_method,commod,demand_driven):
+    # check if dictionary exists if not initialize
+    value = metric_dict.get(commod+'_residuals',0)
+    if value == 0: 
+        metric_dict[commod+'_residuals'] = {}
+        metric_dict[commod+'_chi2'] = {}
+        metric_dict[commod+'_undersupply'] = {}
+
+    metric_dict[commod+'_residuals'][calc_method] = residuals(all_dict)
+    metric_dict[commod+'_chi2'][calc_method] = chi_goodness_test(all_dict)
+    metric_dict[commod+'_undersupply'][calc_method] = supply_under_demand(all_dict, demand_driven)
+
+    return metric_dict

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-def plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, commod, test, demand_driven):
+def plot_demand_supply(all_dict, commod, test, demand_driven):
     """ Plots demand, supply, calculated demand and calculated supply on a curve 
     for a non-driving commodity 
     Parameters
@@ -14,6 +14,12 @@ def plot_demand_supply(dict_demand, dict_supply, dict_calc_demand, dict_calc_sup
     -------
     plot of all four dicts 
     """
+    
+    dict_demand = all_dict['dict_demand']
+    dict_supply = all_dict['dict_supply']
+    dict_calc_demand = all_dict['dict_calc_demand']
+    dict_calc_supply = all_dict['dict_calc_supply']
+
     fig, ax = plt.subplots(figsize=(15, 7))
     if demand_driven:
         ax.plot(*zip(*sorted(dict_demand.items())), '*', label='Demand')
