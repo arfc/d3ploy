@@ -16,21 +16,20 @@ import re
 import subprocess
 import os
 import sqlite3 as lite
-import pytest
 import copy
 import glob
 import sys
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
-import d3ploy.tester as functions
+import d3ploy.tester as tester
+import d3ploy.plotter as plotter
 import collections
 
-from nose.tools import assert_in, assert_true, assert_equals
 
 # Delete previously generated files
 direc = os.listdir('./')
-hit_list = glob.glob('*.sqlite') + glob.glob('*.json') + glob.glob('*.png')
+hit_list = glob.glob('*.sqlite') + glob.glob('*.json') + glob.glob('*.png') + glob.glob('*.csv') + glob.glob('*.txt')
 for file in hit_list:
     os.remove(file)
 
@@ -122,7 +121,7 @@ for calc_method in calc_methods:
         }
     }
 
-metric_dict = collections.OrderedDict({'residuals': {}, 'chi2': {}, 'undersupply': {}})
+metric_dict = {}
 
 for calc_method in calc_methods:
     name = 'scenario_1_input_' + calc_method
@@ -132,14 +131,15 @@ for calc_method in calc_methods:
         json.dump(scenario_1_input[calc_method], f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
-    dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(
-        output_file, demand_eq, 'fuel')
-    functions.plot_demand_supply(
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'fuel', name,True)
+
+    # Initialize dicts  
+    all_dict_fuel = {} 
+     
+    all_dict_fuel = tester.supply_demand_dict_driving(output_file, demand_eq, 'fuel')
+    plotter.plot_demand_supply(
+        all_dict_fuel, 'fuel', name,True)
     
-    metric_dict['residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
-    metric_dict['chi2'][calc_method] = functions.chi_goodness_test(dict_demand, dict_supply)
-    metric_dict['undersupply'][calc_method] = functions.supply_under_demand(dict_demand, dict_supply,True)
+    metric_dict = tester.metrics(all_dict_fuel,metric_dict,calc_method,'fuel',True)
 
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_1_output.csv')
@@ -225,10 +225,7 @@ for calc_method in calc_methods:
         }
     }
 
-metric_dict = collections.OrderedDict(
-    {'POWER_residuals': {}, 'POWER_chi2': {}, 'POWER_undersupply': {},
-     'fuel_residuals': {}, 'fuel_chi2': {}, 'fuel_undersupply': {}})
-
+metric_dict = {}
 
 for calc_method in calc_methods:
     name = "scenario_2_input_" + calc_method
@@ -240,29 +237,22 @@ for calc_method in calc_methods:
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
 
-    dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(
+    # Initialize dicts  
+    all_dict_power = {}
+    all_dict_fuel = {} 
+
+    all_dict_power = tester.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
-
-    dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2 = functions.supply_demand_dict_nondriving(
+    all_dict_fuel = tester.supply_demand_dict_nondriving(
         output_file, 'fuel',True)
+
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-    functions.plot_demand_supply(
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name,True)
+    plotter.plot_demand_supply(all_dict_power, 'power', name, True)
     name2 = "scenario_2_input_"+ calc_method +"_fuel"
-    functions.plot_demand_supply(
-        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2,True)
+    plotter.plot_demand_supply(all_dict_fuel, 'fuel', name2, True)
 
-    metric_dict['POWER_residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
-    metric_dict['POWER_chi2'][calc_method] = functions.chi_goodness_test(dict_demand, dict_supply)
-    metric_dict['POWER_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand, dict_supply,True)
-
-    metric_dict['fuel_residuals'][calc_method] = functions.residuals(
-        dict_demand2, dict_supply2)
-    metric_dict['fuel_chi2'][calc_method] = functions.chi_goodness_test(
-        dict_demand2, dict_supply2)
-    metric_dict['fuel_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand2, dict_supply2,True)
+    metric_dict = tester.metrics(all_dict_power,metric_dict,calc_method,'power',True)
+    metric_dict = tester.metrics(all_dict_fuel,metric_dict,calc_method,'fuel',True)
         
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_2_output.csv')
@@ -348,12 +338,7 @@ for calc_method in calc_methods:
     }
 
 
-
-metric_dict = collections.OrderedDict(
-    {'POWER_residuals': {}, 'POWER_chi2': {}, 'POWER_undersupply': {},
-     'fuel_residuals': {}, 'fuel_chi2': {}, 'fuel_undersupply': {}})
-
-
+metric_dict = {}
 
 for calc_method in calc_methods:
     name = "scenario_3_input_" + calc_method
@@ -364,28 +349,22 @@ for calc_method in calc_methods:
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
 
-    dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(
+    # Initialize dicts  
+    all_dict_power = {}
+    all_dict_fuel = {} 
+
+    all_dict_power = tester.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
-    dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2 = functions.supply_demand_dict_nondriving(
+    all_dict_fuel = tester.supply_demand_dict_nondriving(
         output_file, 'fuel',True)
+
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-    functions.plot_demand_supply(
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name,True)
+    plotter.plot_demand_supply(all_dict_power, 'power', name, True)
     name2 = "scenario_3_input_"+ calc_method +"_fuel"
-    functions.plot_demand_supply(
-        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2,True)
+    plotter.plot_demand_supply(all_dict_fuel, 'fuel', name2, True)
 
-    metric_dict['POWER_residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
-    metric_dict['POWER_chi2'][calc_method] = functions.chi_goodness_test(dict_demand, dict_supply)
-    metric_dict['POWER_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand, dict_supply,True)
-
-    metric_dict['fuel_residuals'][calc_method] = functions.residuals(
-        dict_demand2, dict_supply2)
-    metric_dict['fuel_chi2'][calc_method] = functions.chi_goodness_test(
-        dict_demand2, dict_supply2)
-    metric_dict['fuel_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand2, dict_supply2,True)
+    metric_dict = tester.metrics(all_dict_power,metric_dict,calc_method,'power',True)
+    metric_dict = tester.metrics(all_dict_fuel,metric_dict,calc_method,'fuel',True)
         
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_3_output.csv')
@@ -470,10 +449,7 @@ for calc_method in calc_methods:
     }
 
 
-metric_dict = collections.OrderedDict(
-    {'POWER_residuals': {}, 'POWER_chi2': {}, 'POWER_undersupply': {},
-     'fuel_residuals': {}, 'fuel_chi2': {}, 'fuel_undersupply': {}})
-
+metric_dict = {}
 
 for calc_method in calc_methods:
     name = "scenario_4_input_" + calc_method
@@ -484,28 +460,22 @@ for calc_method in calc_methods:
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
 
-    dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(
+    # Initialize dicts  
+    all_dict_power = {}
+    all_dict_fuel = {} 
+
+    all_dict_power = tester.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
-    dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2 = functions.supply_demand_dict_nondriving(
+    all_dict_fuel = tester.supply_demand_dict_nondriving(
         output_file, 'fuel',True)
+
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-    functions.plot_demand_supply(
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name,True)
-    name2 = "scenario_4_input_"+ calc_method + "_fuel"
-    functions.plot_demand_supply(
-        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2,True)
+    plotter.plot_demand_supply(all_dict_power, 'power', name, True)
+    name2 = "scenario_4_input_"+ calc_method +"_fuel"
+    plotter.plot_demand_supply(all_dict_fuel, 'fuel', name2, True)
 
-    metric_dict['POWER_residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
-    metric_dict['POWER_chi2'][calc_method] = functions.chi_goodness_test(dict_demand, dict_supply)
-    metric_dict['POWER_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand, dict_supply,True)
-
-    metric_dict['fuel_residuals'][calc_method] = functions.residuals(
-        dict_demand2, dict_supply2)
-    metric_dict['fuel_chi2'][calc_method] = functions.chi_goodness_test(
-        dict_demand2, dict_supply2)
-    metric_dict['fuel_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand2, dict_supply2,True)
+    metric_dict = tester.metrics(all_dict_power,metric_dict,calc_method,'power',True)
+    metric_dict = tester.metrics(all_dict_fuel,metric_dict,calc_method,'fuel',True)
         
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_4_output.csv')
