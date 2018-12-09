@@ -62,7 +62,7 @@ for calc_method in calc_methods:
   "facility": [
    {
     "config": {
-     "Source": {"outcommod": "fuel", "outrecipe": "fresh_uox", "throughput": "3000"}
+     "Source": {"outcommod": "fuel", "outrecipe": "fresh_uox", "throughput": "3e3"}
     },
     "name": "source"
    },
@@ -107,7 +107,7 @@ for calc_method in calc_methods:
      "config": {
       "TimeSeriesInst": {
        "calc_method": calc_method,
-       "commodities": {"val": ["fuel_source_3000", "POWER_reactor_1000"]},
+       "commodities": {"val": ["fuel_source_3e3", "POWER_reactor_1e3"]},
        "demand_eq": demand_eq,
        "demand_std_dev": "1.0",
        "driving_commod": "POWER",
@@ -201,7 +201,7 @@ for calc_method in calc_methods:
   "facility": [
    {
     "config": {
-     "Source": {"outcommod": "fuel", "outrecipe": "fresh_uox", "throughput": "3000"}
+     "Source": {"outcommod": "fuel", "outrecipe": "fresh_uox", "throughput": "3e3"}
     },
     "name": "source"
    },
@@ -258,7 +258,7 @@ for calc_method in calc_methods:
      "config": {
       "TimeSeriesInst": {
        "calc_method": calc_method,
-       "commodities": {"val": ["fuel_source_3000", "POWER_reactor_1000"]},
+       "commodities": {"val": ["fuel_source_3e3", "POWER_reactor_1e3"]},
        "demand_eq": "1000*t",
        "demand_std_dev": "1.0",
        "driving_commod": "POWER",
@@ -273,7 +273,7 @@ for calc_method in calc_methods:
       "SupplyDrivenDeploymentInst": {
        "calc_method": calc_method,
        "capacity_std_dev": "1.0",
-       "commodities": {"val": ["spentfuel_storage_1000000", "coolspentfuel_sink_1000000"]},
+       "commodities": {"val": ["spentfuel_storage_1e6", "coolspentfuel_sink_1e6"]},
        "record": "1",
        "steps": "1"
       }

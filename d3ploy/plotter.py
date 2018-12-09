@@ -48,3 +48,4 @@ def plot_demand_supply(all_dict, commod, test, demand_driven):
             1.0),
         fancybox=True)
     plt.savefig(test, dpi=300, bbox_inches='tight')
+    plt.close()
