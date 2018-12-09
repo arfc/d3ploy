@@ -121,7 +121,7 @@ for calc_method in calc_methods:
      "config": {
       "SupplyDrivenDeploymentInst": {
        "calc_method": "ma",
-       "commodities": {"val": "spentfuel_sink_1000000"},
+       "commodities": {"val": "spentfuel_sink_1e6"},
        "capacity_std_dev": "1.0",
        "record": "1",
        "steps": "1"
