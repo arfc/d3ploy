@@ -1,5 +1,5 @@
 import numpy
-from pyramid.arima import auto_arima
+from pmdarima.arima import auto_arima
 import d3ploy.NO_solvers as no
 
 
