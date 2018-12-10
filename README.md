@@ -12,7 +12,7 @@ deterministing optimization (DO), and Stochastic optimization (SO).
 
 **arch**: Python package for conditional heteroskidasticity models.[Documentation](https://arch.readthedocs.io/en/latest/index.html)
 
-**Pyramid**: A python package for ARIMA/SARIMA methods. [Documentation](https://www.alkaline-ml.com/pyramid/index.html)
+**Pmdarima**: A python package for ARIMA/SARIMA methods. [Documentation](https://pypi.org/project/pmdarima/)
 
 
 ## timeseries_inst and supply_driven_deployment_inst
