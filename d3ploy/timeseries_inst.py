@@ -2,7 +2,7 @@
 This cyclus archetype uses time series methods to predict the demand and supply
 for future time steps and manages the deployment of facilities to ensure
 supply is greater than demand. Time series predicition methods can be used
-in this archetype. 
+in this archetype.
 """
 
 import random
@@ -305,7 +305,7 @@ class TimeSeriesInst(Institution):
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
         # update commodities
-        #self.commodity_dict[commod] = {agent.prototype: value}
+        # self.commodity_dict[commod] = {agent.prototype: value}
 
     def extract_demand(self, agent, time, value, commod):
         """

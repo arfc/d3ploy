@@ -31,7 +31,7 @@ class SupplyDrivenDeploymentInst(Institution):
 
     commodities = ts.VectorString(
         doc="A list of commodities that the institution will manage. " +
-            "commodity_prototype_capacity format"+ 
+            "commodity_prototype_capacity format" +
             " where the commoditity is what the facility has capacity for",
         tooltip="List of commodities in the institution.",
         uilabel="Commodities",
@@ -138,7 +138,8 @@ class SupplyDrivenDeploymentInst(Institution):
         # commodity, prototype, capacity, preference, second_driving_commodity, constraint
         z = entry.split('_')
         if len(z) < 3:
-            raise ValueError('Input is malformed: need at least commodity_prototype_capacity')
+            raise ValueError(
+                'Input is malformed: need at least commodity_prototype_capacity')
         else:
             # append zero for all other values if not defined
             while len(z) < 6:
@@ -230,16 +231,16 @@ class SupplyDrivenDeploymentInst(Institution):
     def predict_capacity(self, commod):
         if self.calc_method in ['arma', 'ma', 'arch']:
             capacity = CALC_METHODS[self.calc_method](self.commodity_capacity[commod],
-                                                    steps=self.steps,
-                                                    std_dev=self.capacity_std_dev,
-                                                    back_steps=self.back_steps)
+                                                      steps=self.steps,
+                                                      std_dev=self.capacity_std_dev,
+                                                      back_steps=self.back_steps)
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
             capacity = CALC_METHODS[self.calc_method](self.commodity_capacity[commod],
-                                                    back_steps=self.back_steps,
-                                                    degree=self.degree)
+                                                      back_steps=self.back_steps,
+                                                      degree=self.degree)
         elif self.calc_method in ['sw_seasonal']:
             capacity = CALC_METHODS[self.calc_method](self.commodity_capacity[commod],
-                                                    period=self.degree)
+                                                      period=self.degree)
         else:
             raise ValueError(
                 'The input calc_method is not valid. Check again.')
@@ -298,5 +299,3 @@ class SupplyDrivenDeploymentInst(Institution):
         """
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
-
-
