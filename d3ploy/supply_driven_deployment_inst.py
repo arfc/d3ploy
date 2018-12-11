@@ -134,6 +134,7 @@ class SupplyDrivenDeploymentInst(Institution):
         temp = commodities
         commodity_dict = {}
         pref_dict = {}
+        second_driving_commod_dict = {}
         for entry in temp:
             z = entry.split('_')
             if z[0] not in commodity_dict.keys():
@@ -151,13 +152,13 @@ class SupplyDrivenDeploymentInst(Institution):
                 else:
                     pref_dict[z[0]].update({z[1]: z[3]})
 
-        return commodity_dict, pref_dict
+        return commodity_dict, pref_dict, second_driving_commod_dict
 
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
             # convert list of strings to dictionary
-            self.commodity_dict, self.pref_dict = self.parse_commodities(
+            self.commodity_dict, self.pref_dict, self.second_driving_commod_dict = self.parse_commodities(
                 self.commodities)
             for commod in self.commodity_dict:
                 # swap supply and demand for supply_inst
@@ -186,7 +187,7 @@ class SupplyDrivenDeploymentInst(Institution):
 
             if diff < 0:
                 deploy_dict = solver.deploy_solver(
-                    self.commodity_dict, self.pref_dict, commod, diff, time)
+                    self.commodity_supply, self.commodity_dict, self.pref_dict, self.second_driving_commod_dict, commod, diff, time)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)

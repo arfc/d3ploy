@@ -11,7 +11,7 @@ aid `timeseries_inst.py'.
 """
 
 
-def deploy_solver(commodity_dict, pref_dict, commod, diff, time):
+def deploy_solver(commodity_supply, commodity_dict, pref_dict, second_driving_commod_dict, commod, diff, time):
     """ This function optimizes prototypes to deploy to minimize over
         deployment of prototypes.
     Paramters:
@@ -56,6 +56,18 @@ def deploy_solver(commodity_dict, pref_dict, commod, diff, time):
         eval_pref_fac = {}
         for facility, preference_eq in pref_fac.items():
             eval_pref_fac[facility] = eval(str(preference_eq))
+
+    # if the second driving commodity is defined 
+    if commod in second_driving_commod_dict.keys():  
+        fac_secondriving_amount = second_driving_commod_dict[commod]
+        for facility, second_driving_commod in fac_secondriving_amount.items(): 
+            current_supply = commodity_supply[second_driving_commod[0]][time]
+            # if the current supply of the second driving commod is smaller 
+            # than the user defined transition amount then pref will be 
+            # updated to be zero
+            if (current_supply < int(second_driving_commod[1])): 
+                eval_pref_fac[facility] = 0 
+        
         # check if the preference values are different
         if len(set(eval_pref_fac.values())) != 1:
             # if there is a difference,
