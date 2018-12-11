@@ -111,7 +111,6 @@ scenario_template = {
    }
   ]}
  }
-}
 
 ######################################SCENARIO 5##########################################
 # scenario 5, source -> reactor (cycle time = 1, refuel time = 0) -> sink
@@ -151,7 +150,7 @@ for calc_method in calc_methods:
     }
    ],
    "name": "SingleRegion"
-  })
+  }})
 
 # initialize metric dict
 metric_dict = {}
@@ -231,7 +230,7 @@ for calc_method in calc_methods:
     }
    ],
    "name": "SingleRegion"
-  })
+  }})
 
 metric_dict = {}
 
