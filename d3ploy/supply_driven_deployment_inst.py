@@ -2,7 +2,7 @@
 This cyclus archetype uses time series methods to predict the supply and capacity
 for future time steps and manages the deployment of facilities to ensure
 capacity is greater than supply. Time series predicition methods can be used
-in this archetype. 
+in this archetype.
 """
 
 import random
@@ -128,41 +128,43 @@ class SupplyDrivenDeploymentInst(Institution):
         print('supply_std_dev: %f' % self.supply_std_dev)
 
     def parse_commodities(self, commodities):
-        """ This function parses the vector of strings commodity variable
-            and replaces the variable as a dictionary. This function should be deleted
-            after the map connection is fixed."""
-        temp = commodities
-        commodity_dict = {}
-        pref_dict = {}
-        second_driving_commod_dict = {}
-        for entry in temp:
-            z = entry.split('_')
-            if z[0] not in commodity_dict.keys():
-                commodity_dict[z[0]] = {}
-                commodity_dict[z[0]].update({z[1]: float(z[2])})
-            else:
-                commodity_dict[z[0]].update({z[1]: float(z[2])})
+    """ This function parses the vector of strings commodity variable
+        and replaces the variable as a dictionary. This function should be deleted
+        after the map connection is fixed."""
+    temp = commodities
+    commodity_dict = {}
 
-            # preference is optional
-            # also for backwards compatibility
-            if len(z) == 4:
-                if z[0] not in pref_dict.keys():
-                    pref_dict[z[0]] = {}
-                    pref_dict[z[0]].update({z[1]: z[3]})
-                else:
-                    pref_dict[z[0]].update({z[1]: z[3]})
+    for entry in temp:
+        # commodity, prototype, capacity, preference, second_driving_commodity, constraint
+        z = entry.split('_')
+        if len(z) < 3:
+            raise ValueError('Input is malformed: need at least commodity_prototype_capacity')
+        else:
+            # append zero for all other values if not defined
+            while len(z) < 6:
+                z.append(0)
+        if z[0] not in commodity_dict.keys():
+            commodity_dict[z[0]] = {}
+            commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
+                                                'pref': str(z[3]),
+                                                'second_commod': str(z[4]),
+                                                'constraint': float(z[5])}})
 
-        return commodity_dict, pref_dict, second_driving_commod_dict
+        else:
+            commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
+                                                'pref': str(z[3]),
+                                                'second_commod': str(z[4]),
+                                                'constraint': float(z[5])}})
+    return commodity_dict
 
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
             # convert list of strings to dictionary
-            self.commodity_dict, self.pref_dict, self.second_driving_commod_dict = self.parse_commodities(
-                self.commodities)
+            self.commodity_dict = self.parse_commodities(self.commodities)
             for commod in self.commodity_dict:
                 # swap supply and demand for supply_inst
-                # change demand into capacity 
+                # change demand into capacity
                 lib.TIME_SERIES_LISTENERS["supply" +
                                           commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand" +
@@ -177,17 +179,15 @@ class SupplyDrivenDeploymentInst(Institution):
         in supply and capacity and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
-        for commod, proto_cap in self.commodity_dict.items():
-            if not bool(proto_cap):
-                raise ValueError(
-                    'Prototype and capacity definition for commodity "%s" is missing' % commod)
+        for commod, proto_dict in self.commodity_dict.items():
+
             diff, capacity, supply = self.calc_diff(commod, time)
             lib.record_time_series(commod+'calc_supply', self, supply)
             lib.record_time_series(commod+'calc_capacity', self, capacity)
 
             if diff < 0:
                 deploy_dict = solver.deploy_solver(
-                    self.commodity_supply, self.commodity_dict, self.pref_dict, self.second_driving_commod_dict, commod, diff, time)
+                    self.commodity_supply, self.commodity_dict, commod, diff, time)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
