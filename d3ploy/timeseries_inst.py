@@ -177,7 +177,8 @@ class TimeSeriesInst(Institution):
         if self.fresh:
             # convert list of strings to dictionary
             self.commodity_dict = self.parse_commodities(self.commodities)
-            for commod in self.commodity_dict:
+            commod_list = list(commodity_dict.keys()) + [v['second_commod'] for k,v in commodity_dict.items() if v['second_commod'] != '0']
+            for commod in commod_list:
                 lib.TIME_SERIES_LISTENERS["supply" +
                                           commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand" +
