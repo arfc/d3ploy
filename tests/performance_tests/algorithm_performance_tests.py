@@ -41,11 +41,7 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 calc_methods = ["ma", "arma", "arch", "poly",
                 "exp_smoothing", "holt_winters", "fft"]
 
-scenario_template = {}
-
-######################################SCENARIO 1################################################
-# scenario 1, source -> sink
-scenario_1_input = {
+scenario_template = {
         "simulation": {
             "archetypes": {
                 "spec": [
@@ -69,6 +65,11 @@ scenario_1_input = {
                     "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
                 }
         ]}}
+
+
+######################################SCENARIO 1################################################
+# scenario 1, source -> sink
+scenario_1_input = {}
 demand_eq = "1000*t"
 
 for calc_method in calc_methods:
