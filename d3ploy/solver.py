@@ -54,19 +54,18 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
         pref = eval(val_dict['pref'])
         eval_pref_fac[proto] = pref
 
-    # if the second driving commodity is defined
     for proto, val_dict in proto_commod.items():
         if val_dict['second_commod'] != '0':
             current_supply = commodity_supply[val_dict['second_commod']][time]
             if current_supply < float(val_dict['constraint']):
-                eval_pref_fac[proto] = '-1'
+                eval_pref_fac[proto] = -1
 
         # check if the preference values are different
-        if len(set(eval_pref_fac.values())) != 1:
-            # if there is a difference,
-            # deploy the one with highest preference
-            # until it oversupplies
-            return preference_deploy(proto_commod, eval_pref_fac, diff)
+    if len(set(eval_pref_fac.values())) != 1:
+        # if there is a difference,
+        # deploy the one with highest preference
+        # until it oversupplies
+        return preference_deploy(proto_commod, eval_pref_fac, diff)
 
     # if preference is not given,
     # or all the preference values are the same,
