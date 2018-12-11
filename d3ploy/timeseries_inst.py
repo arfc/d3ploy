@@ -170,6 +170,7 @@ class TimeSeriesInst(Institution):
                                                     'pref': str(z[3]),
                                                     'second_commod': str(z[4]),
                                                     'constraint': float(z[5])}})
+        print(commodity_dict)
         return commodity_dict
 
     def enter_notify(self):
@@ -177,7 +178,12 @@ class TimeSeriesInst(Institution):
         if self.fresh:
             # convert list of strings to dictionary
             self.commodity_dict = self.parse_commodities(self.commodities)
-            commod_list = list(commodity_dict.keys()) + [v['second_commod'] for k,v in commodity_dict.items() if v['second_commod'] != '0']
+            commod_list = list(self.commodity_dict.keys())
+            for key, val in self.commodity_dict.items():
+                for key2, val2 in val.items():
+                    if val2['second_commod'] != '0':
+                        commod_list.append(val2['second_commod'])
+            commod_list = list(set(commod_list))
             for commod in commod_list:
                 lib.TIME_SERIES_LISTENERS["supply" +
                                           commod].append(self.extract_supply)
