@@ -59,7 +59,7 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
         if val_dict['second_commod'] != '0':
             current_supply = commodity_supply[commod][time]
             if current_supply < float(val_dict['constraint']):
-                proto_commod[proto]['pref'] = -1
+                proto_commod[proto]['pref'] = '-1'
 
         # check if the preference values are different
         if len(set(eval_pref_fac.values())) != 1:
