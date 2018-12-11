@@ -47,7 +47,8 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
     # if the preference is defined
 
     eval_pref_fac = evaluate_preference(proto_commod, time)
-    eval_pref_fac = check_constraint(proto_commod, commodity_supply, eval_pref_fac)
+    eval_pref_fac = check_constraint(proto_commod, commodity_supply,
+                                     eval_pref_fac, time)
         # check if the preference values are different
     if len(set(eval_pref_fac.values())) != 1:
         # if there is a difference,
@@ -71,7 +72,7 @@ def evaluate_preference(proto_commod, time):
     return eval_pref_fac
 
 
-def check_constraint(proto_commod, commodity_supply, eval_pref_fac):
+def check_constraint(proto_commod, commodity_supply, eval_pref_fac, time):
     for proto, val_dict in proto_commod.items():
         if val_dict['second_commod'] != '0':
             current_supply = commodity_supply[val_dict['second_commod']][time]
