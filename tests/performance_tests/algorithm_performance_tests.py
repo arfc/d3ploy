@@ -69,7 +69,6 @@ scenario_1_input = {
                     "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
                 }
         }
-    }
 demand_eq = "1000*t"
 
 for calc_method in calc_methods:
