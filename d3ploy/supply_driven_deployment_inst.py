@@ -128,35 +128,36 @@ class SupplyDrivenDeploymentInst(Institution):
         print('supply_std_dev: %f' % self.supply_std_dev)
 
     def parse_commodities(self, commodities):
-    """ This function parses the vector of strings commodity variable
-        and replaces the variable as a dictionary. This function should be deleted
-        after the map connection is fixed."""
-    temp = commodities
-    commodity_dict = {}
+        """ This function parses the vector of strings commodity variable
+            and replaces the variable as a dictionary. This function should be deleted
+            after the map connection is fixed.
+        """
+        temp = commodities
+        commodity_dict = {}
 
-    for entry in temp:
-        # commodity, prototype, capacity, preference, second_driving_commodity, constraint
-        z = entry.split('_')
-        if len(z) < 3:
-            raise ValueError(
-                'Input is malformed: need at least commodity_prototype_capacity')
-        else:
-            # append zero for all other values if not defined
-            while len(z) < 6:
-                z.append(0)
-        if z[0] not in commodity_dict.keys():
-            commodity_dict[z[0]] = {}
-            commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
-                                                'pref': str(z[3]),
-                                                'second_commod': str(z[4]),
-                                                'constraint': float(z[5])}})
+        for entry in temp:
+            # commodity, prototype, capacity, preference, second_driving_commodity, constraint
+            z = entry.split('_')
+            if len(z) < 3:
+                raise ValueError(
+                    'Input is malformed: need at least commodity_prototype_capacity')
+            else:
+                # append zero for all other values if not defined
+                while len(z) < 6:
+                    z.append(0)
+            if z[0] not in commodity_dict.keys():
+                commodity_dict[z[0]] = {}
+                commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
+                                                    'pref': str(z[3]),
+                                                    'second_commod': str(z[4]),
+                                                    'constraint': float(z[5])}})
 
-        else:
-            commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
-                                                'pref': str(z[3]),
-                                                'second_commod': str(z[4]),
-                                                'constraint': float(z[5])}})
-    return commodity_dict
+            else:
+                commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
+                                                    'pref': str(z[3]),
+                                                    'second_commod': str(z[4]),
+                                                    'constraint': float(z[5])}})
+        return commodity_dict
 
     def enter_notify(self):
         super().enter_notify()

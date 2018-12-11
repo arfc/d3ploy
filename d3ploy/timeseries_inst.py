@@ -171,7 +171,6 @@ class TimeSeriesInst(Institution):
                                                     'pref': str(z[3]),
                                                     'second_commod': str(z[4]),
                                                     'constraint': float(z[5])}})
-        print(commodity_dict)
         return commodity_dict
 
     def enter_notify(self):
