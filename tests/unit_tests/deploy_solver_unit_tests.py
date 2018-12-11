@@ -13,7 +13,8 @@ def test_parse_commodities():
                    'POWER_reactor3_600_10*t_pu_300',
                    'fuel_source_300',
                    'pu_separations_5000_0_spentuox_5000']
-    commodity_dict = ti.TimeSeriesInst.parse_commodities(ti.TimeSeriesInst, commodities)
+    commodity_dict = ti.TimeSeriesInst.parse_commodities(
+        ti.TimeSeriesInst, commodities)
     answer = {'POWER': {'reactor': {'cap': 3000.0,
                                     'pref': '1000-t',
                                     'second_commod': '0',
@@ -26,10 +27,10 @@ def test_parse_commodities():
                                      'pref': '10*t',
                                      'second_commod': 'pu',
                                      'constraint': 300.0}},
-              'fuel': {'source' : {'cap': 300.0,
-                                   'pref': '0',
-                                   'second_commod': '0',
-                                   'constraint': 0}},
+              'fuel': {'source': {'cap': 300.0,
+                                  'pref': '0',
+                                  'second_commod': '0',
+                                  'constraint': 0}},
               'pu': {'separations': {'cap': 5000.0,
                                      'pref': '0',
                                      'second_commod': 'spentuox',
@@ -37,6 +38,7 @@ def test_parse_commodities():
     assert commodity_dict['POWER'] == answer['POWER']
     assert commodity_dict['fuel'] == answer['fuel']
     assert commodity_dict['pu'] == answer['pu']
+
 
 def test_min_deploy_solver():
     """ Tests if the minimize_number_of_deployment function works correctly
@@ -49,13 +51,13 @@ def test_min_deploy_solver():
                                     'pref': '0',
                                     'second_commod': '0',
                                     'constraint': 0}})
-        deploy_dict = solver.deploy_solver(commodity_supply = {},
+        deploy_dict = solver.deploy_solver(commodity_supply={},
                                            commodity_dict={'commod': commod},
                                            commod='commod',
                                            diff=diff,
                                            time=1)
         # actually deploy and see if it's good
-        cap_list = [v['cap'] for k,v in commod.items()]
+        cap_list = [v['cap'] for k, v in commod.items()]
         final_diff = diff
         for key, val in deploy_dict.items():
             final_diff += val * commod[key]['cap']
@@ -64,6 +66,7 @@ def test_min_deploy_solver():
                 'The difference after deployment exceeds the capacity of the smallest deployable prototype')
         # if it didn't raise valueerror, we are good
         assert(True)
+
 
 def test_pref_solver_const():
     """ Tests if the preference_deploy function works correctly
@@ -77,7 +80,7 @@ def test_pref_solver_const():
                                     'pref': str(random.uniform(0.1, 9.9)),
                                     'second_commod': '0',
                                     'constraint': 0}})
-        deploy_dict = solver.deploy_solver(commodity_supply = {},
+        deploy_dict = solver.deploy_solver(commodity_supply={},
                                            commodity_dict={'commod': commod},
                                            commod='commod',
                                            diff=diff,
@@ -86,8 +89,9 @@ def test_pref_solver_const():
         assert (len(deploy_dict.keys()) == 1)
 
         # get highest preference value prototype
-        highest_pref = max([v['pref'] for k,v in commod.items()])
-        most_preferred_proto = [k for k,v in commod.items() if v['pref'] == highest_pref][0]
+        highest_pref = max([v['pref'] for k, v in commod.items()])
+        most_preferred_proto = [
+            k for k, v in commod.items() if v['pref'] == highest_pref][0]
         # check if the deployed proto is the most preferred prototype
         for proto, deploy_num in deploy_dict.items():
             assert (proto == most_preferred_proto)
@@ -96,7 +100,7 @@ def test_pref_solver_const():
             if deployed_cap < diff:
                 raise ValueError('Underdeploys')
             elif (deployed_cap + diff) > commod[proto]['cap']:
-                raise ValueError('Overdeploys') 
+                raise ValueError('Overdeploys')
     assert(True)
 
 
@@ -112,10 +116,10 @@ def test_pref_solver_eq():
                     'pref': '10 - (1*t)',
                     'second_commod': '0',
                     'constraint': 0}
-            }
+              }
     for t in range(10):
         print(t)
-        deploy_dict = solver.deploy_solver(commodity_supply = {},
+        deploy_dict = solver.deploy_solver(commodity_supply={},
                                            commodity_dict={'commod': commod},
                                            commod='commod',
                                            diff=diff,

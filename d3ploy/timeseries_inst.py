@@ -31,7 +31,7 @@ class TimeSeriesInst(Institution):
 
     commodities = ts.VectorString(
         doc="A list of commodities that the institution will manage. " +
-            "commodity_prototype_capacity format" + 
+            "commodity_prototype_capacity format" +
             " where the commoditity is what the facility supplies",
         tooltip="List of commodities in the institution.",
         uilabel="Commodities",
@@ -153,7 +153,8 @@ class TimeSeriesInst(Institution):
             # commodity, prototype, capacity, preference, second_driving_commodity, constraint
             z = entry.split('_')
             if len(z) < 3:
-                raise ValueError('Input is malformed: need at least commodity_prototype_capacity')
+                raise ValueError(
+                    'Input is malformed: need at least commodity_prototype_capacity')
             else:
                 # append zero for all other values if not defined
                 while len(z) < 6:
