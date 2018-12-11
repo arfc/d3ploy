@@ -148,43 +148,36 @@ class TimeSeriesInst(Institution):
             after the map connection is fixed."""
         temp = commodities
         commodity_dict = {}
-        commodity_dict_with_second = {}
-        pref_dict = {}
-        second_driving_commod_dict = {}
+
         for entry in temp:
+            # commodity, prototype, capacity, preference, second_driving_commodity, constraint
             z = entry.split('_')
+            if len(z) < 3:
+                raise ValueError('Input is malformed: need at least commodity_prototype_capacity')
+            else:
+                # append zero for all other values if not defined
+                while len(z) < 6:
+                    z.append(0)
             if z[0] not in commodity_dict.keys():
                 commodity_dict[z[0]] = {}
-                commodity_dict[z[0]].update({z[1]: float(z[2])})
-                commodity_dict_with_second[z[0]] = {}
-            else:
-                commodity_dict[z[0]].update({z[1]: float(z[2])})
-            # preference is optional
-            # also for backwards compatibility
-            if len(z) >= 4:
-                if z[0] not in pref_dict.keys():
-                    pref_dict[z[0]] = {}
-                    pref_dict[z[0]].update({z[1]: z[3]})
-                else:
-                    pref_dict[z[0]].update({z[1]: z[3]})
-            if len(z) == 6:
-                if z[0] not in second_driving_commod_dict.keys(): 
-                    second_driving_commod_dict[z[0]] = {}
-                    second_driving_commod_dict[z[0]][z[1]] = [z[4],z[5]]
-                else: 
-                    second_driving_commod_dict[z[0]][z[1]] = [z[4],z[5]]
-                if z[4] not in commodity_dict_with_second.keys(): 
-                    commodity_dict_with_second[z[4]] = {}
+                commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
+                                                    'pref': str(z[3]),
+                                                    'second_commod': str(z[4]),
+                                                    'constraint': float(z[5])}})
 
-        return commodity_dict, pref_dict, second_driving_commod_dict, commodity_dict_with_second
+            else:
+                commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
+                                                    'pref': str(z[3]),
+                                                    'second_commod': str(z[4]),
+                                                    'constraint': float(z[5])}})
+        return commodity_dict
 
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
             # convert list of strings to dictionary
-            self.commodity_dict, self.pref_dict, self.second_driving_commod_dict, self.commodity_dict_with_second= self.parse_commodities(
-                self.commodities)
-            for commod in self.commodity_dict_with_second:
+            self.commodity_dict = self.parse_commodities(self.commodities)
+            for commod in self.commodity_dict:
                 lib.TIME_SERIES_LISTENERS["supply" +
                                           commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand" +
@@ -199,17 +192,15 @@ class TimeSeriesInst(Institution):
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
-        for commod, proto_cap in self.commodity_dict.items():
-            if not bool(proto_cap):
-                raise ValueError(
-                    'Prototype and capacity definition for commodity "%s" is missing' % commod)
+        for commod, proto_dict in self.commodity_dict.items():
+
             diff, supply, demand = self.calc_diff(commod, time)
             lib.record_time_series(commod+'calc_supply', self, supply)
             lib.record_time_series(commod+'calc_demand', self, demand)
 
             if diff < 0:
                 deploy_dict = solver.deploy_solver(
-                    self.commodity_supply, self.commodity_dict, self.pref_dict, self.second_driving_commod_dict, commod, diff, time)
+                    self.commodity_supply, self.commodity_dict, commod, diff, time)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
