@@ -68,7 +68,7 @@ scenario_1_input = {
                     "name": "spent_uox",
                     "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
                 }
-        }
+        ]}}
 demand_eq = "1000*t"
 
 for calc_method in calc_methods:
@@ -239,7 +239,7 @@ demand_eq = "1000*t"
 
 for calc_method in calc_methods:
     scenario_3_input[calc_method] = copy.deepcopy(scenario_template)
-    scenario_3_input[calc_method]["simulation"].update({facility": [{
+    scenario_3_input[calc_method]["simulation"].update({"facility": [{
                 "config": {"Source": {"outcommod": "fuel",
                                       "outrecipe": "fresh_uox",
                                       "throughput": "3000"}},
