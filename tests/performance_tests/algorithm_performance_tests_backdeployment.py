@@ -57,7 +57,28 @@ scenario_template = {
    ]
   },
   "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
-  "facility": [
+  "recipe": [
+   {
+    "basis": "mass",
+    "name": "fresh_uox",
+    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
+   },
+   {
+    "basis": "mass",
+    "name": "spent_uox",
+    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
+   }
+  ]}
+ }
+
+######################################SCENARIO 5##########################################
+# scenario 5, source -> reactor (cycle time = 1, refuel time = 0) -> sink
+scenario_5_input = {}
+demand_eq = "1000*t"
+
+for calc_method in calc_methods:
+    scenario_5_input[calc_method] = copy.deepcopy(scenario_template)
+    scenario_5_input[calc_method]["simulation"].update({"facility": [
    {
     "config": {
      "Source": {"outcommod": "fuel", "outrecipe": "fresh_uox", "throughput": "3e3"}
@@ -65,20 +86,8 @@ scenario_template = {
     "name": "source"
    },
    {
-    "config": {"Sink": {"in_commods": {"val": "coolspentfuel"}, "max_inv_size": "1e6"}},
+    "config": {"Sink": {"in_commods": {"val": "spentfuel"}, "max_inv_size": "1e6"}},
     "name": "sink"
-   },
-   {
-    "config": {
-     "Storage": {
-      "in_commods": {"val": "spentfuel"},
-      "max_inv_size": "1e6",
-      "out_commods": {"val": "coolspentfuel"},
-      "residence_time": "3",
-      "throughput": "1e6"
-     }
-    },
-    "name": "storage"
    },
    {
     "config": {
@@ -109,16 +118,7 @@ scenario_template = {
     "name": "spent_uox",
     "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
    }
-  ]}
- }
-
-######################################SCENARIO 5##########################################
-# scenario 5, source -> reactor (cycle time = 1, refuel time = 0) -> sink
-scenario_5_input = {}
-demand_eq = "1000*t"
-
-for calc_method in calc_methods:
-    scenario_5_input[calc_method] = copy.deepcopy(scenario_template)
+  ]})
     scenario_5_input[calc_method]["simulation"].update({"region": {
    "config": {"NullRegion": "\n      "},
    "institution": [
@@ -199,6 +199,47 @@ demand_eq = "1000*t"
 
 for calc_method in calc_methods:
     scenario_6_input[calc_method] = copy.deepcopy(scenario_template)
+    scenario_6_input[calc_method]["simulation"].update({"facility": [
+   {
+    "config": {
+     "Source": {"outcommod": "fuel", "outrecipe": "fresh_uox", "throughput": "3e3"}
+    },
+    "name": "source"
+   },
+   {
+    "config": {"Sink": {"in_commods": {"val": "coolspentfuel"}, "max_inv_size": "1e6"}},
+    "name": "sink"
+   },
+   {
+    "config": {
+     "Storage": {
+      "in_commods": {"val": "spentfuel"},
+      "max_inv_size": "1e6",
+      "out_commods": {"val": "coolspentfuel"},
+      "residence_time": "3",
+      "throughput": "1e6"
+     }
+    },
+    "name": "storage"
+   },
+   {
+    "config": {
+     "Reactor": {
+      "assem_size": "1000",
+      "cycle_time": "1",
+      "fuel_incommods": {"val": "fuel"},
+      "fuel_inrecipes": {"val": "fresh_uox"},
+      "fuel_outcommods": {"val": "spentfuel"},
+      "fuel_outrecipes": {"val": "spent_uox"},
+      "n_assem_batch": "1",
+      "n_assem_core": "3",
+      "power_cap": "1000",
+      "refuel_time": "0"
+     }
+    },
+    "name": "reactor"
+   }
+  ]})
     scenario_6_input[calc_method]["simulation"].update({"region": {
    "config": {"NullRegion": "\n      "},
    "institution": [
