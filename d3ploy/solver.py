@@ -46,20 +46,8 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
     proto_commod = commodity_dict[commod]
     # if the preference is defined
 
-    eval_pref_fac = {}
-    for proto, val_dict in proto_commod.items():
-        # evalute the preference functions
-        # at the current time
-        t = time
-        pref = eval(val_dict['pref'])
-        eval_pref_fac[proto] = pref
-
-    for proto, val_dict in proto_commod.items():
-        if val_dict['second_commod'] != '0':
-            current_supply = commodity_supply[val_dict['second_commod']][time]
-            if current_supply < float(val_dict['constraint']):
-                eval_pref_fac[proto] = -1
-
+    eval_pref_fac = evaluate_preference(proto_commod, time)
+    eval_pref_fac = check_constraint(proto_commod, commodity_supply, eval_pref_fac)
         # check if the preference values are different
     if len(set(eval_pref_fac.values())) != 1:
         # if there is a difference,
@@ -71,6 +59,25 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
     # or all the preference values are the same,
     # deploy to minimize number of deployment
     return minimize_number_of_deployment(proto_commod, diff)
+
+
+def evaluate_preference(proto_commod, time):
+    t = time
+    eval_pref_fac = {}
+    for proto, val_dict in proto_commod.items():
+        t = time
+        pref = eval(val_dict['pref'])
+        eval_pref_fac[proto] = pref
+    return eval_pref_fac
+
+
+def check_constraint(proto_commod, commodity_supply, eval_pref_fac):
+    for proto, val_dict in proto_commod.items():
+        if val_dict['second_commod'] != '0':
+            current_supply = commodity_supply[val_dict['second_commod']][time]
+            if current_supply < float(val_dict['constraint']):
+                eval_pref_fac[proto] = -1e299
+    return eval_pref_fac
 
 
 def preference_deploy(proto_commod, pref_fac, diff):
