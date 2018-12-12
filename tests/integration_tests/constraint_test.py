@@ -28,7 +28,7 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 
 def test_constraint_deploy():
     output_ = 'test_constraint_deploy.sqlite'
-    input_ = '../../input/test_transition.xml'
+    input_ = '~/d3ploy/input/test_transition.xml'
     s = subprocess.check_output(['cyclus', '-o', output_, input_],
                                 universal_newlines=True, env=ENV)
     cur = functions.get_cursor(output_)
