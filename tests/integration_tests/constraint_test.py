@@ -37,6 +37,12 @@ def test_constraint_deploy():
     cur = functions.get_cursor(output_)
     reactor2_entry = cur.execute('SELECT entertime FROM agententry WHERE ' +
                                  'prototype == "reactor2"').fetchall()
+    transactions = cur.execute('SELECT * FROM transactions').fetchall()
+    for row in transactions:
+        print(row['commodity'], row['time'])
+    agententry = cur.execute('SELECT * FROM agententry').fetchall()
+    for row in agententry:
+        print(row['prototype'], row['entertime'])
     time_after_constraint = cur.execute('SELECT time FROM timeseriessupplystorageuox ' +
                                         'WHERE value > 8000').fetchone()[0]
     for row in reactor2_entry:
