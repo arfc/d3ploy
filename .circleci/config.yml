@@ -54,8 +54,8 @@ jobs:
           - run:
                 name: integration tests
                 command: |
-                    pytest ./tests/integration_tests/constraint_test.py
                     pytest ./tests/integration_tests/tech_pref_test.py
+                    pytest ./tests/integration_tests/constraint_test.py
     
 
 workflows:
