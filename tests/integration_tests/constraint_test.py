@@ -44,7 +44,7 @@ def test_constraint_deploy():
     for row in agententry:
         print(row['prototype'], row['entertime'])
     print('name of tables')
-    tables = cur.execute('SELECT name FROM sqlite_master WHERE type="table').fetchall()
+    tables = cur.execute('SELECT name FROM sqlite_master WHERE type="table"').fetchall()
     for row in tables:
         print(row['name'])
     time_after_constraint = cur.execute('SELECT time FROM timeseriessupplystorageuox ' +
