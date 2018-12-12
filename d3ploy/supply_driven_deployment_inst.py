@@ -1,7 +1,8 @@
 """
-This cyclus archetype uses time series methods to predict the supply and capacity
-for future time steps and manages the deployment of facilities to ensure
-capacity is greater than supply. Time series predicition methods can be used
+This cyclus archetype uses time series methods to predict
+the supply and capacity for future time steps and manages
+the deployment of facilities to ensure capacity is greater
+than supply. Time series predicition methods can be used
 in this archetype.
 """
 
@@ -39,17 +40,20 @@ class SupplyDrivenDeploymentInst(Institution):
     )
 
     calc_method = ts.String(
-        doc="This is the calculated method used to determine the supply and capacity " +
-        "for the commodities of this institution. Currently this can be ma for " +
-        "moving average, or arma for autoregressive moving average.",
+        doc="This is the calculated method used to determine " +
+        "the supply and capacity for the commodities of " +
+        "this institution. Currently this can be ma for " +
+        "moving average, or arma for autoregressive " +
+        "moving average.",
         tooltip="Calculation method used to predict supply/capacity",
         uilabel="Calculation Method"
     )
 
     record = ts.Bool(
-        doc="Indicates whether or not the institution should record it's output to text " +
-        "file outputs. The output files match the name of the demand commodity of the " +
-        "institution.",
+        doc="Indicates whether or not the institution " +
+        "should record it's output to text file outputs." +
+        "The output files match the name of the " +
+        "demand commodity of the institution.",
         tooltip="Boolean to indicate whether or not to record output to text file.",
         uilabel="Record to Text",
         default=False
@@ -63,9 +67,11 @@ class SupplyDrivenDeploymentInst(Institution):
     )
 
     back_steps = ts.Int(
-        doc="This is the number of steps backwards from the current time step" +
-            "that will be used to make the prediction. If this is set to '0'" +
-            "then the calculation will use all values in the time series.",
+        doc="This is the number of steps backwards " +
+            "from the current time step that will " +
+            "be used to make the prediction. If " +
+            "this is set to '0' then the calculation " +
+            "will use all values in the time series.",
         tooltip="",
         uilabel="Back Steps",
         default=10

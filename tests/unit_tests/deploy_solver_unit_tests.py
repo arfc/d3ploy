@@ -63,7 +63,8 @@ def test_min_deploy_solver():
             final_diff += val * commod[key]['cap']
         if final_diff > min(cap_list):
             raise ValueError(
-                'The difference after deployment exceeds the capacity of the smallest deployable prototype')
+                'The difference after deployment exceeds ' +
+                'the capacity of the smallest deployable prototype')
         # if it didn't raise valueerror, we are good
         assert(True)
 
