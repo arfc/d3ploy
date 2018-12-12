@@ -163,8 +163,8 @@
 	    <demand_std_dev>0.0</demand_std_dev>
           <demand_eq>1000*t</demand_eq>
           <commodities>
-              <val>POWER_reactor_3000_10-t</val>
-              <val>POWER_reactor2_3000_t_storageuox_8000</val>
+              <val>POWER_reactor_3000_t</val>
+              <val>POWER_reactor2_3000_2*t_storageuox_8000</val>
               <val>fuel_source_3000</val>
           </commodities>
           <steps>1</steps>

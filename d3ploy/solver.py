@@ -74,8 +74,8 @@ def evaluate_preference(proto_commod, time):
 
 def check_constraint(proto_commod, commodity_supply, eval_pref_fac, time):
     for proto, val_dict in proto_commod.items():
-        if val_dict['second_commod'] != '0':
-            current_supply = commodity_supply[val_dict['second_commod']][time]
+        if val_dict['constraint_commod'] != '0':
+            current_supply = commodity_supply[val_dict['constraint_commod']][time]
             if current_supply < float(val_dict['constraint']):
                 eval_pref_fac[proto] = -1e299
     return eval_pref_fac
@@ -88,7 +88,7 @@ def preference_deploy(proto_commod, pref_fac, diff):
     proto_commod: dictionary
         key: prototype name
         value: dictionary
-            key: 'cap', 'pref', 'second_commod', 'constraint'
+            key: 'cap', 'pref', 'constraint_commod', 'constraint'
             value
     pref_fac: dictionary
         key: prototype name
