@@ -35,9 +35,9 @@ def test_constraint_deploy():
     s = subprocess.check_output(['cyclus', '-o', output_, input_],
                                 universal_newlines=True, env=ENV)
     cur = functions.get_cursor(output_)
-    time_after_constraint = cur.execute('SELECT time FROM timeseriessupplystorageuox ' +
-                                        'WHERE value > 8000').fetchone()[0]
     reactor2_entry = cur.execute('SELECT entertime FROM agententry WHERE ' +
                                  'prototype == "reactor2"').fetchall()
+    time_after_constraint = cur.execute('SELECT time FROM timeseriessupplystorageuox ' +
+                                        'WHERE value > 8000').fetchone()[0]
     for row in reactor2_entry:
         assert (row['entertime'] >= time_after_constraint + 1)
