@@ -17,23 +17,23 @@ def test_parse_commodities():
         ti.TimeSeriesInst, commodities)
     answer = {'POWER': {'reactor': {'cap': 3000.0,
                                     'pref': '1000-t',
-                                    'second_commod': '0',
+                                    'constraint_commod': '0',
                                     'constraint': 0},
                         'reactor2': {'cap': 1000.0,
                                      'pref': '3',
-                                     'second_commod': '0',
+                                     'constraint_commod': '0',
                                      'constraint': 0},
                         'reactor3': {'cap': 600.0,
                                      'pref': '10*t',
-                                     'second_commod': 'pu',
+                                     'constraint_commod': 'pu',
                                      'constraint': 300.0}},
               'fuel': {'source': {'cap': 300.0,
                                   'pref': '0',
-                                  'second_commod': '0',
+                                  'constraint_commod': '0',
                                   'constraint': 0}},
               'pu': {'separations': {'cap': 5000.0,
                                      'pref': '0',
-                                     'second_commod': 'spentuox',
+                                     'constraint_commod': 'spentuox',
                                      'constraint': 5000.0}}}
     assert commodity_dict['POWER'] == answer['POWER']
     assert commodity_dict['fuel'] == answer['fuel']
@@ -49,7 +49,7 @@ def test_min_deploy_solver():
         for i in range(4):
             commod.update({str(i): {'cap': random.uniform(0.1, 9.9),
                                     'pref': '0',
-                                    'second_commod': '0',
+                                    'constraint_commod': '0',
                                     'constraint': 0}})
         deploy_dict = solver.deploy_solver(commodity_supply={},
                                            commodity_dict={'commod': commod},
@@ -79,7 +79,7 @@ def test_pref_solver_const():
         for i in range(3):
             commod.update({str(i): {'cap': random.uniform(0.1, 9.9),
                                     'pref': str(random.uniform(0.1, 9.9)),
-                                    'second_commod': '0',
+                                    'constraint_commod': '0',
                                     'constraint': 0}})
         deploy_dict = solver.deploy_solver(commodity_supply={},
                                            commodity_dict={'commod': commod},
@@ -111,11 +111,11 @@ def test_pref_solver_eq():
     diff = -10
     commod = {'1': {'cap': 2,
                     'pref': '1*t',
-                    'second_commod': '0',
+                    'constraint_commod': '0',
                     'constraint': 0},
               '2': {'cap': 4,
                     'pref': '10 - (1*t)',
-                    'second_commod': '0',
+                    'constraint_commod': '0',
                     'constraint': 0}
               }
     for t in range(10):

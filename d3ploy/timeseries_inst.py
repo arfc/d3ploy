@@ -150,7 +150,7 @@ class TimeSeriesInst(Institution):
         commodity_dict = {}
 
         for entry in temp:
-            # commodity, prototype, capacity, preference, second_driving_commodity, constraint
+            # commodity, prototype, capacity, preference, constraint_commod, constraint
             z = entry.split('_')
             if len(z) < 3:
                 raise ValueError(
@@ -163,13 +163,13 @@ class TimeSeriesInst(Institution):
                 commodity_dict[z[0]] = {}
                 commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
                                                     'pref': str(z[3]),
-                                                    'second_commod': str(z[4]),
+                                                    'constraint_commod': str(z[4]),
                                                     'constraint': float(z[5])}})
 
             else:
                 commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
                                                     'pref': str(z[3]),
-                                                    'second_commod': str(z[4]),
+                                                    'constraint_commod': str(z[4]),
                                                     'constraint': float(z[5])}})
         return commodity_dict
 
@@ -181,8 +181,8 @@ class TimeSeriesInst(Institution):
             commod_list = list(self.commodity_dict.keys())
             for key, val in self.commodity_dict.items():
                 for key2, val2 in val.items():
-                    if val2['second_commod'] != '0':
-                        commod_list.append(val2['second_commod'])
+                    if val2['constraint_commod'] != '0':
+                        commod_list.append(val2['constraint_commod'])
             commod_list = list(set(commod_list))
             for commod in commod_list:
                 lib.TIME_SERIES_LISTENERS["supply" +
