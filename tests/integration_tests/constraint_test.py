@@ -11,7 +11,6 @@ import pytest
 import copy
 import glob
 import sys
-from matplotlib import pyplot as plt
 import numpy as np
 import d3ploy.tester as functions
 

@@ -26,7 +26,7 @@ jobs:
                 name: unit tests
                 command: |
                     pytest ./tests/unit_tests/deploy_solver_unit_tests.py
-    integration_test:
+    full_integration_test:
         docker:
             - image: nuclearbae/d3ploy
         working_directory: ~/d3ploy
@@ -40,14 +40,31 @@ jobs:
                 name: integration tests
                 command: |
                     pytest ./tests/integration_tests/continuous_integration_test.py
+
+    functionality_test:
+        docker:
+            - image: nuclearbae/d3ploy
+        working_directory: ~/d3ploy
+        steps:
+          - checkout
+          - run:
+                name: build
+                command: |
+                    python setup.py install
+          - run:
+                name: integration tests
+                command: |
                     pytest ./tests/integration_tests/constraint_test.py
                     pytest ./tests/integration_tests/tech_pref_test.py
     
 
 workflows:
         version: 2
-        build_and_test:
+        build:
             jobs:
                 - build
+        test:
+            jobs:
                 - unit_test
-                - integration_test
+                - full_integration_test
+                - functionality_test
