@@ -288,7 +288,7 @@ class SupplyDrivenDeploymentInst(Institution):
         commod = commod[6:]
         self.commodity_capacity[commod][time] += value
         # update commodities
-        #self.commodity_dict[commod] = {agent.prototype: value}
+        # self.commodity_dict[commod] = {agent.prototype: value}
 
     def extract_supply(self, agent, time, value, commod):
         """
