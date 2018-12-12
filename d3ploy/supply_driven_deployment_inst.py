@@ -1,8 +1,9 @@
 """
-This cyclus archetype uses time series methods to predict the supply and capacity
-for future time steps and manages the deployment of facilities to ensure
-capacity is greater than supply. Time series predicition methods can be used
-in this archetype. 
+This cyclus archetype uses time series methods to predict
+the supply and capacity for future time steps and manages
+the deployment of facilities to ensure capacity is greater
+than supply. Time series predicition methods can be used
+in this archetype.
 """
 
 import random
@@ -31,7 +32,7 @@ class SupplyDrivenDeploymentInst(Institution):
 
     commodities = ts.VectorString(
         doc="A list of commodities that the institution will manage. " +
-            "commodity_prototype_capacity format"+ 
+            "commodity_prototype_capacity format" +
             " where the commoditity is what the facility has capacity for",
         tooltip="List of commodities in the institution.",
         uilabel="Commodities",
@@ -39,17 +40,20 @@ class SupplyDrivenDeploymentInst(Institution):
     )
 
     calc_method = ts.String(
-        doc="This is the calculated method used to determine the supply and capacity " +
-        "for the commodities of this institution. Currently this can be ma for " +
-        "moving average, or arma for autoregressive moving average.",
+        doc="This is the calculated method used to determine " +
+        "the supply and capacity for the commodities of " +
+        "this institution. Currently this can be ma for " +
+        "moving average, or arma for autoregressive " +
+        "moving average.",
         tooltip="Calculation method used to predict supply/capacity",
         uilabel="Calculation Method"
     )
 
     record = ts.Bool(
-        doc="Indicates whether or not the institution should record it's output to text " +
-        "file outputs. The output files match the name of the demand commodity of the " +
-        "institution.",
+        doc="Indicates whether or not the institution " +
+        "should record it's output to text file outputs." +
+        "The output files match the name of the " +
+        "demand commodity of the institution.",
         tooltip="Boolean to indicate whether or not to record output to text file.",
         uilabel="Record to Text",
         default=False
@@ -63,9 +67,11 @@ class SupplyDrivenDeploymentInst(Institution):
     )
 
     back_steps = ts.Int(
-        doc="This is the number of steps backwards from the current time step" +
-            "that will be used to make the prediction. If this is set to '0'" +
-            "then the calculation will use all values in the time series.",
+        doc="This is the number of steps backwards " +
+            "from the current time step that will " +
+            "be used to make the prediction. If " +
+            "this is set to '0' then the calculation " +
+            "will use all values in the time series.",
         tooltip="",
         uilabel="Back Steps",
         default=10
@@ -130,39 +136,43 @@ class SupplyDrivenDeploymentInst(Institution):
     def parse_commodities(self, commodities):
         """ This function parses the vector of strings commodity variable
             and replaces the variable as a dictionary. This function should be deleted
-            after the map connection is fixed."""
+            after the map connection is fixed.
+        """
         temp = commodities
         commodity_dict = {}
-        pref_dict = {}
-        second_driving_commod_dict = {}
+
         for entry in temp:
+            # commodity, prototype, capacity, preference, second_driving_commodity, constraint
             z = entry.split('_')
+            if len(z) < 3:
+                raise ValueError(
+                    'Input is malformed: need at least commodity_prototype_capacity')
+            else:
+                # append zero for all other values if not defined
+                while len(z) < 6:
+                    z.append(0)
             if z[0] not in commodity_dict.keys():
                 commodity_dict[z[0]] = {}
-                commodity_dict[z[0]].update({z[1]: float(z[2])})
+                commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
+                                                    'pref': str(z[3]),
+                                                    'second_commod': str(z[4]),
+                                                    'constraint': float(z[5])}})
+
             else:
-                commodity_dict[z[0]].update({z[1]: float(z[2])})
-
-            # preference is optional
-            # also for backwards compatibility
-            if len(z) == 4:
-                if z[0] not in pref_dict.keys():
-                    pref_dict[z[0]] = {}
-                    pref_dict[z[0]].update({z[1]: z[3]})
-                else:
-                    pref_dict[z[0]].update({z[1]: z[3]})
-
-        return commodity_dict, pref_dict, second_driving_commod_dict
+                commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
+                                                    'pref': str(z[3]),
+                                                    'second_commod': str(z[4]),
+                                                    'constraint': float(z[5])}})
+        return commodity_dict
 
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
             # convert list of strings to dictionary
-            self.commodity_dict, self.pref_dict, self.second_driving_commod_dict = self.parse_commodities(
-                self.commodities)
+            self.commodity_dict = self.parse_commodities(self.commodities)
             for commod in self.commodity_dict:
                 # swap supply and demand for supply_inst
-                # change demand into capacity 
+                # change demand into capacity
                 lib.TIME_SERIES_LISTENERS["supply" +
                                           commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand" +
@@ -177,17 +187,15 @@ class SupplyDrivenDeploymentInst(Institution):
         in supply and capacity and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
-        for commod, proto_cap in self.commodity_dict.items():
-            if not bool(proto_cap):
-                raise ValueError(
-                    'Prototype and capacity definition for commodity "%s" is missing' % commod)
+        for commod, proto_dict in self.commodity_dict.items():
+
             diff, capacity, supply = self.calc_diff(commod, time)
             lib.record_time_series(commod+'calc_supply', self, supply)
             lib.record_time_series(commod+'calc_capacity', self, capacity)
 
             if diff < 0:
                 deploy_dict = solver.deploy_solver(
-                    self.commodity_supply, self.commodity_dict, self.pref_dict, self.second_driving_commod_dict, commod, diff, time)
+                    self.commodity_supply, self.commodity_dict, commod, diff, time)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
@@ -230,16 +238,16 @@ class SupplyDrivenDeploymentInst(Institution):
     def predict_capacity(self, commod):
         if self.calc_method in ['arma', 'ma', 'arch']:
             capacity = CALC_METHODS[self.calc_method](self.commodity_capacity[commod],
-                                                    steps=self.steps,
-                                                    std_dev=self.capacity_std_dev,
-                                                    back_steps=self.back_steps)
+                                                      steps=self.steps,
+                                                      std_dev=self.capacity_std_dev,
+                                                      back_steps=self.back_steps)
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
             capacity = CALC_METHODS[self.calc_method](self.commodity_capacity[commod],
-                                                    back_steps=self.back_steps,
-                                                    degree=self.degree)
+                                                      back_steps=self.back_steps,
+                                                      degree=self.degree)
         elif self.calc_method in ['sw_seasonal']:
             capacity = CALC_METHODS[self.calc_method](self.commodity_capacity[commod],
-                                                    period=self.degree)
+                                                      period=self.degree)
         else:
             raise ValueError(
                 'The input calc_method is not valid. Check again.')
@@ -280,7 +288,7 @@ class SupplyDrivenDeploymentInst(Institution):
         commod = commod[6:]
         self.commodity_capacity[commod][time] += value
         # update commodities
-        #self.commodity_dict[commod] = {agent.prototype: value}
+        # self.commodity_dict[commod] = {agent.prototype: value}
 
     def extract_supply(self, agent, time, value, commod):
         """
@@ -298,5 +306,3 @@ class SupplyDrivenDeploymentInst(Institution):
         """
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
-
-
