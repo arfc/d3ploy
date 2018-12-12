@@ -43,6 +43,10 @@ def test_constraint_deploy():
     agententry = cur.execute('SELECT * FROM agententry').fetchall()
     for row in agententry:
         print(row['prototype'], row['entertime'])
+    print('name of tables')
+    tables = cur.execute('SELECT name FROM sqlite_master WHERE type="table').fetchall()
+    for row in tables:
+        print(row['name'])
     time_after_constraint = cur.execute('SELECT time FROM timeseriessupplystorageuox ' +
                                         'WHERE value > 8000').fetchone()[0]
     for row in reactor2_entry:
