@@ -155,13 +155,13 @@ class SupplyDrivenDeploymentInst(Institution):
                 commodity_dict[z[0]] = {}
                 commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
                                                     'pref': str(z[3]),
-                                                    'second_commod': str(z[4]),
+                                                    'constraint_commod': str(z[4]),
                                                     'constraint': float(z[5])}})
 
             else:
                 commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
                                                     'pref': str(z[3]),
-                                                    'second_commod': str(z[4]),
+                                                    'constraint_commod': str(z[4]),
                                                     'constraint': float(z[5])}})
         return commodity_dict
 
