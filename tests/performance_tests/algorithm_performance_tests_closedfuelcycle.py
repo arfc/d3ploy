@@ -287,7 +287,7 @@ for calc_method in calc_methods:
     name3 = "scenario_7_input_"+ calc_method +"_spentfuel"
     plotter.plot_demand_supply(all_dict_spentfuel, 'spentfuel', name3, False)
     
-    metric_dict = tester.metrics(all_dict_power,metric_dict,calc_method,'power',True)
+    metric_dict = tester.metrics(all_dict['power'],metric_dict,calc_method,'power',True)
     metric_dict = tester.metrics(all_dict_fuel,metric_dict,calc_method,'fuel',True)
     metric_dict = tester.metrics(all_dict_spentfuel,metric_dict,calc_method,'spentfuel',False)
         
