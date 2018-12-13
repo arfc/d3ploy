@@ -22,18 +22,19 @@ def plot_demand_supply(all_dict, commod, test, demand_driven):
 
     fig, ax = plt.subplots(figsize=(15, 7))
     if demand_driven:
-        ax.plot(*zip(*sorted(dict_demand.items())), '*', label='Demand')
+        ax.plot(*zip(*sorted(dict_demand.items())), '*', color='red', label='Demand')
         ax.plot(*zip(*sorted(dict_calc_demand.items())),
-                'o', alpha=0.5, label='Calculated Demand')
+                'o', alpha=0.5, color='red', label='Calculated Demand')
         ax.set_title('%s Demand Supply plot' % commod)
     else:
-        ax.plot(*zip(*sorted(dict_demand.items())), '*', label='Capacity')
+        ax.plot(*zip(*sorted(dict_demand.items())),
+                '*', color='red', label='Capacity')
         ax.plot(*zip(*sorted(dict_calc_demand.items())),
-                'o', alpha=0.5, label='Calculated Capacity')
+                'o', alpha=0.5, color='red', label='Calculated Capacity')
         ax.set_title('%s Capacity Supply plot' % commod)
-    ax.plot(*zip(*sorted(dict_supply.items())), '*', label='Supply')
+    ax.plot(*zip(*sorted(dict_supply.items())), '*', color='blue', label='Supply')
     ax.plot(*zip(*sorted(dict_calc_supply.items())),
-            'o', alpha=0.5, label='Calculated Supply')
+            'o', alpha=0.5, color='blue', label='Calculated Supply')
     ax.grid()
     ax.set_xlabel('Time (month timestep)', fontsize=14)
     ax.set_ylabel('Mass (kg)', fontsize=14)
@@ -80,16 +81,16 @@ def plot_demand_supply_agent(all_dict, agent_dict, commod, test, demand_driven):
     ax1.set_ylabel('agents')
     
     if demand_driven:
-        ax2.plot(*zip(*sorted(dict_demand.items())), '*', label='Demand')
+        ax2.plot(*zip(*sorted(dict_demand.items())), '*', color='red', label='Demand')
         ax2.plot(*zip(*sorted(dict_calc_demand.items())),
-                    'o', alpha=0.5, label='Calculated Demand')
+                    'o', alpha=0.5, color='red', label='Calculated Demand')
     else:
-        ax2.plot(*zip(*sorted(dict_demand.items())), '*', label='Capacity')
+        ax2.plot(*zip(*sorted(dict_demand.items())), '*', color='red', label='Capacity')
         ax2.plot(*zip(*sorted(dict_calc_demand.items())),
-                'o', alpha=0.5, label='Calculated Capacity')
-    ax2.plot(*zip(*sorted(dict_supply.items())), '*', label='Supply')
+                'o', alpha=0.5, color='red', label='Calculated Capacity')
+    ax2.plot(*zip(*sorted(dict_supply.items())), '*', color='blue', label='Supply')
     ax2.plot(*zip(*sorted(dict_calc_supply.items())),
-            'o', alpha=0.5, label='Calculated Supply')
+             'o', alpha=0.5, color='blue', label='Calculated Supply')
     ax2.grid()
     ax2.set_ylabel('Mass (kg)')
     handles, labels = ax2.get_legend_handles_labels()

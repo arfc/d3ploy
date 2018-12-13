@@ -279,7 +279,7 @@ for calc_method in calc_methods:
         output_file, 'sourceoutput',True)
     
     reactor_dict = tester.get_agent_dict(output_file, ['reactor1', 'reactor2'])
-    source_dict = testet.get_agent_dict(output_file, ['source'])
+    source_dict = tester.get_agent_dict(output_file, ['source'])
 
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
     plotter.plot_demand_supply_agent(all_dict['power'], reactor_dict, 'power', name, True)
