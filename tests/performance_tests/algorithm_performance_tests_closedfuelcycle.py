@@ -288,7 +288,7 @@ for calc_method in calc_methods:
     plotter.plot_demand_supply(all_dict['spentfuel'], 'spentfuel', name3, False)
     
     metric_dict = tester.metrics(all_dict['power'],metric_dict,calc_method,'power',True)
-    metric_dict = tester.metrics(all_dict_fuel,metric_dict,calc_method,'fuel',True)
+    metric_dict = tester.metrics(all_dict['fuel'],metric_dict,calc_method,'fuel',True)
     metric_dict = tester.metrics(all_dict_spentfuel,metric_dict,calc_method,'spentfuel',False)
         
     df = pd.DataFrame(metric_dict)
