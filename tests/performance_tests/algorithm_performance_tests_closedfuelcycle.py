@@ -294,4 +294,4 @@ for calc_method in calc_methods:
     metric_dict = tester.metrics(all_dict_spentfuel,metric_dict,calc_method,'spentfuel',False)
         
     df = pd.DataFrame(metric_dict)
-    df.to_csv('scenario_5_output.csv')
+    df.to_csv('scenario_7_output.csv')
