@@ -272,7 +272,7 @@ for calc_method in calc_methods:
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
     # Initialize dicts  
-    all_dict_power = {}
+    all_dict = {}
     all_dict_fuel = {} 
     all_dict_spentfuel = {} 
     all_dict_power = tester.supply_demand_dict_driving(
