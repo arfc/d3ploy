@@ -275,21 +275,16 @@ for calc_method in calc_methods:
     all_dict = {}
     all_dict['power'] = tester.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
-    all_dict['fuel'] = tester.supply_demand_dict_nondriving(
-        output_file, 'fuel',True)
-    all_dict['spentfuel'] = tester.supply_demand_dict_nondriving(
-        output_file, 'spentfuel',False)
+    all_dict['sourceoutput'] = tester.supply_demand_dict_nondriving(
+        output_file, 'sourceoutput',True)
     
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
     plotter.plot_demand_supply(all_dict['power'], 'power', name, True)
-    name2 = "scenario_7_input_"+ calc_method +"_fuel"
-    plotter.plot_demand_supply(all_dict['fuel'], 'fuel', name2, True)
-    name3 = "scenario_7_input_"+ calc_method +"_spentfuel"
-    plotter.plot_demand_supply(all_dict['spentfuel'], 'spentfuel', name3, False)
+    name2 = "scenario_7_input_"+ calc_method +"_sourceoutput"
+    plotter.plot_demand_supply(all_dict['sourceoutput'], 'sourceoutput', name2, True)
     
     metric_dict = tester.metrics(all_dict['power'],metric_dict,calc_method,'power',True)
-    metric_dict = tester.metrics(all_dict['fuel'],metric_dict,calc_method,'fuel',True)
-    metric_dict = tester.metrics(all_dict_spentfuel,metric_dict,calc_method,'spentfuel',False)
+    metric_dict = tester.metrics(all_dict['sourceoutput'],metric_dict,calc_method,'sourceoutput',True)
         
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_7_output.csv')
