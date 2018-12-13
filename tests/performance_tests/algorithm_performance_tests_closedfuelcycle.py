@@ -273,7 +273,7 @@ for calc_method in calc_methods:
                                 universal_newlines=True, env=ENV)
     # Initialize dicts  
     all_dict = {}
-    all_dict_power = tester.supply_demand_dict_driving(
+    all_dict['power'] = tester.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
     all_dict_fuel = tester.supply_demand_dict_nondriving(
         output_file, 'fuel',True)
