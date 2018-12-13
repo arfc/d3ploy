@@ -277,7 +277,7 @@ for calc_method in calc_methods:
         output_file, demand_eq, 'power')
     all_dict['fuel'] = tester.supply_demand_dict_nondriving(
         output_file, 'fuel',True)
-    all_dict_spentfuel = tester.supply_demand_dict_nondriving(
+    all_dict['spentfuel'] = tester.supply_demand_dict_nondriving(
         output_file, 'spentfuel',False)
     
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
