@@ -275,7 +275,7 @@ for calc_method in calc_methods:
     all_dict = {}
     all_dict['power'] = tester.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
-    all_dict_fuel = tester.supply_demand_dict_nondriving(
+    all_dict['fuel'] = tester.supply_demand_dict_nondriving(
         output_file, 'fuel',True)
     all_dict_spentfuel = tester.supply_demand_dict_nondriving(
         output_file, 'spentfuel',False)
