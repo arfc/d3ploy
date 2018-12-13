@@ -283,7 +283,7 @@ for calc_method in calc_methods:
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
     plotter.plot_demand_supply(all_dict_power, 'power', name, True)
     name2 = "scenario_7_input_"+ calc_method +"_fuel"
-    plotter.plot_demand_supply(all_dict_fuel, 'fuel', name2, True)
+    plotter.plot_demand_supply(all_dict['fuel'], 'fuel', name2, True)
     name3 = "scenario_7_input_"+ calc_method +"_spentfuel"
     plotter.plot_demand_supply(all_dict_spentfuel, 'spentfuel', name3, False)
     
