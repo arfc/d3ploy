@@ -280,3 +280,36 @@ def metrics(all_dict,metric_dict,calc_method,commod,demand_driven):
     metric_dict[commod+'_undersupply'][calc_method] = supply_under_demand(all_dict, demand_driven)
 
     return metric_dict
+
+def get_agent_dict(sqlite_file, prototype_list):
+    """ returns a dictionary of the number of prototypes `at play'
+        at any given timestep """
+    cur = get_cursor(sqlite_file)
+    agent_dict = {}
+    for proto in prototype_list:
+        agententry = cur.execute('SELECT entertime FROM agententry WHERE prototype = "%s"' %proto).fetchall()
+        entertime_list = [item['entertime'] for item in agententry]
+        try:
+            agentexit = cur.execute('SELECT exittime FROM agentexit ' +
+                                    'INNER JOIN agententry ON agentid.agententry = agentid.agentexit ' +
+                                    'WHERE prototype = "%s"' %proto).fetchall()
+            exittime_list = [item['exittime'] for item in agentexit]
+        except lite.OperationalError:
+            exittime_list = [-1]
+        agent_dict[proto] = agents_at_play(entertime_list, exittime_list)
+    return agent_dict
+
+def agents_at_play(entertime_list, exittime_list):
+    max_time = max(max(entertime_list), max(exittime_list))
+    time_array = np.zeros(max_time + 1)
+    atplay = 0
+    atplay_dict = {}
+    for indx, n in enumerate(time_array):
+        if indx in entertime_list:
+            atplay += entertime_list.count(indx)
+        if indx in exittime_list:
+            atplay -= exittime_list.count(indx)
+        if atplay != 0:
+            atplay_dict[indx] = atplay
+    return atplay_dict
+

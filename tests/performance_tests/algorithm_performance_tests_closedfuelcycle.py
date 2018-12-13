@@ -119,7 +119,7 @@ for calc_method in calc_methods:
          "commodities": {
           "item": [
            {"commodity": "separations1U", "pref": "1.0"},
-           {"commodity": "separations2Pu", "pref": "1.0"}
+           {"commodity": "separations2U", "pref": "1.0"}
           ]
          },
          "info": {"buf_size": "1e6", "mixing_ratio": "0.5"}
@@ -278,10 +278,14 @@ for calc_method in calc_methods:
     all_dict['sourceoutput'] = tester.supply_demand_dict_nondriving(
         output_file, 'sourceoutput',True)
     
+    reactor_dict = tester.get_agent_dict(output_file, ['reactor1', 'reactor2'])
+    source_dict = testet.get_agent_dict(output_file, ['source'])
+
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-    plotter.plot_demand_supply(all_dict['power'], 'power', name, True)
+    plotter.plot_demand_supply_agent(all_dict['power'], reactor_dict, 'power', name, True)
     name2 = "scenario_7_input_"+ calc_method +"_sourceoutput"
-    plotter.plot_demand_supply(all_dict['sourceoutput'], 'sourceoutput', name2, True)
+    plotter.plot_demand_supply_agent(all_dict['sourceoutput'], source_dict,
+                                     'sourceoutput', name2, True)
     
     metric_dict = tester.metrics(all_dict['power'],metric_dict,calc_method,'power',True)
     metric_dict = tester.metrics(all_dict['sourceoutput'],metric_dict,calc_method,'sourceoutput',True)
