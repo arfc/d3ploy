@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def plot_demand_supply(all_dict, commod, test, demand_driven):
@@ -73,8 +74,18 @@ def plot_demand_supply_agent(all_dict, agent_dict, commod, test, demand_driven):
     f, (ax1, ax2) = plt.subplots(2,1, sharex='all',
                                  gridspec_kw = {'height_ratios': [1,3]})
     
+    top_indx = True
     for key, val in agent_dict.items():
-        ax1.scatter(*zip(*sorted(val.items())), label=key)
+        x, y = get_xy_from_dict(val)
+        if top_indx:
+            ax1.bar(x, y, label=key,
+                    edgecolor='none')
+            prev = y
+            top_indx = False
+        else:
+            ax1.bar(x, y, label=key,
+                    bottom=prev, edgecolor='none')
+            prev = np.add(prev, y)
     ax1.grid()
     ax1.legend()
     ax1.set_xlabel('Time (month timestep)')
@@ -100,3 +111,11 @@ def plot_demand_supply_agent(all_dict, agent_dict, commod, test, demand_driven):
     ax1.set_title('Supply, Demand and prototypes for %s' %commod)
     plt.savefig(test, dpi=300, bbox_inches='tight')
     plt.close()
+
+def get_xy_from_dict(dictionary):
+    maxindx = max(dictionary.keys()) + 1
+    y = np.zeros(maxindx)
+    x = np.arange(maxindx)
+    for key, val in dictionary.items():
+        y[key] = val
+    return x, y

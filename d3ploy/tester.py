@@ -286,6 +286,7 @@ def get_agent_dict(sqlite_file, prototype_list):
         at any given timestep """
     cur = get_cursor(sqlite_file)
     agent_dict = {}
+    duration = cur.execute('SELECT duration FROM info').fetchone()[0]
     for proto in prototype_list:
         agententry = cur.execute('SELECT entertime FROM agententry WHERE prototype = "%s"' %proto).fetchall()
         entertime_list = [item['entertime'] for item in agententry]
@@ -296,12 +297,11 @@ def get_agent_dict(sqlite_file, prototype_list):
             exittime_list = [item['exittime'] for item in agentexit]
         except lite.OperationalError:
             exittime_list = [-1]
-        agent_dict[proto] = agents_at_play(entertime_list, exittime_list)
+        agent_dict[proto] = agents_at_play(entertime_list, exittime_list, duration)
     return agent_dict
 
-def agents_at_play(entertime_list, exittime_list):
-    max_time = max(max(entertime_list), max(exittime_list))
-    time_array = np.zeros(max_time + 1)
+def agents_at_play(entertime_list, exittime_list, duration):
+    time_array = np.zeros(duration + 1)
     atplay = 0
     atplay_dict = {}
     for indx, n in enumerate(time_array):
@@ -309,7 +309,6 @@ def agents_at_play(entertime_list, exittime_list):
             atplay += entertime_list.count(indx)
         if indx in exittime_list:
             atplay -= exittime_list.count(indx)
-        if atplay != 0:
-            atplay_dict[indx] = atplay
+        atplay_dict[indx] = atplay
     return atplay_dict
 
