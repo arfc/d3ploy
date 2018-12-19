@@ -2,7 +2,7 @@
 This cyclus archetype uses time series methods to predict the demand and supply
 for future time steps and manages the deployment of facilities to ensure
 supply is greater than demand. Time series predicition methods can be used
-in this archetype. 
+in this archetype.
 """
 
 import random
@@ -31,7 +31,7 @@ class TimeSeriesInst(Institution):
 
     commodities = ts.VectorString(
         doc="A list of commodities that the institution will manage. " +
-            "commodity_prototype_capacity format" + 
+            "commodity_prototype_capacity format" +
             " where the commoditity is what the facility supplies",
         tooltip="List of commodities in the institution.",
         uilabel="Commodities",
@@ -148,33 +148,43 @@ class TimeSeriesInst(Institution):
             after the map connection is fixed."""
         temp = commodities
         commodity_dict = {}
-        pref_dict = {}
+
         for entry in temp:
+            # commodity, prototype, capacity, preference, constraint_commod, constraint
             z = entry.split('_')
+            if len(z) < 3:
+                raise ValueError(
+                    'Input is malformed: need at least commodity_prototype_capacity')
+            else:
+                # append zero for all other values if not defined
+                while len(z) < 6:
+                    z.append(0)
             if z[0] not in commodity_dict.keys():
                 commodity_dict[z[0]] = {}
-                commodity_dict[z[0]].update({z[1]: float(z[2])})
+                commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
+                                                    'pref': str(z[3]),
+                                                    'constraint_commod': str(z[4]),
+                                                    'constraint': float(z[5])}})
+
             else:
-                commodity_dict[z[0]].update({z[1]: float(z[2])})
-
-            # preference is optional
-            # also for backwards compatibility
-            if len(z) == 4:
-                if z[0] not in pref_dict.keys():
-                    pref_dict[z[0]] = {}
-                    pref_dict[z[0]].update({z[1]: z[3]})
-                else:
-                    pref_dict[z[0]].update({z[1]: z[3]})
-
-        return commodity_dict, pref_dict
+                commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
+                                                    'pref': str(z[3]),
+                                                    'constraint_commod': str(z[4]),
+                                                    'constraint': float(z[5])}})
+        return commodity_dict
 
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
             # convert list of strings to dictionary
-            self.commodity_dict, self.pref_dict = self.parse_commodities(
-                self.commodities)
-            for commod in self.commodity_dict:
+            self.commodity_dict = self.parse_commodities(self.commodities)
+            commod_list = list(self.commodity_dict.keys())
+            for key, val in self.commodity_dict.items():
+                for key2, val2 in val.items():
+                    if val2['constraint_commod'] != '0':
+                        commod_list.append(val2['constraint_commod'])
+            commod_list = list(set(commod_list))
+            for commod in commod_list:
                 lib.TIME_SERIES_LISTENERS["supply" +
                                           commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand" +
@@ -189,18 +199,15 @@ class TimeSeriesInst(Institution):
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
+        for commod, proto_dict in self.commodity_dict.items():
 
-        for commod, proto_cap in self.commodity_dict.items():
-            if not bool(proto_cap):
-                raise ValueError(
-                    'Prototype and capacity definition for commodity "%s" is missing' % commod)
             diff, supply, demand = self.calc_diff(commod, time)
             lib.record_time_series(commod+'calc_supply', self, supply)
             lib.record_time_series(commod+'calc_demand', self, demand)
 
             if diff < 0:
                 deploy_dict = solver.deploy_solver(
-                    self.commodity_dict, self.pref_dict, commod, diff, time)
+                    self.commodity_supply, self.commodity_dict, commod, diff, time)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
@@ -297,7 +304,7 @@ class TimeSeriesInst(Institution):
         commod = commod[6:]
         self.commodity_supply[commod][time] += value
         # update commodities
-        #self.commodity_dict[commod] = {agent.prototype: value}
+        # self.commodity_dict[commod] = {agent.prototype: value}
 
     def extract_demand(self, agent, time, value, commod):
         """

@@ -40,13 +40,7 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 calc_methods = ["ma", "arma", "arch", "poly",
                 "exp_smoothing", "holt_winters", "fft"]
 
-######################################SCENARIO 5##########################################
-# scenario 5, source -> reactor (cycle time = 1, refuel time = 0) -> sink
-scenario_5_input = {}
-demand_eq = "1000*t"
-
-for calc_method in calc_methods:
-    scenario_5_input[calc_method] = {
+scenario_template = {
  "simulation": {
   "archetypes": {
    "spec": [
@@ -54,12 +48,37 @@ for calc_method in calc_methods:
     {"lib": "cycamore", "name": "Source"},
     {"lib": "cycamore", "name": "Reactor"},
     {"lib": "cycamore", "name": "Sink"},
+    {"lib": "cycamore", "name": "Storage"},
     {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"},
-    {"lib": "d3ploy.supply_driven_deployment_inst", "name": "SupplyDrivenDeploymentInst"}
+    {
+     "lib": "d3ploy.supply_driven_deployment_inst",
+     "name": "SupplyDrivenDeploymentInst"
+    }
    ]
   },
   "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
-  "facility": [
+  "recipe": [
+   {
+    "basis": "mass",
+    "name": "fresh_uox",
+    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
+   },
+   {
+    "basis": "mass",
+    "name": "spent_uox",
+    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
+   }
+  ]}
+ }
+
+######################################SCENARIO 5##########################################
+# scenario 5, source -> reactor (cycle time = 1, refuel time = 0) -> sink
+scenario_5_input = {}
+demand_eq = "1000*t"
+
+for calc_method in calc_methods:
+    scenario_5_input[calc_method] = copy.deepcopy(scenario_template)
+    scenario_5_input[calc_method]["simulation"].update({"facility": [
    {
     "config": {
      "Source": {"outcommod": "fuel", "outrecipe": "fresh_uox", "throughput": "3e3"}
@@ -99,8 +118,8 @@ for calc_method in calc_methods:
     "name": "spent_uox",
     "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
    }
-  ],
-  "region": {
+  ]})
+    scenario_5_input[calc_method]["simulation"].update({"region": {
    "config": {"NullRegion": "\n      "},
    "institution": [
     {
@@ -131,9 +150,7 @@ for calc_method in calc_methods:
     }
    ],
    "name": "SingleRegion"
-  }
- }
-}
+  }})
 
 # initialize metric dict
 metric_dict = {}
@@ -181,24 +198,8 @@ scenario_6_input = {}
 demand_eq = "1000*t"
 
 for calc_method in calc_methods:
-    scenario_6_input[calc_method] = {
- "simulation": {
-  "archetypes": {
-   "spec": [
-    {"lib": "agents", "name": "NullRegion"},
-    {"lib": "cycamore", "name": "Source"},
-    {"lib": "cycamore", "name": "Reactor"},
-    {"lib": "cycamore", "name": "Sink"},
-    {"lib": "cycamore", "name": "Storage"},
-    {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"},
-    {
-     "lib": "d3ploy.supply_driven_deployment_inst",
-     "name": "SupplyDrivenDeploymentInst"
-    }
-   ]
-  },
-  "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
-  "facility": [
+    scenario_6_input[calc_method] = copy.deepcopy(scenario_template)
+    scenario_6_input[calc_method]["simulation"].update({"facility": [
    {
     "config": {
      "Source": {"outcommod": "fuel", "outrecipe": "fresh_uox", "throughput": "3e3"}
@@ -238,20 +239,8 @@ for calc_method in calc_methods:
     },
     "name": "reactor"
    }
-  ],
-  "recipe": [
-   {
-    "basis": "mass",
-    "name": "fresh_uox",
-    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-   },
-   {
-    "basis": "mass",
-    "name": "spent_uox",
-    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
-   }
-  ],
-  "region": {
+  ]})
+    scenario_6_input[calc_method]["simulation"].update({"region": {
    "config": {"NullRegion": "\n      "},
    "institution": [
     {
@@ -282,9 +271,7 @@ for calc_method in calc_methods:
     }
    ],
    "name": "SingleRegion"
-  }
- }
-}
+  }})
 
 metric_dict = {}
 

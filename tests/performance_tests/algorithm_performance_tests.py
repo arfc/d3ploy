@@ -41,14 +41,7 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 calc_methods = ["ma", "arma", "arch", "poly",
                 "exp_smoothing", "holt_winters", "fft"]
 
-
-######################################SCENARIO 1################################################
-# scenario 1, source -> sink
-scenario_1_input = {}
-demand_eq = "1000*t"
-
-for calc_method in calc_methods:
-    scenario_1_input[calc_method] = {
+scenario_template = {
         "simulation": {
             "archetypes": {
                 "spec": [
@@ -71,8 +64,17 @@ for calc_method in calc_methods:
                     "name": "spent_uox",
                     "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
                 }
-            ],
-            "facility": [{
+        ]}}
+
+
+######################################SCENARIO 1################################################
+# scenario 1, source -> sink
+scenario_1_input = {}
+demand_eq = "1000*t"
+
+for calc_method in calc_methods:
+    scenario_1_input[calc_method] = copy.deepcopy(scenario_template)
+    scenario_1_input[calc_method]["simulation"].update({"facility": [{
                 "config": {"Source": {"outcommod": "fuel",
                                       "outrecipe": "fresh_uox",
                                       "throughput": "3000"}},
@@ -99,8 +101,8 @@ for calc_method in calc_methods:
                     }
                 },
                 "name": "reactor"
-            }],
-            "region": {
+            }]})
+    scenario_1_input[calc_method]["simulation"].update({"region": {
                 "config": {"NullRegion": "\n      "},
                 "institution": {
                     "config": {
@@ -117,9 +119,7 @@ for calc_method in calc_methods:
                     "name": "source_inst"
                 },
                 "name": "SingleRegion"
-            }
-        }
-    }
+            }})
 
 metric_dict = {}
 
@@ -152,31 +152,8 @@ scenario_2_input = {}
 demand_eq = "1000*t"
 
 for calc_method in calc_methods:
-    scenario_2_input[calc_method] = {
-        "simulation": {
-            "archetypes": {
-                "spec": [
-                    {"lib": "agents", "name": "NullRegion"},
-                    {"lib": "cycamore", "name": "Source"},
-                    {"lib": "cycamore", "name": "Reactor"},
-                    {"lib": "cycamore", "name": "Sink"},
-                    {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
-                ]
-            },
-            "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
-            "recipe": [
-                {
-                    "basis": "mass",
-                    "name": "fresh_uox",
-                    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-                },
-                {
-                    "basis": "mass",
-                    "name": "spent_uox",
-                    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
-                }
-            ],
-            "facility": [{
+    scenario_2_input[calc_method] = copy.deepcopy(scenario_template)
+    scenario_2_input[calc_method]["simulation"].update({"facility": [{
                 "config": {"Source": {"outcommod": "fuel",
                                       "outrecipe": "fresh_uox",
                                       "throughput": "3000"}},
@@ -203,8 +180,8 @@ for calc_method in calc_methods:
                     }
                 },
                 "name": "reactor"
-            }],
-            "region": {
+            }]})
+    scenario_2_input[calc_method]["simulation"].update({"region": {
                 "config": {"NullRegion": "\n      "},
                 "institution": {
                     "config": {
@@ -221,9 +198,7 @@ for calc_method in calc_methods:
                     "name": "source_inst"
                 },
                 "name": "SingleRegion"
-            }
-        }
-    }
+            }})
 
 metric_dict = {}
 
@@ -264,31 +239,8 @@ scenario_3_input = {}
 demand_eq = "1000*t"
 
 for calc_method in calc_methods:
-    scenario_3_input[calc_method] = {
-        "simulation": {
-            "archetypes": {
-                "spec": [
-                    {"lib": "agents", "name": "NullRegion"},
-                    {"lib": "cycamore", "name": "Source"},
-                    {"lib": "cycamore", "name": "Reactor"},
-                    {"lib": "cycamore", "name": "Sink"},
-                    {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
-                ]
-            },
-            "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
-            "recipe": [
-                {
-                    "basis": "mass",
-                    "name": "fresh_uox",
-                    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-                },
-                {
-                    "basis": "mass",
-                    "name": "spent_uox",
-                    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
-                }
-            ],
-            "facility": [{
+    scenario_3_input[calc_method] = copy.deepcopy(scenario_template)
+    scenario_3_input[calc_method]["simulation"].update({"facility": [{
                 "config": {"Source": {"outcommod": "fuel",
                                       "outrecipe": "fresh_uox",
                                       "throughput": "3000"}},
@@ -315,8 +267,8 @@ for calc_method in calc_methods:
                     }
                 },
                 "name": "reactor"
-            }],
-            "region": {
+            }]})
+    scenario_3_input[calc_method]["simulation"].update({"region": {
                 "config": {"NullRegion": "\n      "},
                 "institution": {
                     "config": {
@@ -333,9 +285,7 @@ for calc_method in calc_methods:
                     "name": "source_inst"
                 },
                 "name": "SingleRegion"
-            }
-        }
-    }
+            }})
 
 
 metric_dict = {}
@@ -375,31 +325,8 @@ scenario_4_input = {}
 demand_eq = "10*(1+1.5)**(t/12)"
 
 for calc_method in calc_methods:
-    scenario_4_input[calc_method] = {
-        "simulation": {
-            "archetypes": {
-                "spec": [
-                    {"lib": "agents", "name": "NullRegion"},
-                    {"lib": "cycamore", "name": "Source"},
-                    {"lib": "cycamore", "name": "Reactor"},
-                    {"lib": "cycamore", "name": "Sink"},
-                    {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
-                ]
-            },
-            "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
-            "recipe": [
-                {
-                    "basis": "mass",
-                    "name": "fresh_uox",
-                    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-                },
-                {
-                    "basis": "mass",
-                    "name": "spent_uox",
-                    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
-                }
-            ],
-            "facility": [{
+    scenario_4_input[calc_method] = copy.deepcopy(scenario_template)
+    scenario_4_input[calc_method]["simulation"].update({"facility": [{
                 "config": {"Source": {"outcommod": "fuel",
                                       "outrecipe": "fresh_uox",
                                       "throughput": "3000"}},
@@ -426,8 +353,8 @@ for calc_method in calc_methods:
                     }
                 },
                 "name": "reactor"
-            }],
-            "region": {
+            }]})
+    scenario_4_input[calc_method]["simulation"].update({"region": {
                 "config": {"NullRegion": "\n      "},
                 "institution": {
                     "config": {
@@ -444,9 +371,7 @@ for calc_method in calc_methods:
                     "name": "source_inst"
                 },
                 "name": "SingleRegion"
-            }
-        }
-    }
+            }})
 
 
 metric_dict = {}
