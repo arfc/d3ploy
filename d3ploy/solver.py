@@ -49,8 +49,14 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
     eval_pref_fac = evaluate_preference(proto_commod, time)
     eval_pref_fac = check_constraint(proto_commod, commodity_supply,
                                      eval_pref_fac, time)
+    filtered_pref_fac = {}
+    for key, val in eval_pref_fac.items():
+        if val >= 0:
+            filtered_pref_fac[key] = val
+    if len(filtered_pref_fac.keys()) == 0:
+        return {}
     # check if the preference values are different
-    if len(set(eval_pref_fac.values())) != 1:
+    if len(set(filtered_pref_fac.values())) != 1:
         # if there is a difference,
         # deploy the one with highest preference
         # until it oversupplies
@@ -104,7 +110,8 @@ def preference_deploy(proto_commod, pref_fac, diff):
     """
     # get the facility with highest preference
     deploy_dict = {}
-    proto = sorted(pref_fac, key=pref_fac.get, reverse=True)[0]
+    proto = sorted(pref_fac,
+                   key=pref_fac.get, reverse=True)[0]
     if diff >= proto_commod[proto]['cap']:
         deploy_dict[proto] = 1
         diff -= proto_commod[proto]['cap']
