@@ -62,10 +62,10 @@ agent_entry_dict['enrichmentout'] = tester.get_agent_dict(output_file, ['enrichm
 name1 = "transitionscenario_1_input_power"
 plotter.plot_demand_supply_agent(all_dict['power'], agent_entry_dict['power'], 'power', name1, True)
 name2 = "transitionscenario_1_input_sourceout"
-plotter.plot_demand_supply_agent(agent_entry_dict['sourceout'], agent_entry_dict['sourceout'],
+plotter.plot_demand_supply_agent(all_dict['sourceout'], agent_entry_dict['sourceout'],
                                     'sourceout', name2, True)
 name3 = "transitionscenario_1_input_enrichmentout"
-plotter.plot_demand_supply_agent(agent_entry_dict['enrichmentout'], agent_entry_dict['enrichmentout'],
+plotter.plot_demand_supply_agent(all_dict['enrichmentout'], agent_entry_dict['enrichmentout'],
                                     'enrichmentout', name3, True)
 
 
