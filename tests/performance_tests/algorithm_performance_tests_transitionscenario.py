@@ -39,7 +39,7 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 ######################################TRANSITION SCENARIO 1##########################################
 
 # initialize metric dict
-demand_eq = '60'
+demand_eq = '60000'
 calc_method = 'ma'
 name = "transitionscenario_1_input"
 output_file = name + ".sqlite"
@@ -47,31 +47,53 @@ output_file = name + ".sqlite"
 metric_dict = {}
 all_dict = {}
 agent_entry_dict = {}
+
+
+# get agent deployment
+commod_dict = {'enrichmentout': ['enrichment'],
+               'sourceout': ['source'],
+               'power': ['lwr', 'fr'],
+               'lwrstorageout': ['lwrreprocessing'],
+               'frstorageout': ['frreprocessing'],
+               'lwrout': ['lwrstorage'],
+               'frout': ['frstorage'],
+               'lwrreprocessingoutpu': ['pumixerlwr'],
+               'frreprocessingoutpu' : ['pumixerfr'],
+               'lwrreprocessingwaste': ['lwrsink'],
+               'frreprocessingwaste': ['frsink']}
+for commod, facility in commod_dict.items():
+    agent_entry_dict[commod] = tester.get_agent_dict(output_file, facility)
+###########################
+
+# get supply deamnd dict
+# and plot
 all_dict['power'] = tester.supply_demand_dict_driving(
     output_file, demand_eq, 'power')
-all_dict['sourceout'] = tester.supply_demand_dict_nondriving(
-    output_file, 'sourceout',True)
-all_dict['enrichmentout'] = tester.supply_demand_dict_nondriving(
-    output_file, 'enrichmentout',True)    
+plotter.plot_demand_supply_agent(all_dict['power'], agent_entry_dict['power'], 'power',
+                                 'transitionscenario_1_input_power', True)
 
-agent_entry_dict['power'] = tester.get_agent_dict(output_file, ['lwr', 'fr'])
-agent_entry_dict['sourceout'] = tester.get_agent_dict(output_file, ['source'])
-agent_entry_dict['enrichmentout'] = tester.get_agent_dict(output_file, ['enrichment'])
+front_commods = ['sourceout', 'enrichmentout']
+back_commods = ['lwrstorageout',
+                'frstorageout', 'lwrout', 'frout', 'lwrreprocessingoutpu',
+                'frreprocessingoutpu', 'lwrreprocessingwaste', 'frreprocessingwaste']
+for commod in front_commods:
+    all_dict[commod] = tester.supply_demand_dict_nondriving(output_file,
+                        commod, True)
+    name = 'transitionscenario_1_input_' + commod
+    plotter.plot_demand_supply_agent(all_dict[commod], agent_entry_dict[commod],
+                                     commod, name, True)
+    metric_dict = tester.metrics(
+        all_dict[commod], metric_dict, calc_method, commod, True)
 
-# plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-name1 = "transitionscenario_1_input_power"
-plotter.plot_demand_supply_agent(all_dict['power'], agent_entry_dict['power'], 'power', name1, True)
-name2 = "transitionscenario_1_input_sourceout"
-plotter.plot_demand_supply_agent(all_dict['sourceout'], agent_entry_dict['sourceout'],
-                                    'sourceout', name2, True)
-name3 = "transitionscenario_1_input_enrichmentout"
-plotter.plot_demand_supply_agent(all_dict['enrichmentout'], agent_entry_dict['enrichmentout'],
-                                    'enrichmentout', name3, True)
+for commod in back_commods:
+    all_dict[commod] = tester.supply_demand_dict_nondriving(output_file,
+                        commod, False)
+    name = 'transitionscenario_1_input_' + commod
+    plotter.plot_demand_supply_agent(all_dict[commod], agent_entry_dict[commod],
+                                     commod, name, False)
+    metric_dict = tester.metrics(
+        all_dict[commod], metric_dict, calc_method, commod, False)
+###########################
 
-
-metric_dict = tester.metrics(all_dict['power'],metric_dict,calc_method,'power',True)
-metric_dict = tester.metrics(all_dict['sourceout'],metric_dict,calc_method,'sourceout',True)
-metric_dict = tester.metrics(all_dict['enrichmentout'],metric_dict,calc_method,'enrichmentout',True)
-    
 df = pd.DataFrame(metric_dict)
 df.to_csv('transitionscenario_1_output.csv')
