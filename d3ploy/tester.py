@@ -167,15 +167,23 @@ def residuals(all_dict):
     demand_total = 0
     for x in range(start-1, len(dict_demand)):
         y = x+1
-        demand_total += dict_demand[y]
+        try:
+            demand_total += dict_demand[y]
+        except KeyError:
+            demand_total += 0
     demand_mean = (1/len(dict_demand))*demand_total
     SStot = 0
     SSres = 0
     for x in range(start-1, len(dict_demand)):
         y = x+1
-        SStot += (dict_demand[y]-demand_mean)**2
-        SSres += (dict_demand[y]-dict_supply[y])**2
-
+        try:
+            SStot += (dict_demand[y]-demand_mean)**2
+            SSres += (dict_demand[y]-dict_supply[y])**2
+        except KeyError:
+            SStot += 0
+            SSres += 0
+    if SStot == 0:
+        return 1
     Rsquared = 1-SSres / SStot
     return Rsquared
 
@@ -203,7 +211,7 @@ def chi_goodness_test(all_dict):
         y = x+1
         try:
             chi2 += (dict_supply[y]-dict_demand[y])**2 / dict_demand[y]
-        except ZeroDivisionError:
+        except (ZeroDivisionError, KeyError) as e:
             chi2 += 0
 
     return chi2
@@ -231,8 +239,11 @@ def supply_under_demand(all_dict, demand_driven):
     start = int(list(dict_demand.keys())[0])
     for x in range(start-1, len(dict_demand)):
         y = x+1
-        if dict_supply[y] < dict_demand[y]:
-            num_negative = num_negative + 1
+        try:
+            if dict_supply[y] < dict_demand[y]:
+                num_negative = num_negative + 1
+        except KeyError:
+            num_negative += 0
 
     if demand_driven:
         number_under = num_negative
@@ -292,11 +303,11 @@ def get_agent_dict(sqlite_file, prototype_list):
         entertime_list = [item['entertime'] for item in agententry]
         try:
             agentexit = cur.execute('SELECT exittime FROM agentexit ' +
-                                    'INNER JOIN agententry ON agentid.agententry = agentid.agentexit ' +
+                                    'INNER JOIN agententry ON agententry.agentid = agentexit.agentid ' +
                                     'WHERE prototype = "%s"' %proto).fetchall()
             exittime_list = [item['exittime'] for item in agentexit]
-        except lite.OperationalError:
-            exittime_list = [-1]
+        except:
+            exittime_list = []
         agent_dict[proto] = agents_at_play(entertime_list, exittime_list, duration)
     return agent_dict
 
