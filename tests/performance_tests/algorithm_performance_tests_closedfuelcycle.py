@@ -273,18 +273,19 @@ for calc_method in calc_methods:
                                 universal_newlines=True, env=ENV)
     # Initialize dicts  
     all_dict = {}
+    agent_entry_dict = {}
     all_dict['power'] = tester.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
     all_dict['sourceoutput'] = tester.supply_demand_dict_nondriving(
         output_file, 'sourceoutput',True)
     
-    reactor_dict = tester.get_agent_dict(output_file, ['reactor1', 'reactor2'])
-    source_dict = tester.get_agent_dict(output_file, ['source'])
+    agent_entry_dict['power'] = tester.get_agent_dict(output_file, ['reactor1', 'reactor2'])
+    agent_entry_dict['sourceoutput'] = tester.get_agent_dict(output_file, ['source'])
 
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-    plotter.plot_demand_supply_agent(all_dict['power'], reactor_dict, 'power', name, True)
+    plotter.plot_demand_supply_agent(all_dict['power'], agent_entry_dict['power'], 'power', name, True)
     name2 = "scenario_7_input_"+ calc_method +"_sourceoutput"
-    plotter.plot_demand_supply_agent(all_dict['sourceoutput'], source_dict,
+    plotter.plot_demand_supply_agent(all_dict['sourceoutput'], agent_entry_dict['sourceoutput'],
                                      'sourceoutput', name2, True)
     
     metric_dict = tester.metrics(all_dict['power'],metric_dict,calc_method,'power',True)
