@@ -6,14 +6,18 @@ basis for predicting supply and demand of commodities within Cyclus; Non-optimiz
 deterministing optimization (DO), and Stochastic optimization (SO). 
 
 ## Dependencies
-**Cyclus**
+**Cyclus**: Fuel cycle simulation tool. [Documentation](fuelcycle.org)
 
-**statsmodels**: Python package for statistical analysis.
+**statsmodels**: Python package for statistical analysis.[Documentation](https://www.statsmodels.org/stable/index.html)
 
-**arch**: Python package for conditional heteroskidasticity models.
+**arch**: Python package for conditional heteroskidasticity models.[Documentation](https://arch.readthedocs.io/en/latest/index.html)
+
+**Pmdarima**: A python package for ARIMA/SARIMA methods. [Documentation](https://pypi.org/project/pmdarima/)
 
 
-## timeseries_inst
+## timeseries_inst and supply_driven_deployment_inst
+
+### timeseries_inst
 `timeseries_inst` is a  Cyclus `Institution` archetype that performs demand-driven
 deployment of Cyclus agents.
 
@@ -25,11 +29,30 @@ performed if the method chosen by the institution is 'moving average'. In this i
 the institution will schedule facilities for deployment only if there is a 
 deficit in the current time step. 
 
+This institution is used for facilities that exist in the front end of the fuel cycle. 
+
+### supply_driven_deployment_inst 
+`supply_driven_deployment_inst` is a  Cyclus `Institution` archetype that performs supply-driven
+deployment of Cyclus agents.
+
+The institution works by using the chosen method to predict supply and 
+capacity for given commodities. Each timestep the institution calculates a prediction
+on the supply and capacity for the next time step. If the supply exceeds the
+capacity it deploys facilities to ensure capacity exceeds supply. Predictions are not
+performed if the method chosen by the institution is 'moving average'. In this instance
+the institution will schedule facilities for deployment only if there is a 
+deficit in the current time step. 
+
+This institution is used for facilities that exist in the back end of the fuel cycle. 
+
 ### Required Inputs
-- **commodities**: This is a list of strings defining the commodity to track, the facility that supplies the commodity,
- and the (initial) capacity of the facility, given by format `commodity_facility_capacity`.
+- **commodities**: This is a list of strings defining the commodity to track, facility (depending on the institution used),
+ the (initial) capacity of the facility, and the preference of the facility, given by format `commodity_facility_capacity_preference`. 
+ The preference can be given as an equation, using `t` as the dependent variable (e.g. `(1.01)**t`). The only difference between `timeseries_inst` 
+ and `supply_driven_deployment_inst` is this input. For `timeseries_inst`, the facility included should be the facility that supplies the commodity.
+ For `supply_driven_deployment_inst`, the facility included should be the facility that supplies capacity for that commodity. 
 - **driving_commod**: The driving commodity for the institution.
-- **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable (e.g. `(1.01)**t`).
+- **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable.
 - **calc_method**: This is the method used to predict the supply and demand.
 
 
@@ -82,10 +105,12 @@ one for the level, one for trend, and one for the seasonal component -
 to predict the next value. This method is suitable for values with
 seasonality.
 
+#### Fast Fourier Transform (`fft`)
+(EXPERIMENTAL)
+The method builds a function that represents the data as a sumation of harmonics of different order. In the case of having a set of data that presents oscilations the user should set the degree to 2.
 
 #### Stochastic Optimization
 Currently a work in progress
-
 
 
 ## Demand Fac
