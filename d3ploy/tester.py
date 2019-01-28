@@ -50,8 +50,8 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
     cur = get_cursor(sqlite)
     tables = {}
     tables[0] = "timeseriessupply"+commod
-    tables[1] = "timeseries"+commod+"calc_demand"
-    tables[2] = "timeseries"+commod+"calc_supply"
+    tables[1] = "timeseriescalc_demand"+commod
+    tables[2] = "timeseriescalc_supply"+commod
     fuel_supply = cur.execute(
         "select time, sum(value) from "+tables[0]+" group by time").fetchall()
     calc_fuel_demand = cur.execute(
@@ -104,12 +104,12 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     cur = get_cursor(sqlite)
     tables = {}
     tables[0] = "timeseriessupply"+commod
-    tables[2] = "timeseries"+commod+"calc_supply"
+    tables[2] = "timeseriescalc_supply"+commod
     tables[3] = "timeseriesdemand"+commod
     if demand_driven: 
-        tables[1] = "timeseries"+commod+"calc_demand"
+        tables[1] = "timeseriescalc_demand"+commod
     else: 
-        tables[1] = "timeseries"+commod+"calc_capacity"
+        tables[1] = "timeseriescalc_capacity"+commod
     fuel_demand = cur.execute(
         "select time, sum(value) from "+tables[3]+" group by time").fetchall()
     fuel_supply = cur.execute(
