@@ -9,8 +9,8 @@
       <name>NullRegion</name>
     </spec>
     <spec>
-      <lib>d3ploy.timeseries_inst</lib>
-      <name>TimeSeriesInst</name>
+      <lib>d3ploy.deterministic_inst</lib>
+      <name>DeterministicInst</name>
     </spec>
   </archetypes>
   <control>
@@ -64,16 +64,19 @@
     </config>
     <institution>
       <config>
-        <TimeSeriesInst>
-	  <calc_method>sw_seasonal</calc_method>
-          <demand_eq>300*t</demand_eq>
-          <commodities>
-            <val>POWER_Reactor_1000</val>
-            <val>fuel_Enrichment_10000</val>
-            <val>uranium_Mine_100000</val>
-          </commodities>
-          <record>1</record>
-        </TimeSeriesInst>
+        <DeterministicInst>
+          <prototypes>
+            <val>Reactor</val>
+            <val>Enrichment</val>
+            <val>Mine</val>
+          </prototypes>
+          <demand_eq>2*t</demand_eq>
+          <fac_rates>
+            <val>10,0,0</val>
+            <val>10,-5,0</val>
+            <val>10,0,-5</val>
+          </fac_rates>
+        </DeterministicInst>
       </config>
       <initialfacilitylist>
         <entry>
