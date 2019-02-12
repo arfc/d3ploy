@@ -124,8 +124,8 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     dict_calc_supply = {}
     for x in range(0, len(fuel_supply)):
         dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
-        dict_calc_demand[fuel_supply[x][0]+1] = calc_fuel_demand[x][1]
-        dict_calc_supply[fuel_supply[x][0]+1] = calc_fuel_supply[x][1]
+        dict_calc_demand[calc_fuel_demand[x][0]] = calc_fuel_demand[x][1]
+        dict_calc_supply[calc_fuel_supply[x][0]] = calc_fuel_supply[x][1]
 
     t = np.fromiter(dict_supply.keys(), dtype=float)
     for x in range(0, len(t)):
