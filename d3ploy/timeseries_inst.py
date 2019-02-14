@@ -202,8 +202,8 @@ class TimeSeriesInst(Institution):
         for commod, proto_dict in self.commodity_dict.items():
 
             diff, supply, demand = self.calc_diff(commod, time)
-            lib.record_time_series(commod+'calc_supply', self, supply)
-            lib.record_time_series(commod+'calc_demand', self, demand)
+            lib.record_time_series('calc_supply'+commod, self, supply)
+            lib.record_time_series('calc_demand'+commod, self, demand)
 
             if diff < 0:
                 deploy_dict = solver.deploy_solver(
