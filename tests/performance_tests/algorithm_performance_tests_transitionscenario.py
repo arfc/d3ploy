@@ -41,7 +41,7 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 # initialize metric dict
 demand_eq = '60000'
 calc_method = 'ma'
-name = "transitionscenario_1_input"
+name = "input23"
 output_file = name + ".sqlite"
 # Initialize dicts  
 metric_dict = {}
@@ -79,7 +79,7 @@ back_commods = ['lwrstorageout',
 for commod in front_commods:
     all_dict[commod] = tester.supply_demand_dict_nondriving(output_file,
                         commod, True)
-    name = 'transitionscenario_1_input_' + commod
+    name = 'input23' + commod
     plotter.plot_demand_supply_agent(all_dict[commod], agent_entry_dict[commod],
                                      commod, name, True)
     metric_dict = tester.metrics(
@@ -88,12 +88,8 @@ for commod in front_commods:
 for commod in back_commods:
     all_dict[commod] = tester.supply_demand_dict_nondriving(output_file,
                         commod, False)
-    name = 'transitionscenario_1_input_' + commod
+    name = 'input23' + commod
     plotter.plot_demand_supply_agent(all_dict[commod], agent_entry_dict[commod],
                                      commod, name, False)
     metric_dict = tester.metrics(
         all_dict[commod], metric_dict, calc_method, commod, False)
-###########################
-
-df = pd.DataFrame(metric_dict)
-df.to_csv('transitionscenario_1_output.csv')
