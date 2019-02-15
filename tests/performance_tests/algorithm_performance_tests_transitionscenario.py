@@ -90,8 +90,6 @@ for commod in back_commods:
     metric_dict = tester.metrics(
         all_dict[commod], metric_dict, calc_method, commod, False)
 
-#print(all_dict['frout'])
-
 ###########################
 
 df = pd.DataFrame(metric_dict)
