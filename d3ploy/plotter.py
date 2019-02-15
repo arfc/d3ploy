@@ -4,11 +4,12 @@ import numpy as np
 
 def plot_demand_supply(all_dict, commod, test, demand_driven):
     """ Plots demand, supply, calculated demand and calculated supply on a curve 
-    for a non-driving commodity 
     Parameters
     ----------
-    4 dicts: dictionaries of supply, demand, calculated
-    demand and calculated supply
+    all_dict: (4 dicts) dictionaries of supply, demand, calculated
+    demand, and calculated supply
+    commod: name of the commodity to plot
+    test: name of the output image file
     demand_driven: Boolean. If true, the commodity is demand driven, 
     if false, the commodity is supply driven
     Returns
@@ -57,17 +58,19 @@ def plot_demand_supply(all_dict, commod, test, demand_driven):
 
 
 def plot_demand_supply_agent(all_dict, agent_dict, commod, test, demand_driven):
-    """ Plots demand, supply, calculated demand and calculated supply on a curve 
-    for a non-driving commodity 
+    """ Plots agents deployed to handle the commodity (commod)
+        Plots demand, supply, calculated demand and calculated supply on a curve 
     Parameters
     ----------
-    4 dicts: dictionaries of supply, demand, calculated
-    demand and calculated supply
+    all_dict: (4 dicts) dictionaries of supply, demand, calculated
+    demand, and calculated supply
+    commod: name of the commodity to plot
+    test: name of the output image file
     demand_driven: Boolean. If true, the commodity is demand driven, 
-    if false, the commodity is supply driven 
+    if false, the commodity is supply driven
     Returns
     -------
-    plot of all four dicts 
+    plot of agents and all four dicts 
     """
     
     dict_demand = all_dict['dict_demand']
