@@ -26,19 +26,22 @@ def plot_demand_supply(all_dict, commod, test, demand_driven):
         ax.plot(*zip(*sorted(dict_demand.items())), '+', color='red', label='Demand')
         ax.plot(*zip(*sorted(dict_calc_demand.items())),
                 'o', color='red', label='Calculated Demand')
-        ax.set_title('%s Demand Supply plot' % commod)
+        ax.set_title('%s Demand Supply plot' %test)
     else:
         ax.plot(*zip(*sorted(dict_demand.items())),
                 '+', color='red', label='Capacity')
         ax.plot(*zip(*sorted(dict_calc_demand.items())),
                 'o', color='red', label='Calculated Capacity')
-        ax.set_title('%s Capacity Supply plot' % commod)
+        ax.set_title('%s Capacity Supply plot' %test)
     ax.plot(*zip(*sorted(dict_supply.items())), 'x', color='c', label='Supply')
     ax.plot(*zip(*sorted(dict_calc_supply.items())),
             'o', alpha=0.5, color='c', label='Calculated Supply')
     ax.grid()
     ax.set_xlabel('Time (month timestep)', fontsize=14)
-    ax.set_ylabel('Mass (kg)', fontsize=14)
+    if commod=='power':
+        ax.set_ylabel('Power (MW)', fontsize=14)
+    else:
+        ax.set_ylabel('Mass (Kg)', fontsize=14)
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(
         handles,
@@ -94,26 +97,29 @@ def plot_demand_supply_agent(all_dict, agent_dict, commod, test, demand_driven):
     marksize = 6
 
     if demand_driven:
-        ax2.semilogy(*zip(*sorted(dict_demand.items())),
+        ax2.plot(*zip(*sorted(dict_demand.items())),
                        label='Demand')
-        ax2.semilogy(*zip(*sorted(dict_calc_demand.items())),
+        ax2.plot(*zip(*sorted(dict_calc_demand.items())),
                       label='Calculated Demand')
     else:
-        ax2.semilogy(*zip(*sorted(dict_demand.items())),
+        ax2.plot(*zip(*sorted(dict_demand.items())),
                       label='Capacity')
-        ax2.semilogy(*zip(*sorted(dict_calc_demand.items())),
+        ax2.plot(*zip(*sorted(dict_calc_demand.items())),
                       label='Calculated Capacity')
-    ax2.semilogy(*zip(*sorted(dict_supply.items())),
+    ax2.plot(*zip(*sorted(dict_supply.items())),
                   label='Supply')
-    ax2.semilogy(*zip(*sorted(dict_calc_supply.items())),
+    ax2.plot(*zip(*sorted(dict_calc_supply.items())),
                  alpha=0.5,  label='Calculated Supply')
     ax2.grid()
-    ax2.set_ylabel('Mass (kg)')
+    if commod=='power':
+        ax.set_ylabel('Power (MW)')
+    else:
+        ax.set_ylabel('Mass (Kg)')
     handles, labels = ax2.get_legend_handles_labels()
     ax2.legend(handles, labels, fontsize=11, loc='upper left',
                fancybox=True)
     
-    ax1.set_title('Supply, Demand and prototypes for %s' %commod)
+    ax1.set_title('Supply, Demand and prototypes for %s' %test)
     plt.savefig(test, dpi=300, bbox_inches='tight')
     plt.close()
 
