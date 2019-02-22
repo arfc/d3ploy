@@ -190,8 +190,8 @@ class SupplyDrivenDeploymentInst(Institution):
         for commod, proto_dict in self.commodity_dict.items():
 
             diff, capacity, supply = self.calc_diff(commod, time)
-            lib.record_time_series(commod+'calc_supply', self, supply)
-            lib.record_time_series(commod+'calc_capacity', self, capacity)
+            lib.record_time_series('calc_supply'+commod, self, supply)
+            lib.record_time_series('calc_capacity'+commod, self, capacity)
 
             if diff < 0:
                 deploy_dict = solver.deploy_solver(
