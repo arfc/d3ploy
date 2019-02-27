@@ -27,7 +27,7 @@ def plot_demand_supply(all_dict, commod, test, demand_driven):
     fig, ax = plt.subplots(figsize=(15, 7))
     if demand_driven:
         ax.plot(*zip(*sorted(dict_demand.items())), '+', color='red',
-         label='Demand')
+                label='Demand')
         ax.plot(*zip(*sorted(dict_calc_demand.items())),
                 'o', color='red', label='Calculated Demand')
         ax.set_title('%s Demand Supply plot' % test)
@@ -62,7 +62,7 @@ def plot_demand_supply(all_dict, commod, test, demand_driven):
 
 
 def plot_demand_supply_agent(all_dict, agent_dict, commod, test,
-                            demand_driven):
+                             demand_driven):
     """ Plots agents deployed to handle the commodity (commod)
         Plots demand, supply, calculated demand and calculated supply
          on a curve
@@ -84,7 +84,7 @@ def plot_demand_supply_agent(all_dict, agent_dict, commod, test,
     dict_calc_demand = all_dict['dict_calc_demand']
     dict_calc_supply = all_dict['dict_calc_supply']
     f, (ax1, ax2) = plt.subplots(2, 1, sharex='all',
-                                 gridspec_kw={'height_ratios': [1,3]})
+                                 gridspec_kw={'height_ratios': [1, 3]})
 
     top_indx = True
     for key, val in agent_dict.items():

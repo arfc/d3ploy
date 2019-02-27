@@ -34,7 +34,7 @@ for file in hit_list:
 ENV = dict(os.environ)
 ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 
-#############################TRANSITION SCENARIO 1############################
+# ########################## TRANSITION SCENARIO 1 ##########################
 # initialize metric dict
 demand_eq = '60000'
 calc_method = 'ma'
@@ -60,7 +60,7 @@ commod_dict = {'enrichmentout': ['enrichment'],
 for commod, facility in commod_dict.items():
     agent_entry_dict[commod] = tester.get_agent_dict(output_file, facility)
 
-###########################
+# ##########################
 
 # get supply deamnd dict
 # and plot
@@ -95,7 +95,7 @@ for commod in back_commods:
     metric_dict = tester.metrics(all_dict[commod], metric_dict, calc_method,
                                  commod, False)
 
-###########################
+# ##########################
 
 df = pd.DataFrame(metric_dict)
 df.to_csv('transitionscenario_1_output.csv')
