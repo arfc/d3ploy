@@ -26,7 +26,8 @@ import collections
 # Delete previously generated files
 direc = os.listdir('./')
 hit_list = glob.glob('*.json') + glob.glob('*.png')
-    + glob.glob('*.csv') + glob.glob('*.txt')
++ glob.glob('*.csv') + glob.glob('*.txt')
+
 for file in hit_list:
     os.remove(file)
 
@@ -66,7 +67,8 @@ for commod, facility in commod_dict.items():
 all_dict['power'] = tester.supply_demand_dict_driving(
     output_file, demand_eq, 'power')
 plotter.plot_demand_supply_agent(all_dict['power'], agent_entry_dict['power'],
-        'power', 'transitionscenario_1_input_power', True)
+                                'power', 'transitionscenario_1_input_power',
+                                True)
 
 front_commods = ['sourceout', 'enrichmentout']
 back_commods = ['lwrstorageout',
@@ -75,21 +77,22 @@ back_commods = ['lwrstorageout',
                 'frreprocessingwaste']
 for commod in front_commods:
     all_dict[commod] = tester.supply_demand_dict_nondriving(output_file,
-                        commod, True)
+                                                            commod, True)
     name = 'transitionscenario_1_input_' + commod
     plotter.plot_demand_supply_agent(all_dict[commod],
-        agent_entry_dict[commod], commod, name, True)
-    metric_dict = tester.metrics(
-        all_dict[commod], metric_dict, calc_method, commod, True)
+                                    agent_entry_dict[commod], commod, name,
+                                    True)
+    metric_dict = tester.metrics(all_dict[commod], metric_dict, calc_method,
+                                commod, True)
 
 for commod in back_commods:
     all_dict[commod] = tester.supply_demand_dict_nondriving(output_file,
-                        commod, False)
+                                                            commod, False)
     name = 'transitionscenario_1_input_' + commod
-    plotter.plot_demand_supply_agent(all_dict[commod],
-            agent_entry_dict[commod], commod, name, False)
-    metric_dict = tester.metrics(
-        all_dict[commod], metric_dict, calc_method, commod, False)
+    plotter.plot_demand_supply_agent(all_dict[commod], agent_entry_dict[commod],
+                                    commod, name, False)
+    metric_dict = tester.metrics(all_dict[commod], metric_dict, calc_method,
+                                commod, False)
 
 ###########################
 

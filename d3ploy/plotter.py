@@ -61,7 +61,8 @@ def plot_demand_supply(all_dict, commod, test, demand_driven):
     plt.close()
 
 
-def plot_demand_supply_agent(all_dict,agent_dict,commod,test,demand_driven):
+def plot_demand_supply_agent(all_dict, agent_dict, commod, test,
+                            demand_driven):
     """ Plots agents deployed to handle the commodity (commod)
         Plots demand, supply, calculated demand and calculated supply
          on a curve
@@ -77,12 +78,12 @@ def plot_demand_supply_agent(all_dict,agent_dict,commod,test,demand_driven):
     -------
     plot of agents and all four dicts
     """
-    
+
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
     dict_calc_demand = all_dict['dict_calc_demand']
     dict_calc_supply = all_dict['dict_calc_supply']
-    f, (ax1, ax2) = plt.subplots(2,1, sharex='all', 
+    f, (ax1, ax2) = plt.subplots(2, 1, sharex='all',
                                  gridspec_kw={'height_ratios': [1,3]})
 
     top_indx = True
@@ -106,18 +107,18 @@ def plot_demand_supply_agent(all_dict,agent_dict,commod,test,demand_driven):
 
     if demand_driven:
         ax2.plot(*zip(*sorted(dict_demand.items())),
-            label='Demand')
+                label='Demand')
         ax2.plot(*zip(*sorted(dict_calc_demand.items())),
-            label='Calculated Demand')
+                label='Calculated Demand')
     else:
         ax2.plot(*zip(*sorted(dict_demand.items())),
-            label='Capacity')
+                label='Capacity')
         ax2.plot(*zip(*sorted(dict_calc_demand.items())),
-            label='Calculated Capacity')
+                label='Calculated Capacity')
     ax2.plot(*zip(*sorted(dict_supply.items())),
-        label='Supply')
+            label='Supply')
     ax2.plot(*zip(*sorted(dict_calc_supply.items())),
-        alpha=0.5,  label='Calculated Supply')
+            alpha=0.5,  label='Calculated Supply')
     ax2.grid()
     if commod=='power':
         ax.set_ylabel('Power (MW)')
@@ -125,7 +126,7 @@ def plot_demand_supply_agent(all_dict,agent_dict,commod,test,demand_driven):
         ax.set_ylabel('Mass (Kg)')
     handles, labels = ax2.get_legend_handles_labels()
     ax2.legend(handles, labels, fontsize=11, loc='upper left',
-        fancybox=True)
+                fancybox=True)
 
     ax1.set_title('Supply, Demand and prototypes for %s' %test)
     plt.savefig(test, dpi=300, bbox_inches='tight')
@@ -139,3 +140,4 @@ def get_xy_from_dict(dictionary):
     for key, val in dictionary.items():
         y[key] = val
     return x, y
+    
