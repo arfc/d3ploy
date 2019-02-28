@@ -64,7 +64,9 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
     dict_calc_supply = {}
     for x in range(0, len(fuel_supply)):
         dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
+    for x in range(0, len(calc_fuel_demand)):
         dict_calc_demand[calc_fuel_demand[x][0]] = calc_fuel_demand[x][1]
+    for x in range(0, len(calc_fuel_supply)):
         dict_calc_supply[calc_fuel_supply[x][0]] = calc_fuel_supply[x][1]
     t = np.fromiter(dict_supply.keys(), dtype=float)
     fuel_demand = eval(demand_eq)
@@ -124,18 +126,15 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     dict_calc_supply = {}
     for x in range(0, len(fuel_supply)):
         dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
+    for x in range(0, len(calc_fuel_demand)):
         dict_calc_demand[calc_fuel_demand[x][0]] = calc_fuel_demand[x][1]
+    for x in range(0, len(calc_fuel_supply)):
         dict_calc_supply[calc_fuel_supply[x][0]] = calc_fuel_supply[x][1]
-
     t = np.fromiter(dict_supply.keys(), dtype=float)
     for x in range(0, len(t)):
         dict_demand[t[x]] = 0
-
-    for x in range(0, len(fuel_supply)):
-        for y in range(0, len(fuel_demand)):
-            if fuel_demand[y][0] == fuel_supply[x][0]:
-                dict_demand[fuel_supply[x][0]] = fuel_demand[y][1]
-
+    for x in range(0, len(fuel_demand)):
+        dict_demand[fuel_demand[x][0]] = fuel_demand[x][1]
     all_dict = {}
     all_dict['dict_demand'] = dict_demand
     all_dict['dict_supply'] = dict_supply
@@ -143,7 +142,6 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     all_dict['dict_calc_supply'] = dict_calc_supply
 
     return all_dict
-
 
 
 def residuals(all_dict):
@@ -235,21 +233,22 @@ def supply_under_demand(all_dict, demand_driven):
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
-    num_negative = 0
+    num_under = 0
     start = int(list(dict_demand.keys())[0])
-    for x in range(start-1, len(dict_demand)):
-        y = x+1
-        try:
-            if dict_supply[y] < dict_demand[y]:
-                num_negative = num_negative + 1
-        except KeyError:
-            num_negative += 0
-
-    if demand_driven:
-        number_under = num_negative
-    else: 
-        number_under = len(dict_demand) - num_negative
-    return number_under 
+    for x in range(len(dict_demand)):
+        if demand_driven:
+            try:
+                if dict_supply[x+start] < dict_demand[x+start]:
+                    num_under = num_under + 1
+            except KeyError:
+                num_under += 0
+        else:
+            try:
+                if dict_supply[x+start] > dict_demand[x+start]:
+                    num_under = num_under + 1
+            except KeyError:
+                num_under += 0
+    return num_under
 
 
 def best_calc_method(in_dict, maximum):
