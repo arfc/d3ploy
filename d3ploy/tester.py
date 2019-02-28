@@ -29,18 +29,18 @@ def get_cursor(file_name):
 
 
 def supply_demand_dict_driving(sqlite, demand_eq, commod):
-    """ Puts supply, demand, calculated demand and 
-    calculated supply into a nice dictionary format 
-    if given the sql file, demand_eq of driving commodity 
-    and commodity name 
+    """ Puts supply, demand, calculated demand and
+    calculated supply into a nice dictionary format
+    if given the sql file, demand_eq of driving commodity
+    and commodity name
 
-    for a driving commodity 
+    for a driving commodity
 
     Parameters
     ----------
-    sqlite: sql file to analyze 
-    demand_eq: string of demand equation 
-    commod: string of commod name 
+    sqlite: sql file to analyze
+    demand_eq: string of demand equation
+    commod: string of commod name
 
     Returns
     -------
@@ -81,22 +81,22 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
     all_dict['dict_calc_demand'] = dict_calc_demand
     all_dict['dict_calc_supply'] = dict_calc_supply
 
-    return all_dict 
+    return all_dict
 
 
 def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
-    """ Puts supply, demand, calculated demand and 
-    calculated supply into a nice dictionary format 
-    if given the sql file and commodity name 
+    """ Puts supply, demand, calculated demand and
+    calculated supply into a nice dictionary format
+    if given the sql file and commodity name
 
-    for a non-driving commodity 
+    for a non-driving commodity
 
     Parameters
     ----------
-    sqlite: sql file to analyze 
-    commod: string of commod name 
-    demand_driven: Boolean. If true, the commodity is demand driven, 
-    if false, the commodity is supply driven 
+    sqlite: sql file to analyze
+    commod: string of commod name
+    demand_driven: Boolean. If true, the commodity is demand driven,
+    if false, the commodity is supply driven
 
     Returns
     -------
@@ -108,9 +108,9 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     tables[0] = "timeseriessupply"+commod
     tables[2] = "timeseriescalc_supply"+commod
     tables[3] = "timeseriesdemand"+commod
-    if demand_driven: 
+    if demand_driven:
         tables[1] = "timeseriescalc_demand"+commod
-    else: 
+    else:
         tables[1] = "timeseriescalc_capacity"+commod
     fuel_demand = cur.execute(
         "select time, sum(value) from "+tables[3]+" group by time").fetchall()
@@ -145,7 +145,7 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
 
 
 def residuals(all_dict):
-    """ Conducts a chi2 goodness of fit test 
+    """ Conducts a chi2 goodness of fit test
 
     Parameters
     ----------
@@ -154,8 +154,8 @@ def residuals(all_dict):
 
     Returns
     -------
-    returns an int of the chi2 (goodness of fit value) for 
-    the two input timeseries dictionaries 
+    returns an int of the chi2 (goodness of fit value) for
+    the two input timeseries dictionaries
     """
 
     dict_demand = all_dict['dict_demand']
@@ -187,7 +187,7 @@ def residuals(all_dict):
 
 
 def chi_goodness_test(all_dict):
-    """ Conducts a chi2 goodness of fit test 
+    """ Conducts a chi2 goodness of fit test
 
     Parameters
     ----------
@@ -196,8 +196,8 @@ def chi_goodness_test(all_dict):
 
     Returns
     -------
-    returns an int of the chi2 (goodness of fit value) for 
-    the two input timeseries dictionaries 
+    returns an int of the chi2 (goodness of fit value) for
+    the two input timeseries dictionaries
     """
 
     dict_demand = all_dict['dict_demand']
@@ -216,8 +216,8 @@ def chi_goodness_test(all_dict):
 
 
 def supply_under_demand(all_dict, demand_driven):
-    """ Calculates the number of time steps supply is 
-    under demand 
+    """ Calculates the number of time steps supply is
+    under demand
 
     Parameters
     ----------
@@ -226,8 +226,8 @@ def supply_under_demand(all_dict, demand_driven):
 
     Returns
     -------
-    returns an int of the number of time steps supply is 
-    under demand 
+    returns an int of the number of time steps supply is
+    under demand
     """
 
     dict_demand = all_dict['dict_demand']
@@ -252,20 +252,20 @@ def supply_under_demand(all_dict, demand_driven):
 
 
 def best_calc_method(in_dict, maximum):
-    """ Calculates the number of time steps supply is 
-    under demand 
+    """ Calculates the number of time steps supply is
+    under demand
 
     Parameters
     ----------
-    in_dict: keys => calc methods, values => results from 
+    in_dict: keys => calc methods, values => results from
     tests of each calc method (chi2 goodness of fit etc)
-    max: true/false boolean, true => find max of in_dict, 
-    false => find min of in_dict 
+    max: true/false boolean, true => find max of in_dict,
+    false => find min of in_dict
 
     Returns
     -------
-    returns a list of the calc methods that have the max 
-    or min (depending on input) in the in_dict  
+    returns a list of the calc methods that have the max
+    or min (depending on input) in the in_dict
     """
     if maximum:
         highest = max(in_dict.values())
@@ -277,19 +277,21 @@ def best_calc_method(in_dict, maximum):
     return best
 
 
-def metrics(all_dict,metric_dict,calc_method,commod,demand_driven):
+def metrics(all_dict, metric_dict, calc_method, commod, demand_driven):
     # check if dictionary exists if not initialize
     value = metric_dict.get(commod+'_residuals',0)
-    if value == 0: 
+    if value == 0:
         metric_dict[commod+'_residuals'] = {}
         metric_dict[commod+'_chi2'] = {}
         metric_dict[commod+'_undersupply'] = {}
 
     metric_dict[commod+'_residuals'][calc_method] = residuals(all_dict)
     metric_dict[commod+'_chi2'][calc_method] = chi_goodness_test(all_dict)
-    metric_dict[commod+'_undersupply'][calc_method] = supply_under_demand(all_dict, demand_driven)
+    metric_dict[commod+'_undersupply'][calc_method] =
+    supply_under_demand(all_dict, demand_driven)
 
     return metric_dict
+
 
 def get_agent_dict(sqlite_file, prototype_list):
     """ returns a dictionary of the number of prototypes `at play'
@@ -298,17 +300,22 @@ def get_agent_dict(sqlite_file, prototype_list):
     agent_dict = {}
     duration = cur.execute('SELECT duration FROM info').fetchone()[0]
     for proto in prototype_list:
-        agententry = cur.execute('SELECT entertime FROM agententry WHERE prototype = "%s"' %proto).fetchall()
+        agententry = cur.execute('SELECT entertime FROM agententry WHERE
+                                 prototype = "%s"' %proto).fetchall()
         entertime_list = [item['entertime'] for item in agententry]
         try:
             agentexit = cur.execute('SELECT exittime FROM agentexit ' +
-                                    'INNER JOIN agententry ON agententry.agentid = agentexit.agentid ' +
-                                    'WHERE prototype = "%s"' %proto).fetchall()
+                                    'INNER JOIN agententry ON
+                                    agententry.agentid = agentexit.agentid ' +
+                                    'WHERE prototype = "%s"' % proto)
+                                    .fetchall()
             exittime_list = [item['exittime'] for item in agentexit]
         except:
             exittime_list = []
-        agent_dict[proto] = agents_at_play(entertime_list, exittime_list, duration)
+        agent_dict[proto] = agents_at_play(entertime_list,
+                                           exittime_list, duration)
     return agent_dict
+
 
 def agents_at_play(entertime_list, exittime_list, duration):
     time_array = np.zeros(duration + 1)
@@ -321,4 +328,3 @@ def agents_at_play(entertime_list, exittime_list, duration):
             atplay -= exittime_list.count(indx)
         atplay_dict[indx] = atplay
     return atplay_dict
-
