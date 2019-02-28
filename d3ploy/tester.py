@@ -279,7 +279,7 @@ def best_calc_method(in_dict, maximum):
 
 def metrics(all_dict, metric_dict, calc_method, commod, demand_driven):
     # check if dictionary exists if not initialize
-    value = metric_dict.get(commod+'_residuals',0)
+    value = metric_dict.get(commod+'_residuals', 0)
     if value == 0:
         metric_dict[commod+'_residuals'] = {}
         metric_dict[commod+'_chi2'] = {}
@@ -301,14 +301,14 @@ def get_agent_dict(sqlite_file, prototype_list):
     duration = cur.execute('SELECT duration FROM info').fetchone()[0]
     for proto in prototype_list:
         agententry = cur.execute('SELECT entertime FROM agententry WHERE
-                                 prototype = "%s"' %proto).fetchall()
+                                 prototype="%s"' % proto).fetchall()
         entertime_list = [item['entertime'] for item in agententry]
         try:
             agentexit = cur.execute('SELECT exittime FROM agentexit ' +
                                     'INNER JOIN agententry ON
-                                    agententry.agentid = agentexit.agentid ' +
-                                    'WHERE prototype = "%s"' % proto)
-                                    .fetchall()
+                                    agententry.agentid=agentexit.agentid ' +
+                                    'WHERE prototype = "%s"'
+                                    % proto).fetchall()
             exittime_list = [item['exittime'] for item in agentexit]
         except:
             exittime_list = []
