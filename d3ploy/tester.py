@@ -287,8 +287,7 @@ def metrics(all_dict, metric_dict, calc_method, commod, demand_driven):
 
     metric_dict[commod+'_residuals'][calc_method] = residuals(all_dict)
     metric_dict[commod+'_chi2'][calc_method] = chi_goodness_test(all_dict)
-    metric_dict[commod+'_undersupply'][calc_method] =
-    supply_under_demand(all_dict, demand_driven)
+    metric_dict[commod+'_undersupply'][calc_method] = supply_under_demand(all_dict, demand_driven)
 
     return metric_dict
 
@@ -300,13 +299,11 @@ def get_agent_dict(sqlite_file, prototype_list):
     agent_dict = {}
     duration = cur.execute('SELECT duration FROM info').fetchone()[0]
     for proto in prototype_list:
-        agententry = cur.execute('SELECT entertime FROM agententry WHERE
-                                 prototype="%s"' % proto).fetchall()
+        agententry = cur.execute('SELECT entertime FROM agententry WHERE prototype="%s"' % proto).fetchall()
         entertime_list = [item['entertime'] for item in agententry]
         try:
             agentexit = cur.execute('SELECT exittime FROM agentexit ' +
-                                    'INNER JOIN agententry ON
-                                    agententry.agentid=agentexit.agentid ' +
+                                    'INNER JOIN agententry ON agententry.agentid=agentexit.agentid ' +
                                     'WHERE prototype = "%s"'
                                     % proto).fetchall()
             exittime_list = [item['exittime'] for item in agentexit]
