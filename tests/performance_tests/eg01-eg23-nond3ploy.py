@@ -11,6 +11,7 @@ import pandas as pd
 import collections
 import d3ploy.tester as tester
 import d3ploy.plotter as plotter
+import tester2 as tst
 
 # Delete previously generated files
 direc = os.listdir('./')
@@ -81,7 +82,7 @@ source = """
         <Source>
             <outcommod>sourceout</outcommod>
             <outrecipe>sourceoutrecipe</outrecipe>
-            <throughput>1e10</throughput>
+            <throughput>1e8</throughput>
         </Source>
     </config>
 </facility>
@@ -98,7 +99,7 @@ enrichment = """
                 <tails_assay>0.0025</tails_assay>
                 <tails_commod>enrichmentwaste</tails_commod>
                 <swu_capacity>1e100</swu_capacity>
-                <initial_feed>1e10</initial_feed>
+                <initial_feed>5e7</initial_feed>
             </Enrichment>
         </config>
     </facility>
@@ -759,21 +760,19 @@ with open(input_file, 'w') as f:
 s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                             universal_newlines=True, env=ENV)
 
-"""
 all_dict_power = {}
-all_dict_power = tester.supply_demand_dict_driving(output_file, '60000', 'power')
-plotter.plot_demand_supply(all_dict_power, 'power', name1, True)
+#all_dict_power = tst.supply_demand_dict_driving(output_file, '60000', 'power')
+#plotter.plot_demand_supply(all_dict_power, 'power', name1, True)
 all_dict_fuel = {} 
-all_dict_fuel = tester.supply_demand_dict_nondriving(output_file, 'enrichmentout', True)
-plotter.plot_demand_supply(all_dict_fuel, 'enrichmentout', name2, True)
+#all_dict_fuel = tester.supply_demand_dict_nondriving(output_file, 'enrichmentout', True)
+#plotter.plot_demand_supply(all_dict_fuel, 'enrichmentout', name2, True)
 all_dict_reprofuel = {} 
-all_dict_reprofuel = tester.supply_demand_dict_nondriving(output_file, 'mixerout', False)
-plotter.plot_demand_supply(all_dict_coolfuel, 'mixerout', name3, False)
+#all_dict_reprofuel = tester.supply_demand_dict_nondriving(output_file, 'mixerout', False)
+#plotter.plot_demand_supply(all_dict_coolfuel, 'mixerout', name3, False)
 
-metric_dict = tester.metrics(all_dict_power,metric_dict,calc_method,'power',True)
-metric_dict = tester.metrics(all_dict_fuel,metric_dict,calc_method,'enrichmenteout',True)
-metric_dict = tester.metrics(all_dict_spentfuel,metric_dict,calc_method,'mixerout',False)
+#metric_dict = tester.metrics(all_dict_power,metric_dict,calc_method,'power',True)
+#metric_dict = tester.metrics(all_dict_fuel,metric_dict,calc_method,'enrichmenteout',True)
+#metric_dict = tester.metrics(all_dict_spentfuel,metric_dict,calc_method,'mixerout',False)
 
-df = pd.DataFrame(metric_dict)
-df.to_csv('01-23-ND3.csv')
-"""
+#df = pd.DataFrame(metric_dict)
+#df.to_csv('01-23-ND3.csv')

@@ -135,70 +135,74 @@ def plot_demand_supply2(all_dict, commod, test, demand_driven):
 
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
-    f, ax2 = plt.subplots(2,1, sharex='all',
-                          gridspec_kw = {'height_ratios': [1,3]})
 
     marksize = 6
+    fig, ax = plt.subplots(figsize=(15, 7))
     if demand_driven:
-        ax2.plot(*zip(*sorted(dict_demand.items())),
-                       label='Demand')
+        ax.semilogy(*zip(*sorted(dict_demand.items())), label='Demand')
+        ax.set_title('%s Demand Supply plot' % commod)
     else:
-        ax2.plot(*zip(*sorted(dict_demand.items())),
-                      label='Capacity')
-    ax2.plot(*zip(*sorted(dict_supply.items())),
-                  label='Supply')
+        ax.semilogy(*zip(*sorted(dict_demand.items())), label='Capacity')
+        ax.set_title('%s Capacity Supply plot' % commod)
 
-    ax2.grid()
-    ax2.set_ylabel('Mass (kg)')
-    handles, labels = ax2.get_legend_handles_labels()
-    ax2.legend(handles, labels, fontsize=11, loc='upper left',
-               fancybox=True)
-    
-    ax2.set_title('Supply, Demand and prototypes for %s' %commod)
+    ax.semilogy(*zip(*sorted(dict_supply.items())), label='Supply')
+
+    ax.grid()
+    ax.set_xlabel('Time (month timestep)', fontsize=14)
+    if commod.lower() == 'power':
+        ax.set_ylabel('Power (MW)', fontsize=14)
+    else:
+        ax.set_ylabel('Mass (Kg)', fontsize=14)
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles, labels, fontsize=11, loc='upper left',
+              bbox_to_anchor=(1.1, 1.0), fancybox=True)  
+
     plt.savefig(test, dpi=300, bbox_inches='tight')
     plt.close()
 
 
 def plot_demand_supply3(all_dict, commod, test, demand_driven):
-    """ Plots demand, supply, calculated demand and calculated supply on a curve 
-    for a non-driving commodity 
+    """ Plots demand and supply on a curve
+
     Parameters
     ----------
-    4 dicts: dictionaries of supply, demand, calculated
-    demand and calculated supply
-    demand_driven: Boolean. If true, the commodity is demand driven, 
+    4 dicts: dictionaries of supply and demand
+
+    demand_driven: Boolean. If true, the commodity is demand driven,
     if false, the commodity is supply driven
+
     Returns
     -------
-    plot of all four dicts 
+    plot of all dicts
     """
     
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
     fig, ax = plt.subplots(figsize=(15, 7))
+    ax.plot(*zip(*sorted(dict_supply.items())), 'x', color='c', label='Supply')
     if demand_driven:
         ax.plot(*zip(*sorted(dict_demand.items())), '+', color='red', label='Demand')
         ax.set_title('%s Demand Supply plot' % commod)
     else:
-        ax.plot(*zip(*sorted(dict_demand.items())),
-                '+', color='red', label='Capacity')
+        ax.plot(*zip(*sorted(dict_demand.items())), '+', color='red', label='Capacity')
         ax.set_title('%s Capacity Supply plot' % commod)
-        
-    ax.plot(*zip(*sorted(dict_supply.items())), 'x', color='c', label='Supply')
 
     ax.grid()
     ax.set_xlabel('Time (month timestep)', fontsize=14)
-    ax.set_ylabel('Mass (kg)', fontsize=14)
+    if commod.lower() == 'power':
+        ax.set_ylabel('Power (MW)', fontsize=14)
+    else:
+        ax.set_ylabel('Mass (Kg)', fontsize=14)
+    
     handles, labels = ax.get_legend_handles_labels()
-    ax.legend(
-        handles,
-        labels,
-        fontsize=11,
-        loc='upper center',
-        bbox_to_anchor=(
-            1.1,
-            1.0),
-        fancybox=True)
+    ax.legend(handles, labels, fontsize=11, loc='upper center', bbox_to_anchor=(1.1, 1.0), fancybox=True)
+
+    top_val=max(dict_demand.values())
+    if max(dict_supply.values())>top_val:
+        top_val=max(dict_supply.values())
+
+    #plt.ylim(bottom=0.)
+    #plt.ylim(top=top_val)
     plt.savefig(test, dpi=300, bbox_inches='tight')
     plt.close()
