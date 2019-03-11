@@ -18,7 +18,7 @@
     </spec>
     <spec>
       <lib>d3ploy.timeseries_inst</lib>
-      <name>TimeSeriesInst</name>
+      <name>DemandDrivenDeploymentInst</name>
     </spec>
   </archetypes>
   <control>
@@ -103,17 +103,33 @@
     </config>
     <institution>
       <config>
-        <TimeSeriesInst>
+        <DemandDrivenDeploymentInst>
           <calc_method>ma</calc_method>
-          <commodities>
-            <val>POWER_reactor_1000</val>
-            <val>freshfuel_source_3000</val>
-          </commodities>
+          <facility_commod>
+            <item>
+              <facility>reactor</facility>
+              <commod>POWER</commod>
+            </item>
+            <item>
+              <facility>source</facility>
+              <commod>freshfuel</commod>
+            </item>
+          </facility_commod>
+          <facility_capacity>
+            <item>
+              <facility>reactor</facility>
+              <capacity>1000</capacity>
+            </item>
+            <item>
+              <facility>source</facility>
+              <capacity>3000</capacity>
+            </item>
+          </facility_capacity>
           <demand_eq>1000</demand_eq>
           <demand_std_dev>0.0</demand_std_dev>
           <record>1</record>
           <steps>1</steps>
-        </TimeSeriesInst>
+        </DemandDrivenDeploymentInst>
       </config>
       <name>source_inst</name>
     </institution>
