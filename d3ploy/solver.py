@@ -54,7 +54,7 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
         val = int(val)
         if val >= 0:
             filtered_pref_fac[key] = val
-        else: 
+        else:
             filtered_pref_fac[key] = -1
 
     # check if the preference values are different
