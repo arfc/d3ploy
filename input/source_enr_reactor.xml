@@ -10,7 +10,7 @@
     </spec>
     <spec>
       <lib>d3ploy.timeseries_inst</lib>
-      <name>TimeSeriesInst</name>
+      <name>DemandDrivenDeploymentInst</name>
     </spec>
   </archetypes>
   <control>
@@ -64,16 +64,39 @@
     </config>
     <institution>
       <config>
-        <TimeSeriesInst>
-	  <calc_method>sw_seasonal</calc_method>
+        <DemandDrivenDeploymentInst>
+	        <calc_method>sw_seasonal</calc_method>
           <demand_eq>300*t</demand_eq>
-          <commodities>
-            <val>POWER_Reactor_1000</val>
-            <val>fuel_Enrichment_10000</val>
-            <val>uranium_Mine_100000</val>
-          </commodities>
+          <facility_commod>
+            <item>
+              <facility>Reactor</facility>
+              <commod>POWER</commod>
+            </item>
+            <item>
+              <facility>Enrichment</facility>
+              <commod>fuel</commod>
+            </item>
+            <item>
+              <facility>Mine</facility>
+              <commod>uranium</commod>
+            </item>
+          </facility_commod>
+          <facility_capacity>
+            <item>
+              <facility>Reactor</facility>
+              <capacity>1000</capacity>
+            </item>
+            <item>
+              <facility>Enrichment</facility>
+              <capacity>10000</capacity>
+            </item>
+            <item>
+              <facility>Mine</facility>
+              <capacity>100000</capacity>
+            </item>
+          </facility_capacity>
           <record>1</record>
-        </TimeSeriesInst>
+        </DemandDrivenDeploymentInst>
       </config>
       <initialfacilitylist>
         <entry>
