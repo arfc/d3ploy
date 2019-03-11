@@ -29,15 +29,6 @@ class DemandDrivenDeploymentInst(Institution):
     time series methods.
     """
 
-    commodities = ts.VectorString(
-        doc="A list of commodities that the institution will manage. " +
-            "commodity_prototype_capacity format" +
-            " where the commoditity is what the facility supplies",
-        tooltip="List of commodities in the institution.",
-        uilabel="Commodities",
-        uitype="oneOrMore"
-    )
-
     facility_commod = ts.MapStringString(
         doc = "A map of facilities and each of their corresponding" + 
               " output commodities",
@@ -190,37 +181,6 @@ class DemandDrivenDeploymentInst(Institution):
         print('supply_std_dev: %f' % self.supply_std_dev)
         print('demand_std_dev: %f' % self.demand_std_dev)
 
-    def parse_commodities(self, commodities):
-        """ This function parses the vector of strings commodity variable
-            and replaces the variable as a dictionary. This function should be deleted
-            after the map connection is fixed."""
-        temp = commodities
-        commodity_dict = {}
-
-        for entry in temp:
-            # commodity, prototype, capacity, preference, constraint_commod, constraint
-            z = entry.split('_')
-            if len(z) < 3:
-                raise ValueError(
-                    'Input is malformed: need at least commodity_prototype_capacity')
-            else:
-                # append zero for all other values if not defined
-                while len(z) < 6:
-                    z.append(0)
-            if z[0] not in commodity_dict.keys():
-                commodity_dict[z[0]] = {}
-                commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
-                                                    'pref': str(z[3]),
-                                                    'constraint_commod': str(z[4]),
-                                                    'constraint': float(z[5])}})
-
-            else:
-                commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
-                                                    'pref': str(z[3]),
-                                                    'constraint_commod': str(z[4]),
-                                                    'constraint': float(z[5])}})
-        return commodity_dict
-
     def build_dict(self,facility_commod,facility_capacity,facility_pref,facility_constraintcommod,facility_constraintval): 
         facility_dict = {}
         commodity_dict = {} 
@@ -249,9 +209,7 @@ class DemandDrivenDeploymentInst(Institution):
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
-            # convert list of strings to dictionary
-            #self.commodity_dict = self.parse_commodities(self.commodities)
-            #print('original',self.commodity_dict)
+            # convert input into dictionary
             self.commodity_dict = self.build_dict(self.facility_commod,self.facility_capacity,self.facility_pref,self.facility_constraintcommod,self.facility_constraintval)
             commod_list = list(self.commodity_dict.keys())
             for key, val in self.commodity_dict.items():
