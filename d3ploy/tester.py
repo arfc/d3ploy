@@ -50,8 +50,8 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
     cur = get_cursor(sqlite)
     tables = {}
     tables[0] = "timeseriessupply"+commod
-    tables[1] = "timeseries"+commod+"calc_demand"
-    tables[2] = "timeseries"+commod+"calc_supply"
+    tables[1] = "timeseriescalc_demand"+commod
+    tables[2] = "timeseriescalc_supply"+commod
     fuel_supply = cur.execute(
         "select time, sum(value) from "+tables[0]+" group by time").fetchall()
     calc_fuel_demand = cur.execute(
@@ -64,8 +64,8 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
     dict_calc_supply = {}
     for x in range(0, len(fuel_supply)):
         dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
-        dict_calc_demand[fuel_supply[x][0]+1] = calc_fuel_demand[x][1]
-        dict_calc_supply[fuel_supply[x][0]+1] = calc_fuel_supply[x][1]
+        dict_calc_demand[calc_fuel_demand[x][0]] = calc_fuel_demand[x][1]
+        dict_calc_supply[calc_fuel_supply[x][0]] = calc_fuel_supply[x][1]
     t = np.fromiter(dict_supply.keys(), dtype=float)
     fuel_demand = eval(demand_eq)
     if isinstance(fuel_demand, int):
@@ -104,12 +104,12 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     cur = get_cursor(sqlite)
     tables = {}
     tables[0] = "timeseriessupply"+commod
-    tables[2] = "timeseries"+commod+"calc_supply"
+    tables[2] = "timeseriescalc_supply"+commod
     tables[3] = "timeseriesdemand"+commod
     if demand_driven: 
-        tables[1] = "timeseries"+commod+"calc_demand"
+        tables[1] = "timeseriescalc_demand"+commod
     else: 
-        tables[1] = "timeseries"+commod+"calc_capacity"
+        tables[1] = "timeseriescalc_capacity"+commod
     fuel_demand = cur.execute(
         "select time, sum(value) from "+tables[3]+" group by time").fetchall()
     fuel_supply = cur.execute(
@@ -124,8 +124,8 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     dict_calc_supply = {}
     for x in range(0, len(fuel_supply)):
         dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
-        dict_calc_demand[fuel_supply[x][0]+1] = calc_fuel_demand[x][1]
-        dict_calc_supply[fuel_supply[x][0]+1] = calc_fuel_supply[x][1]
+        dict_calc_demand[calc_fuel_demand[x][0]] = calc_fuel_demand[x][1]
+        dict_calc_supply[calc_fuel_supply[x][0]] = calc_fuel_supply[x][1]
 
     t = np.fromiter(dict_supply.keys(), dtype=float)
     for x in range(0, len(t)):
@@ -167,15 +167,23 @@ def residuals(all_dict):
     demand_total = 0
     for x in range(start-1, len(dict_demand)):
         y = x+1
-        demand_total += dict_demand[y]
+        try:
+            demand_total += dict_demand[y]
+        except KeyError:
+            demand_total += 0
     demand_mean = (1/len(dict_demand))*demand_total
     SStot = 0
     SSres = 0
     for x in range(start-1, len(dict_demand)):
         y = x+1
-        SStot += (dict_demand[y]-demand_mean)**2
-        SSres += (dict_demand[y]-dict_supply[y])**2
-
+        try:
+            SStot += (dict_demand[y]-demand_mean)**2
+            SSres += (dict_demand[y]-dict_supply[y])**2
+        except KeyError:
+            SStot += 0
+            SSres += 0
+    if SStot == 0:
+        return 1
     Rsquared = 1-SSres / SStot
     return Rsquared
 
@@ -203,7 +211,7 @@ def chi_goodness_test(all_dict):
         y = x+1
         try:
             chi2 += (dict_supply[y]-dict_demand[y])**2 / dict_demand[y]
-        except ZeroDivisionError:
+        except (ZeroDivisionError, KeyError) as e:
             chi2 += 0
 
     return chi2
@@ -231,8 +239,11 @@ def supply_under_demand(all_dict, demand_driven):
     start = int(list(dict_demand.keys())[0])
     for x in range(start-1, len(dict_demand)):
         y = x+1
-        if dict_supply[y] < dict_demand[y]:
-            num_negative = num_negative + 1
+        try:
+            if dict_supply[y] < dict_demand[y]:
+                num_negative = num_negative + 1
+        except KeyError:
+            num_negative += 0
 
     if demand_driven:
         number_under = num_negative
@@ -292,11 +303,11 @@ def get_agent_dict(sqlite_file, prototype_list):
         entertime_list = [item['entertime'] for item in agententry]
         try:
             agentexit = cur.execute('SELECT exittime FROM agentexit ' +
-                                    'INNER JOIN agententry ON agentid.agententry = agentid.agentexit ' +
+                                    'INNER JOIN agententry ON agententry.agentid = agentexit.agentid ' +
                                     'WHERE prototype = "%s"' %proto).fetchall()
             exittime_list = [item['exittime'] for item in agentexit]
-        except lite.OperationalError:
-            exittime_list = [-1]
+        except:
+            exittime_list = []
         agent_dict[proto] = agents_at_play(entertime_list, exittime_list, duration)
     return agent_dict
 
