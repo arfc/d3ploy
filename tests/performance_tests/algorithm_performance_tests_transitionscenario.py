@@ -36,7 +36,7 @@ ENV = dict(os.environ)
 ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 
 
-######################################TRANSITION SCENARIO 1##########################################
+###########################TRANSITION SCENARIO 1##############################
 
 # initialize metric dict
 demand_eq = '60000'
