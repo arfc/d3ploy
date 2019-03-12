@@ -15,10 +15,10 @@ deterministing optimization (DO), and Stochastic optimization (SO).
 **Pmdarima**: A python package for ARIMA/SARIMA methods. [Documentation](https://pypi.org/project/pmdarima/)
 
 
-## timeseries_inst and supply_driven_deployment_inst
+## demand_driven_deployment_inst and supply_driven_deployment_inst
 
-### timeseries_inst
-`timeseries_inst` is a  Cyclus `Institution` archetype that performs demand-driven
+### demand_driven_deployment_inst
+`demand_driven_deployment_inst` is a  Cyclus `Institution` archetype that performs demand-driven
 deployment of Cyclus agents.
 
 The institution works by using the chosen method to predict supply and 
@@ -45,12 +45,14 @@ deficit in the current time step.
 
 This institution is used for facilities that exist in the back end of the fuel cycle. 
 
-### Required Inputs
-- **commodities**: This is a list of strings defining the commodity to track, facility (depending on the institution used),
- the (initial) capacity of the facility, and the preference of the facility, given by format `commodity_facility_capacity_preference`. 
- The preference can be given as an equation, using `t` as the dependent variable (e.g. `(1.01)**t`). The only difference between `timeseries_inst` 
- and `supply_driven_deployment_inst` is this input. For `timeseries_inst`, the facility included should be the facility that supplies the commodity.
- For `supply_driven_deployment_inst`, the facility included should be the facility that supplies capacity for that commodity. 
+### Required Inputs for each institution 
+For these four inputs,  for `demand_driven_deployment_inst`, the facility included should be the facility that supplies the commodity
+and for `supply_driven_deployment_inst`, the facility included should be the facility that supplies capacity for that commodity. 
+    - **facility_commod**: This is a mapstringstring defining each facility and its output commodity to track. 
+    - **facility_capacity**: This is a mapstringdouble defining each facility and the (initial) capacity of the facility. 
+    - **facility_pref**: This is a mapstringstring defining each facility and the preference for that facility. 
+     The preference can be given as an equation, using `t` as the dependent variable (e.g. `(1.01)**t`). 
+    - **facility_constraintcommod**: This is a mapstringstring defining each facility and the second commodity that constraints 
 - **driving_commod**: The driving commodity for the institution.
 - **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable.
 - **calc_method**: This is the method used to predict the supply and demand.
