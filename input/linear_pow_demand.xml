@@ -17,7 +17,7 @@
       <name>Sink</name>
     </spec>
     <spec>
-      <lib>d3ploy.timeseries_inst</lib>
+      <lib>d3ploy.demand_driven_deployment_inst</lib>
       <name>DemandDrivenDeploymentInst</name>
     </spec>
   </archetypes>
