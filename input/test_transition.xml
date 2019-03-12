@@ -21,8 +21,8 @@
       <name>Sink</name>
     </spec>
     <spec>
-      <lib>d3ploy.timeseries_inst</lib>
-      <name>TimeSeriesInst</name>
+      <lib>d3ploy.demand_driven_deployment_inst</lib>
+      <name>DemandDrivenDeploymentInst</name>
     </spec>
     <spec>
       <lib>d3ploy.supply_driven_deployment_inst</lib>
@@ -157,18 +157,63 @@
     </config>
     <institution>
       <config>
-        <TimeSeriesInst>
+        <DemandDrivenDeploymentInst>
           <calc_method>arma</calc_method>
           <record>1</record>
-	    <demand_std_dev>0.0</demand_std_dev>
+	        <demand_std_dev>0.0</demand_std_dev>
           <demand_eq>1000*t</demand_eq>
-          <commodities>
-              <val>POWER_reactor_3000_t</val>
-              <val>POWER_reactor2_3000_2*t_storageuox_8000</val>
-              <val>fuel_source_3000</val>
-          </commodities>
+          <facility_commod>
+            <item>
+              <facility>reactor</facility>
+              <commod>POWER</commod>
+            </item>
+            <item>
+              <facility>reactor2</facility>
+              <commod>POWER</commod>
+            </item>
+            <item>
+              <facility>source</facility>
+              <commod>fuel</commod>
+            </item>
+          </facility_commod>
+          <facility_capacity>
+            <item>
+              <facility>reactor</facility>
+              <capacity>3000</capacity>
+            </item>
+            <item>
+              <facility>reactor2</facility>
+              <capacity>3000</capacity>
+            </item>
+            <item>
+              <facility>source</facility>
+              <capacity>3000</capacity>
+            </item>
+          </facility_capacity>
+          <facility_pref>
+            <item>
+              <facility>reactor</facility>
+              <pref>t</pref>
+            </item>
+            <item>
+              <facility>reactor2</facility>
+              <pref>2*t</pref>
+            </item>
+          </facility_pref>
+          <facility_constraintcommod>
+            <item>
+              <facility>reactor2</facility>
+              <constraintcommod>storageuox</constraintcommod>
+            </item>
+          </facility_constraintcommod>
+          <facility_constraintval>
+            <item>
+              <facility>reactor2</facility>
+              <constraintval>8000</constraintval>
+            </item>
+          </facility_constraintval>
           <steps>1</steps>
-        </TimeSeriesInst>
+        </DemandDrivenDeploymentInst>
       </config>
     <name>source_inst</name>
     </institution>
