@@ -142,9 +142,18 @@
       <config>
         <SupplyDrivenDeploymentInst>
           <calc_method>ma</calc_method>
-          <commodities>
-            <val>spentfuel_sink_100000</val>
-          </commodities>
+          <facility_commod>
+            <item>
+              <facility>sink</facility>
+              <commod>spentfuel</commod>
+            </item>
+          </facility_commod>
+          <facility_capacity>
+            <item>
+              <facility>sink</facility>
+              <capacity>100000</capacity>
+            </item>
+          </facility_capacity>
           <capacity_std_dev>1.0</capacity_std_dev>
           <record>1</record>
           <steps>1</steps>
