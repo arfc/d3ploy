@@ -34,7 +34,7 @@ TEMPLATE = {
     {"lib": "cycamore", "name": "Source"},
     {"lib": "cycamore", "name": "Reactor"},
     {"lib": "cycamore", "name": "Sink"},
-    {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
+    {"lib": "d3ploy.demand_driven_deployment_inst", "name": "DemandDrivenDeploymentInst"}
    ]
   },
   "control": {"duration": "10", "startmonth": "1", "startyear": "2000"},
@@ -109,9 +109,25 @@ tech_pref_subprocess_template["simulation"].update({"region": {
    "config": {"NullRegion": "\n      "},
    "institution": {
     "config": {
-     "TimeSeriesInst": {
+     "DemandDrivenDeploymentInst": {
       "calc_method": "poly",
-      "commodities": {"val": ["POWER_reactor1_1_3*t", "POWER_reactor2_1_t", "fuel_source_1"]},
+        "facility_capacity": {
+            "item": [
+                {"capacity": "1", "facility": "reactor1"},
+                {"capacity": "1", "facility": "reactor2"},
+                {"capacity": "1", "facility": "source"}
+            ]
+            },
+            "facility_commod": {
+            "item": [
+                {"commod": "POWER", "facility": "reactor1"},
+                {"commod": "POWER", "facility": "reactor2"},
+                {"commod": "fuel", "facility": "source"}
+            ]
+            },
+            "facility_pref": {
+            "item": [{"facility": "reactor1", "pref": "3*t"}, {"facility": "reactor2", "pref": "t"}]
+            },
       "demand_eq": "3*t",
       "demand_std_dev": "0.0",
       "record": "1",
@@ -150,9 +166,25 @@ tech_pref_allreactor1_template["simulation"].update({"region": {
    "config": {"NullRegion": "\n      "},
    "institution": {
     "config": {
-     "TimeSeriesInst": {
+     "DemandDrivenDeploymentInst": {
       "calc_method": "poly",
-      "commodities": {"val": ["POWER_reactor1_1_2", "POWER_reactor2_1_1", "fuel_source_1"]},
+        "facility_capacity": {
+            "item": [
+                {"capacity": "1", "facility": "reactor1"},
+                {"capacity": "1", "facility": "reactor2"},
+                {"capacity": "1", "facility": "source"}
+            ]
+            },
+            "facility_commod": {
+            "item": [
+                {"commod": "POWER", "facility": "reactor1"},
+                {"commod": "POWER", "facility": "reactor2"},
+                {"commod": "fuel", "facility": "source"}
+            ]
+            },
+            "facility_pref": {
+            "item": [{"facility": "reactor1", "pref": "2"}, {"facility": "reactor2", "pref": "1"}]
+            },
       "demand_eq": "3*t",
       "demand_std_dev": "0.0",
       "record": "1",
@@ -193,9 +225,25 @@ tech_pref_cross_template["simulation"].update({"region": {
    "config": {"NullRegion": "\n      "},
    "institution": {
     "config": {
-     "TimeSeriesInst": {
+     "DemandDrivenDeploymentInst": {
       "calc_method": "poly",
-      "commodities": {"val": ["POWER_reactor1_1_11-t", "POWER_reactor2_1_t", "fuel_source_1"]},
+        "facility_capacity": {
+            "item": [
+                {"capacity": "1", "facility": "reactor1"},
+                {"capacity": "1", "facility": "reactor2"},
+                {"capacity": "1", "facility": "source"}
+            ]
+            },
+            "facility_commod": {
+            "item": [
+                {"commod": "POWER", "facility": "reactor1"},
+                {"commod": "POWER", "facility": "reactor2"},
+                {"commod": "fuel", "facility": "source"}
+            ]
+            },
+            "facility_pref": {
+            "item": [{"facility": "reactor1", "pref": "11-t"}, {"facility": "reactor2", "pref": "t"}]
+            },
       "demand_eq": "3*t",
       "demand_std_dev": "0.0",
       "record": "1",
