@@ -221,9 +221,18 @@
       <config>
         <SupplyDrivenDeploymentInst>
           <calc_method>arma</calc_method>
-          <commodities>
-            <val>spentuox_uoxpool_1e6</val>
-          </commodities>
+          <facility_commod>
+            <item>
+              <facility>uoxpool</facility>
+              <commod>spentuox</commod>
+            </item>
+          </facility_commod>
+          <facility_capacity>
+            <item>
+              <facility>uoxpool</facility>
+              <capacity>1e6</capacity>
+            </item>
+          </facility_capacity>
           <capacity_std_dev>1.0</capacity_std_dev>
           <record>1</record>
           <steps>1</steps>
