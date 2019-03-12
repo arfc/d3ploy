@@ -1,5 +1,5 @@
 """ This python file contains tech pref capability tests for TimeSeriesInst
-archetype. 
+archetype.
 """
 
 import json
@@ -36,5 +36,5 @@ def test_backdeployment():
                                 universal_newlines=True, env=ENV)
     cur = functions.get_cursor(output_)
     reactor2_entry = cur.execute('SELECT Prototype FROM agententry WHERE ' +
-                                    'prototype == "sink"').fetchall()
+                                 'prototype == "sink"').fetchall()
     assert (len(reactor2_entry) == 1)
