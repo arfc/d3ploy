@@ -30,13 +30,52 @@ class SupplyDrivenDeploymentInst(Institution):
     time series methods.
     """
 
-    commodities = ts.VectorString(
-        doc="A list of commodities that the institution will manage. " +
-            "commodity_prototype_capacity format" +
-            " where the commoditity is what the facility has capacity for",
-        tooltip="List of commodities in the institution.",
-        uilabel="Commodities",
-        uitype="oneOrMore"
+    facility_commod = ts.MapStringString(
+        doc = "A map of facilities and each of their corresponding" + 
+              " output commodities",
+        tooltip = "Map of facilities and output commodities in the " + 
+                  "institution",
+        alias = ['facility_commod','facility','commod'],
+        uilabel = "Facility and Commodities"  
+    )
+
+    facility_capacity = ts.MapStringDouble(
+        doc = "A map of facilities and each of their corresponding" + 
+              " capacities",
+        tooltip = "Map of facilities and capacities in the " + 
+                  "institution",
+        alias = ['facility_capacity','facility','capacity'],
+        uilabel = "Facility and Capacities"     
+    )
+
+    facility_pref = ts.MapStringString(
+        doc = "A map of facilities and each of their corresponding" + 
+              " preferences",
+        tooltip = "Map of facilities and preferences in the " + 
+                  "institution",
+        alias = ['facility_pref','facility','pref'],    
+        uilabel = "Facility and Preferences",   
+        default = {}
+    )
+
+    facility_constraintcommod = ts.MapStringString(
+        doc = "A map of facilities and each of their corresponding" + 
+              " constraint commodity",
+        tooltip = "Map of facilities and constraint commodities in the " + 
+                  "institution",
+        alias = ['facility_constraintcommod','facility','constraintcommod'],    
+        uilabel = "Facility and Constraint Commodities",  
+        default = {}
+    )
+
+    facility_constraintval = ts.MapStringDouble(
+        doc = "A map of facilities and each of their corresponding" + 
+              " constraint values",
+        tooltip = "Map of facilities and constraint values in the " + 
+                  "institution",
+        alias = ['facility_constraintval','facility','constraintval'],  
+        uilabel = "Facility and Constraint Commodity Values",    
+        default = {}
     )
 
     calc_method = ts.String(
@@ -133,43 +172,36 @@ class SupplyDrivenDeploymentInst(Institution):
         print('capacity_std_dev: %f' % self.capacity_std_dev)
         print('supply_std_dev: %f' % self.supply_std_dev)
 
-    def parse_commodities(self, commodities):
-        """ This function parses the vector of strings commodity variable
-            and replaces the variable as a dictionary. This function should be deleted
-            after the map connection is fixed.
-        """
-        temp = commodities
-        commodity_dict = {}
-
-        for entry in temp:
-            # commodity, prototype, capacity, preference, second_driving_commodity, constraint
-            z = entry.split('_')
-            if len(z) < 3:
-                raise ValueError(
-                    'Input is malformed: need at least commodity_prototype_capacity')
-            else:
-                # append zero for all other values if not defined
-                while len(z) < 6:
-                    z.append(0)
-            if z[0] not in commodity_dict.keys():
-                commodity_dict[z[0]] = {}
-                commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
-                                                    'pref': str(z[3]),
-                                                    'constraint_commod': str(z[4]),
-                                                    'constraint': float(z[5])}})
-
-            else:
-                commodity_dict[z[0]].update({z[1]: {'cap': float(z[2]),
-                                                    'pref': str(z[3]),
-                                                    'constraint_commod': str(z[4]),
-                                                    'constraint': float(z[5])}})
+    def build_dict(self,facility_commod,facility_capacity,facility_pref,facility_constraintcommod,facility_constraintval): 
+        facility_dict = {}
+        commodity_dict = {} 
+        for key, val in facility_capacity.items(): 
+            facility_dict[key] = {} 
+            facility_dict[key] = {'cap':val}
+            if key in facility_pref.keys():
+                facility_dict[key].update({'pref':facility_pref[key]})
+            else: 
+                facility_dict[key].update({'pref':'0'})
+            if key in facility_constraintcommod.keys():
+                facility_dict[key].update({'constraint_commod':facility_constraintcommod[key]})
+            else: 
+                facility_dict[key].update({'constraint_commod':'0'})
+            if key in facility_constraintval.keys():
+                facility_dict[key].update({'constraint':facility_constraintval[key]})
+            else: 
+                facility_dict[key].update({'constraint':0.0})
+        for key, val in facility_commod.items(): 
+            if val not in commodity_dict.keys():
+                commodity_dict[val] = {} 
+            if key in facility_dict.keys(): 
+                commodity_dict[val].update({key:facility_dict[key]})
         return commodity_dict
 
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
             # convert list of strings to dictionary
-            self.commodity_dict = self.parse_commodities(self.commodities)
+            self.commodity_dict = self.build_dict(self.facility_commod,self.facility_capacity,self.facility_pref,self.facility_constraintcommod,self.facility_constraintval)
             for commod in self.commodity_dict:
                 # swap supply and demand for supply_inst
                 # change demand into capacity
