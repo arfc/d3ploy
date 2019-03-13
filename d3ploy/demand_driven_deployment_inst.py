@@ -30,51 +30,51 @@ class DemandDrivenDeploymentInst(Institution):
     """
 
     facility_commod = ts.MapStringString(
-        doc = "A map of facilities and each of their corresponding" + 
-              " output commodities",
-        tooltip = "Map of facilities and output commodities in the " + 
-                  "institution",
-        alias = ['facility_commod','facility','commod'],
-        uilabel = "Facility and Commodities"  
+        doc="A map of facilities and each of their corresponding" +
+        " output commodities",
+        tooltip="Map of facilities and output commodities in the " +
+        "institution",
+        alias=['facility_commod', 'facility', 'commod'],
+        uilabel="Facility and Commodities"
     )
 
     facility_capacity = ts.MapStringDouble(
-        doc = "A map of facilities and each of their corresponding" + 
-              " capacities",
-        tooltip = "Map of facilities and capacities in the " + 
-                  "institution",
-        alias = ['facility_capacity','facility','capacity'],
-        uilabel = "Facility and Capacities"     
+        doc="A map of facilities and each of their corresponding" +
+        " capacities",
+        tooltip="Map of facilities and capacities in the " +
+        "institution",
+        alias=['facility_capacity', 'facility', 'capacity'],
+        uilabel="Facility and Capacities"
     )
 
     facility_pref = ts.MapStringString(
-        doc = "A map of facilities and each of their corresponding" + 
-              " preferences",
-        tooltip = "Map of facilities and preferences in the " + 
-                  "institution",
-        alias = ['facility_pref','facility','pref'],    
-        uilabel = "Facility and Preferences",   
-        default = {}
+        doc="A map of facilities and each of their corresponding" +
+        " preferences",
+        tooltip="Map of facilities and preferences in the " +
+        "institution",
+        alias=['facility_pref', 'facility', 'pref'],
+        uilabel="Facility and Preferences",
+        default={}
     )
 
     facility_constraintcommod = ts.MapStringString(
-        doc = "A map of facilities and each of their corresponding" + 
-              " constraint commodity",
-        tooltip = "Map of facilities and constraint commodities in the " + 
-                  "institution",
-        alias = ['facility_constraintcommod','facility','constraintcommod'],    
-        uilabel = "Facility and Constraint Commodities",  
-        default = {}
+        doc="A map of facilities and each of their corresponding" +
+        " constraint commodity",
+        tooltip="Map of facilities and constraint commodities in the " +
+        "institution",
+        alias=['facility_constraintcommod', 'facility', 'constraintcommod'],
+        uilabel="Facility and Constraint Commodities",
+        default={}
     )
 
     facility_constraintval = ts.MapStringDouble(
-        doc = "A map of facilities and each of their corresponding" + 
-              " constraint values",
-        tooltip = "Map of facilities and constraint values in the " + 
-                  "institution",
-        alias = ['facility_constraintval','facility','constraintval'],  
-        uilabel = "Facility and Constraint Commodity Values",    
-        default = {}
+        doc="A map of facilities and each of their corresponding" +
+        " constraint values",
+        tooltip="Map of facilities and constraint values in the " +
+        "institution",
+        alias=['facility_constraintval', 'facility', 'constraintval'],
+        uilabel="Facility and Constraint Commodity Values",
+        default={}
     )
 
     demand_eq = ts.String(
@@ -88,8 +88,7 @@ class DemandDrivenDeploymentInst(Institution):
         "for the commodities of this institution. Currently this can be ma for " +
         "moving average, or arma for autoregressive moving average.",
         tooltip="Calculation method used to predict supply/demand",
-        uilabel="Calculation Method"
-    )
+        uilabel="Calculation Method")
 
     record = ts.Bool(
         doc="Indicates whether or not the institution should record it's output to text " +
@@ -97,8 +96,7 @@ class DemandDrivenDeploymentInst(Institution):
         "institution.",
         tooltip="Boolean to indicate whether or not to record output to text file.",
         uilabel="Record to Text",
-        default=False
-    )
+        default=False)
 
     driving_commod = ts.String(
         doc="Sets the driving commodity for the institution. That is the " +
@@ -117,12 +115,11 @@ class DemandDrivenDeploymentInst(Institution):
 
     back_steps = ts.Int(
         doc="This is the number of steps backwards from the current time step" +
-            "that will be used to make the prediction. If this is set to '0'" +
-            "then the calculation will use all values in the time series.",
+        "that will be used to make the prediction. If this is set to '0'" +
+        "then the calculation will use all values in the time series.",
         tooltip="",
         uilabel="Back Steps",
-        default=10
-    )
+        default=10)
 
     supply_std_dev = ts.Double(
         doc="The standard deviation adjustment for the supple side.",
@@ -181,36 +178,49 @@ class DemandDrivenDeploymentInst(Institution):
         print('supply_std_dev: %f' % self.supply_std_dev)
         print('demand_std_dev: %f' % self.demand_std_dev)
 
-    def build_dict(self,facility_commod,facility_capacity,facility_pref,facility_constraintcommod,facility_constraintval): 
+    def build_dict(
+            self,
+            facility_commod,
+            facility_capacity,
+            facility_pref,
+            facility_constraintcommod,
+            facility_constraintval):
         facility_dict = {}
-        commodity_dict = {} 
-        for key, val in facility_capacity.items(): 
-            facility_dict[key] = {} 
-            facility_dict[key] = {'cap':val}
+        commodity_dict = {}
+        for key, val in facility_capacity.items():
+            facility_dict[key] = {}
+            facility_dict[key] = {'cap': val}
             if key in facility_pref.keys():
-                facility_dict[key].update({'pref':facility_pref[key]})
-            else: 
-                facility_dict[key].update({'pref':'0'})
+                facility_dict[key].update({'pref': facility_pref[key]})
+            else:
+                facility_dict[key].update({'pref': '0'})
             if key in facility_constraintcommod.keys():
-                facility_dict[key].update({'constraint_commod':facility_constraintcommod[key]})
-            else: 
-                facility_dict[key].update({'constraint_commod':'0'})
+                facility_dict[key].update(
+                    {'constraint_commod': facility_constraintcommod[key]})
+            else:
+                facility_dict[key].update({'constraint_commod': '0'})
             if key in facility_constraintval.keys():
-                facility_dict[key].update({'constraint':facility_constraintval[key]})
-            else: 
-                facility_dict[key].update({'constraint':0.0})
-        for key, val in facility_commod.items(): 
+                facility_dict[key].update(
+                    {'constraint': facility_constraintval[key]})
+            else:
+                facility_dict[key].update({'constraint': 0.0})
+        for key, val in facility_commod.items():
             if val not in commodity_dict.keys():
-                commodity_dict[val] = {} 
-            if key in facility_dict.keys(): 
-                commodity_dict[val].update({key:facility_dict[key]})
+                commodity_dict[val] = {}
+            if key in facility_dict.keys():
+                commodity_dict[val].update({key: facility_dict[key]})
         return commodity_dict
 
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
             # convert input into dictionary
-            self.commodity_dict = self.build_dict(self.facility_commod,self.facility_capacity,self.facility_pref,self.facility_constraintcommod,self.facility_constraintval)
+            self.commodity_dict = self.build_dict(
+                self.facility_commod,
+                self.facility_capacity,
+                self.facility_pref,
+                self.facility_constraintcommod,
+                self.facility_constraintval)
             commod_list = list(self.commodity_dict.keys())
             for key, val in self.commodity_dict.items():
                 for key2, val2 in val.items():
@@ -235,8 +245,8 @@ class DemandDrivenDeploymentInst(Institution):
         for commod, proto_dict in self.commodity_dict.items():
 
             diff, supply, demand = self.calc_diff(commod, time)
-            lib.record_time_series('calc_supply'+commod, self, supply)
-            lib.record_time_series('calc_demand'+commod, self, demand)
+            lib.record_time_series('calc_supply' + commod, self, supply)
+            lib.record_time_series('calc_demand' + commod, self, demand)
 
             if diff < 0:
                 deploy_dict = solver.deploy_solver(
@@ -291,8 +301,8 @@ class DemandDrivenDeploymentInst(Institution):
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
         elif self.calc_method in ['sw_seasonal']:
-            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
-                                                    period=self.degree)
+            supply = CALC_METHODS[self.calc_method](
+                self.commodity_supply[commod], period=self.degree)
         else:
             raise ValueError(
                 'The input calc_method is not valid. Check again.')
@@ -300,8 +310,8 @@ class DemandDrivenDeploymentInst(Institution):
 
     def predict_demand(self, commod, time):
         if commod == self.driving_commod:
-            demand = self.demand_calc(time+1)
-            self.commodity_demand[commod][time+1] = demand
+            demand = self.demand_calc(time + 1)
+            self.commodity_demand[commod][time + 1] = demand
         else:
             if self.calc_method in ['arma', 'ma', 'arch']:
                 demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
@@ -313,8 +323,8 @@ class DemandDrivenDeploymentInst(Institution):
                                                         back_steps=self.back_steps,
                                                         degree=self.degree)
             elif self.calc_method in ['sw_seasonal']:
-                demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
-                                                        period=self.degree)
+                demand = CALC_METHODS[self.calc_method](
+                    self.commodity_demand[commod], period=self.degree)
             else:
                 raise ValueError(
                     'The input calc_method is not valid. Check again.')
