@@ -34,17 +34,20 @@ TEMPLATE = {
                 {"lib": "cycamore", "name": "Source"},
                 {"lib": "cycamore", "name": "Reactor"},
                 {"lib": "cycamore", "name": "Sink"},
-                {"lib": "d3ploy.demand_driven_deployment_inst", "name": "DemandDrivenDeploymentInst"}
+                {"lib": "d3ploy.demand_driven_deployment_inst", 
+                "name": "DemandDrivenDeploymentInst"}
             ]
         },
         "control": {"duration": "10", "startmonth": "1", "startyear": "2000"},
         "facility": [
             {
-                "config": {"Source": {"outcommod": "fuel", "outrecipe": "fresh_uox", "throughput": "1"}},
+                "config": {"Source": {"outcommod": "fuel", 
+                           "outrecipe": "fresh_uox", "throughput": "1"}},
                 "name": "source"
             },
             {
-                "config": {"Sink": {"in_commods": {"val": "spent_uox"}, "max_inv_size": "10"}},
+                "config": {"Sink": {"in_commods": {"val": "spent_uox"}, 
+                                                   "max_inv_size": "10"}},
                 "name": "sink"
             },
             {
@@ -86,12 +89,14 @@ TEMPLATE = {
             {
                 "basis": "mass",
                 "name": "fresh_uox",
-                "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
+                "nuclide": [{"comp": "0.711", "id": "U235"}, 
+                            {"comp": "99.289", "id": "U238"}]
             },
             {
                 "basis": "mass",
                 "name": "spent_uox",
-                "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
+                "nuclide": [{"comp": "50", "id": "Kr85"}, 
+                            {"comp": "50", "id": "Cs137"}]
             }
         ]
     }
@@ -126,7 +131,8 @@ tech_pref_subprocess_template["simulation"].update({"region": {
                     ]
                 },
                 "facility_pref": {
-                    "item": [{"facility": "reactor1", "pref": "3*t"}, {"facility": "reactor2", "pref": "t"}]
+                    "item": [{"facility": "reactor1", "pref": "3*t"}, 
+                             {"facility": "reactor2", "pref": "t"}]
                 },
                 "demand_eq": "3*t",
                 "demand_std_dev": "0.0",
@@ -184,7 +190,8 @@ tech_pref_allreactor1_template["simulation"].update({"region": {
                     ]
                 },
                 "facility_pref": {
-                    "item": [{"facility": "reactor1", "pref": "2"}, {"facility": "reactor2", "pref": "1"}]
+                    "item": [{"facility": "reactor1", "pref": "2"}, 
+                             {"facility": "reactor2", "pref": "1"}]
                 },
                 "demand_eq": "3*t",
                 "demand_std_dev": "0.0",
@@ -243,7 +250,8 @@ tech_pref_cross_template["simulation"].update({"region": {
                     ]
                 },
                 "facility_pref": {
-                    "item": [{"facility": "reactor1", "pref": "11-t"}, {"facility": "reactor2", "pref": "t"}]
+                    "item": [{"facility": "reactor1", "pref": "11-t"}, 
+                             {"facility": "reactor2", "pref": "t"}]
                 },
                 "demand_eq": "3*t",
                 "demand_std_dev": "0.0",
