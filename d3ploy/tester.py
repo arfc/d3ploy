@@ -134,7 +134,7 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     for x in range(0, len(t)):
         dict_demand[t[x]] = 0
 
-    for x in range(0, len(fuel_supply)):
+    for x in range(0, len(fuel_demand)):
         dict_demand[fuel_demand[x][0]] = fuel_demand[x][1]
 
     all_dict = {}
@@ -251,7 +251,7 @@ def supply_under_demand(all_dict, demand_driven):
                     num_under = num_under + 1
             except KeyError:
                 num_under += 0
-    return num_under 
+    return num_under
 
 
 def best_calc_method(in_dict, maximum):
