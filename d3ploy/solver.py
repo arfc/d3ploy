@@ -175,3 +175,33 @@ def minimize_number_of_deployment(proto_commod, remainder):
         break
 
     return deploy_dict
+
+
+def find_mins(commod_min, commod_dict):
+    """ This function updates the commod_min
+    dictionary to contain the minimum production
+    for each commodity. 
+
+    Parameters:
+    ----------
+    commod_min: dictionary
+        key:commodity
+        value: min capacity
+        dictionary of the minimum commod production    
+    commod_dict: dictionary
+        key: prototype name
+        value: prototype capacity
+    
+    Returns:
+    --------
+    commod_min: dictionary
+        key: commodity
+        value: min capacity
+    """
+    minimum = 0
+    for commod, proto in commod_dict.items(): 
+        commod_min[commod] = 1e299
+        for fac, array in proto.items():
+            if array[cap] < commod_min[commod]:
+                commod_min[commod] = array[cap]
+    return commod_min

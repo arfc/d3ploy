@@ -116,6 +116,20 @@ class TimeSeriesInst(Institution):
         default=1
     )
 
+    os_time = ts.Int(
+        doc="The number of oversupply timesteps before decommission",
+        tooltip="",
+        uilabel="Oversupply Time Limit",
+        default=5
+    )
+
+    os_int = ts.Int(
+        doc="The number minimum capacities over supply limit",
+        tooltip="",
+        uilabel="Oversupply Fac Limit",
+        default=1
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.commodity_supply = {}
@@ -123,6 +137,7 @@ class TimeSeriesInst(Institution):
         self.rev_commodity_supply = {}
         self.rev_commodity_demand = {}
         self.fresh = True
+        self.commod_mins = {}
         CALC_METHODS['ma'] = no.predict_ma
         CALC_METHODS['arma'] = no.predict_arma
         CALC_METHODS['arch'] = no.predict_arch
@@ -199,18 +214,26 @@ class TimeSeriesInst(Institution):
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
+        commod_mins = solver.find_mins()
         for commod, proto_dict in self.commodity_dict.items():
-
             diff, supply, demand = self.calc_diff(commod, time)
             lib.record_time_series('calc_supply'+commod, self, supply)
             lib.record_time_series('calc_demand'+commod, self, demand)
-
             if diff < 0:
                 deploy_dict = solver.deploy_solver(
                     self.commodity_supply, self.commodity_dict, commod, diff, time)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
+            os_limit = self.commod_min[commod] * self.os_int
+            if diff > os_limit:
+                self.commod_os[commod] += 1    
+            elif diff > os_limit and self.commod_os[commod] > self.os_time:
+                remainder = diff
+                for agent in self.children():
+                    if proto[agent.prototype]['cap'] < remainder:
+                        agent.decommission()
+                        remainder -= proto[agent.prototype]['cap']          
             if self.record:
                 out_text = "Time " + str(time) + \
                     " Deployed " + str(len(self.children))

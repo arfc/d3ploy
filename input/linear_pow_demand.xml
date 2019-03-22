@@ -42,7 +42,7 @@
         <in_commods>
           <val>spent_uox</val>
         </in_commods>
-        <max_inv_size>10</max_inv_size>
+        <max_inv_size>100</max_inv_size>
       </Sink>
     </config>
     <name>sink</name>
@@ -131,8 +131,8 @@
         <TimeSeriesInst>
           <calc_method>poly</calc_method>
           <record>1</record>
-	  <demand_std_dev>0.0</demand_std_dev>
-          <demand_eq>3*t</demand_eq>
+	      <demand_std_dev>0.0</demand_std_dev>
+          <demand_eq>10-t</demand_eq>
           <commodities>
               <val>POWER_reactor1_1_3*t</val>
               <val>POWER_reactor2_1_t</val>
@@ -141,6 +141,20 @@
           <steps>1</steps>
         </TimeSeriesInst>
       </config>
+      <initialfacilitylist>
+        <entry>
+          <number>9</number>
+          <prototype>reactor1</prototype>
+        </entry>
+        <entry>
+          <number>10</number>
+          <prototype>source</prototype>
+        </entry>
+        <entry>
+          <number>2</number>
+          <prototype>reactor2</prototype>
+        </entry>
+      </initialfacilitylist>
     <name>source_inst</name>
     </institution>
     <name>SingleRegion</name>
