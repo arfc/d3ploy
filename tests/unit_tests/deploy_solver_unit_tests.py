@@ -3,7 +3,7 @@ import sys
 import os
 import pytest
 import d3ploy.solver as solver
-import d3ploy.timeseries_inst as ti
+import d3ploy.demand_driven_deployment_inst as ti
 
 
 def test_min_deploy_solver():
