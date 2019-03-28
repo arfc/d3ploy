@@ -10,4 +10,9 @@ RUN conda install pyqt -y && \
     pip install -U pytest && \
     pip uninstall h5py && \
     pip install --no-cache-dir h5py && \
-    python setup.py install
+    python setup.py install && \
+    sudo apt-get update && \
+    sudo apt-get install libhdf5-dev && \
+    sudo apt-get update && \
+    sudo apt-get install libhdf5-serial-dev && \
+
