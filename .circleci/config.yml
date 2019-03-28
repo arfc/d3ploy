@@ -4,7 +4,7 @@ jobs:
 
     build:
       docker:
-        - image: nuclearbae/d3ploy
+        - image: arfc/d3ploy
       working_directory: ~/d3ploy
       steps:
         - checkout
@@ -14,7 +14,7 @@ jobs:
 
     unit_test:
         docker:
-            - image: nuclearbae/d3ploy
+            - image: arfc/d3ploy
         working_directory: ~/d3ploy
         steps:
           - checkout
@@ -28,7 +28,7 @@ jobs:
                     pytest ./tests/unit_tests/deploy_solver_unit_tests.py
     full_integration_test:
         docker:
-            - image: nuclearbae/d3ploy
+            - image: arfc/d3ploy
         working_directory: ~/d3ploy
         steps:
           - checkout
@@ -43,7 +43,7 @@ jobs:
 
     functionality_test:
         docker:
-            - image: nuclearbae/d3ploy
+            - image: arfc/d3ploy
         working_directory: ~/d3ploy
         steps:
           - checkout
