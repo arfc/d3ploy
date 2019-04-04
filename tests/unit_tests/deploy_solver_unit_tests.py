@@ -3,41 +3,7 @@ import sys
 import os
 import pytest
 import d3ploy.solver as solver
-import d3ploy.timeseries_inst as ti
-
-
-def test_parse_commodities():
-    """ Tests if parse_commodities parses the input correctly """
-    commodities = ['POWER_reactor_3000_1000-t',
-                   'POWER_reactor2_1000_3',
-                   'POWER_reactor3_600_10*t_pu_300',
-                   'fuel_source_300',
-                   'pu_separations_5000_0_spentuox_5000']
-    commodity_dict = ti.TimeSeriesInst.parse_commodities(
-        ti.TimeSeriesInst, commodities)
-    answer = {'POWER': {'reactor': {'cap': 3000.0,
-                                    'pref': '1000-t',
-                                    'constraint_commod': '0',
-                                    'constraint': 0},
-                        'reactor2': {'cap': 1000.0,
-                                     'pref': '3',
-                                     'constraint_commod': '0',
-                                     'constraint': 0},
-                        'reactor3': {'cap': 600.0,
-                                     'pref': '10*t',
-                                     'constraint_commod': 'pu',
-                                     'constraint': 300.0}},
-              'fuel': {'source': {'cap': 300.0,
-                                  'pref': '0',
-                                  'constraint_commod': '0',
-                                  'constraint': 0}},
-              'pu': {'separations': {'cap': 5000.0,
-                                     'pref': '0',
-                                     'constraint_commod': 'spentuox',
-                                     'constraint': 5000.0}}}
-    assert commodity_dict['POWER'] == answer['POWER']
-    assert commodity_dict['fuel'] == answer['fuel']
-    assert commodity_dict['pu'] == answer['pu']
+import d3ploy.demand_driven_deployment_inst as ti
 
 
 def test_min_deploy_solver():

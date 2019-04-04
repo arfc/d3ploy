@@ -31,7 +31,8 @@ def test_backdeployment():
     input_path = os.path.abspath(__file__)
     find = 'd3ploy/'
     indx = input_path.rfind('d3ploy/')
-    input_ = input_path.replace(input_path[indx+len(find):], 'input/linear_pow_demand_backdeployment.xml')
+    input_ = input_path.replace(
+        input_path[indx + len(find):], 'input/linear_pow_demand_backdeployment.xml')
     s = subprocess.check_output(['cyclus', '-o', output_, input_],
                                 universal_newlines=True, env=ENV)
     cur = functions.get_cursor(output_)
