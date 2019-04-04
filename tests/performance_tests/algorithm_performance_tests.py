@@ -140,7 +140,7 @@ for calc_method in calc_methods:
     plotter.plot_demand_supply(all_dict_fuel, 'fuel', name, True, False)
     
     metric_dict = tester.metrics(all_dict_fuel, metric_dict,
-                                 calc_method,'fuel', True)
+                                 calc_method, 'fuel', True)
 
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_1_output.csv')
