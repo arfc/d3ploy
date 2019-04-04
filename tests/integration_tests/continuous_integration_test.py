@@ -20,7 +20,9 @@ ENV = dict(os.environ)
 ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 
 #######################################################
-# Checking if cyclus simulations and cyclus output files are created and populated for each calc method
+# Checking if cyclus simulations and cyclus output files are created and
+# populated for each calc method
+
 
 def test_d3ploy(calc_method):
     test_input = {
@@ -31,7 +33,7 @@ def test_d3ploy(calc_method):
                     {"lib": "cycamore", "name": "Source"},
                     {"lib": "cycamore", "name": "Reactor"},
                     {"lib": "cycamore", "name": "Sink"},
-                    {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
+                    {"lib": "d3ploy.demand_driven_deployment_inst", "name": "DemandDrivenDeploymentInst"}
                 ]
             },
             "control": {"duration": "10", "startmonth": "1", "startyear": "2000"},
@@ -80,9 +82,20 @@ def test_d3ploy(calc_method):
                 "config": {"NullRegion": "\n      "},
                 "institution": {
                     "config": {
-                        "TimeSeriesInst": {
+                        "DemandDrivenDeploymentInst": {
                             "calc_method": calc_method,
-                            "commodities": {"val": ["POWER_reactor_1000", "freshfuel_source_3000"]},
+                            "facility_capacity": {
+                                "item": [
+                                    {"capacity": "1000", "facility": "reactor"},
+                                    {"capacity": "3000", "facility": "source"}
+                                ]
+                            },
+                            "facility_commod": {
+                                "item": [
+                                    {"commod": "POWER", "facility": "reactor"},
+                                    {"commod": "freshfuel", "facility": "source"}
+                                ]
+                            },
                             "demand_eq": "1000",
                             "demand_std_dev": "0.0",
                             "record": "1",
@@ -96,7 +109,7 @@ def test_d3ploy(calc_method):
         }
     }
 
-    name = "test_cont_"+ calc_method
+    name = "test_cont_" + calc_method
     input_file = name + ".json"
     output_file = name + ".sqlite"
     with open(input_file, 'w') as f:
@@ -109,7 +122,7 @@ def test_d3ploy(calc_method):
         print(e.output)
     cur = functions.get_cursor(output_file)
     query = 'SELECT COUNT(*) from agententry WHERE Prototype = "_"'
-    
+
     for prototype in ['reactor', 'source']:
         row_count = cur.execute(query.replace('_', prototype)).fetchone()[0]
         assert (row_count >= 1)
