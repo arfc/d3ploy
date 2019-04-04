@@ -280,14 +280,14 @@ def best_calc_method(in_dict, maximum):
 
 def metrics(all_dict,metric_dict,calc_method,commod,demand_driven):
     # check if dictionary exists if not initialize
-    value = metric_dict.get(commod+'_residuals',0)
+    value = metric_dict.get(commod+'_undersupply',0)
     if value == 0: 
-        metric_dict[commod+'_residuals'] = {}
-        metric_dict[commod+'_chi2'] = {}
+        #metric_dict[commod+'_residuals'] = {}
+        #metric_dict[commod+'_chi2'] = {}
         metric_dict[commod+'_undersupply'] = {}
 
-    metric_dict[commod+'_residuals'][calc_method] = residuals(all_dict)
-    metric_dict[commod+'_chi2'][calc_method] = chi_goodness_test(all_dict)
+    #metric_dict[commod+'_residuals'][calc_method] = residuals(all_dict)
+    #metric_dict[commod+'_chi2'][calc_method] = chi_goodness_test(all_dict)
     metric_dict[commod+'_undersupply'][calc_method] = supply_under_demand(all_dict, demand_driven)
 
     return metric_dict
