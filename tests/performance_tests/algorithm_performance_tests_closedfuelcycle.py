@@ -56,7 +56,7 @@ for calc_method in calc_methods:
     {"lib": "cycamore", "name": "Separations"},
     {"lib": "cycamore", "name": "Storage"},
     {"lib": "cycamore", "name": "Sink"},
-    {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"},
+    {"lib": "d3ploy.demand_driven_deployment_inst", "name": "DemandDrivenDeploymentInst"},
     {
      "lib": "d3ploy.supply_driven_deployment_inst",
      "name": "SupplyDrivenDeploymentInst"
@@ -81,22 +81,22 @@ for calc_method in calc_methods:
       "feed_commod_prefs": {"val": "1.0"},
       "feed_commods": {"val": "reactor1output"},
       "feed_recipe": "source_recipe",
-      "feedbuf_size": "1e6",
+      "feedbuf_size": "1e4",
       "leftover_commod": "reprocess_waste1",
-      "leftoverbuf_size": "1e6",
+      "leftoverbuf_size": "1e4",
       "streams": {
        "item": [
         {
          "commod": "separations1Pu",
-         "info": {"buf_size": "1e6", "efficiencies": {"item": {"comp": "Pu", "eff": "1"}}}
+         "info": {"buf_size": "1e4", "efficiencies": {"item": {"comp": "Pu", "eff": "1"}}}
         },
         {
          "commod": "separations1U",
-         "info": {"buf_size": "1e6", "efficiencies": {"item": {"comp": "U", "eff": "1"}}}
+         "info": {"buf_size": "1e4", "efficiencies": {"item": {"comp": "U", "eff": "1"}}}
         }
        ]
       },
-      "throughput": "1e6"
+      "throughput": "1e4"
      }
     },
     "name": "separations1"
@@ -113,7 +113,7 @@ for calc_method in calc_methods:
            {"commodity": "separations2Pu", "pref": "1.0"}
           ]
          },
-         "info": {"buf_size": "1e6", "mixing_ratio": "0.5"}
+         "info": {"buf_size": "1e4", "mixing_ratio": "0.5"}
         },
         {
          "commodities": {
@@ -122,13 +122,13 @@ for calc_method in calc_methods:
            {"commodity": "separations2U", "pref": "1.0"}
           ]
          },
-         "info": {"buf_size": "1e6", "mixing_ratio": "0.5"}
+         "info": {"buf_size": "1e4", "mixing_ratio": "0.5"}
         }
        ]
       },
-      "out_buf_size": "1e6",
+      "out_buf_size": "1e4",
       "out_commod": "mixeroutput",
-      "throughput": "1e6"
+      "throughput": "1e4"
      }
     },
     "name": "mixer"
@@ -173,22 +173,22 @@ for calc_method in calc_methods:
       "feed_commod_prefs": {"val": "1.0"},
       "feed_commods": {"val": "reactor2output"},
       "feed_recipe": "source_recipe",
-      "feedbuf_size": "1e6",
+      "feedbuf_size": "1e4",
       "leftover_commod": "reprocess_waste2",
-      "leftoverbuf_size": "1e6",
+      "leftoverbuf_size": "1e4",
       "streams": {
        "item": [
         {
          "commod": "separations2Pu",
-         "info": {"buf_size": "1e6", "efficiencies": {"item": {"comp": "Pu", "eff": "1"}}}
+         "info": {"buf_size": "1e4", "efficiencies": {"item": {"comp": "Pu", "eff": "1"}}}
         },
         {
          "commod": "separations2U",
-         "info": {"buf_size": "1e6", "efficiencies": {"item": {"comp": "U", "eff": "1"}}}
+         "info": {"buf_size": "1e4", "efficiencies": {"item": {"comp": "U", "eff": "1"}}}
         }
        ]
       },
-      "throughput": "1e6"
+      "throughput": "1e4"
      }
     },
     "name": "separations2"
@@ -197,7 +197,7 @@ for calc_method in calc_methods:
     "config": {
      "Sink": {
       "in_commods": {"val": ["reprocess_waste1", "reprocess_waste2"]},
-      "max_inv_size": "1e6"
+      "max_inv_size": "1e4"
      }
     },
     "name": "sink"
@@ -220,15 +220,38 @@ for calc_method in calc_methods:
    "institution": [
     {
      "config": {
-      "TimeSeriesInst": {
+      "DemandDrivenDeploymentInst": {
        "calc_method": calc_method,
-       "commodities": {
-        "val": [
-         "POWER_reactor2_3000_2*t_mixeroutput_30000",
-         "POWER_reactor1_3000_t",
-         "sourceoutput_source_3000"
-        ]
-       },
+       "facility_commod": {
+       "item": [
+        {"commod": "POWER", "facility": "reactor2"}, 
+        {"commod": "POWER", "facility": "reactor1"}, 
+        {"commod": "sourceoutput", "facility": "source"}
+       ]
+      },
+       "facility_capacity": {
+       "item": [
+        {"capacity": "3e3", "facility": "reactor2"},
+        {"capacity": "3e3", "facility": "reactor1"},
+        {"capacity": "3e3", "facility": "source"}
+       ]
+      },
+       "facility_pref": {
+       "item": [
+        {"pref": "2*t", "facility": "reactor2"},
+        {"pref": "t", "facility": "reactor1"}
+       ]
+      },
+       "facility_constraintcommod": {
+       "item": [
+        {"constraintcommod": "mixeroutput", "facility": "reactor2"}
+       ]
+      },
+       "facility_constraintval": {
+       "item": [
+        {"constraintval": "8000", "facility": "reactor2"}
+       ]
+      },
        "demand_eq": "1000*t",
        "demand_std_dev": "0.0",
        "record": "1",
@@ -242,13 +265,20 @@ for calc_method in calc_methods:
       "SupplyDrivenDeploymentInst": {
        "calc_method": calc_method,
        "capacity_std_dev": "1.0",
-       "commodities": {
-        "val": [
-         "reactor1output_separations1_1e6",
-         "separations1Pu_mixer_1e6",
-         "reactor2output_separations2_1e6"
-        ]
-       },
+       "facility_commod": {
+       "item": [
+        {"commod": "reactor1output", "facility": "separations1"}, 
+        {"commod": "separations1Pu", "facility": "mixer"}, 
+        {"commod": "reactor2output", "facility": "separations2"}
+       ]
+      },
+       "facility_capacity": {
+       "item": [
+        {"capacity": "1e4", "facility": "separations1"},
+        {"capacity": "1e4", "facility": "mixer"},
+        {"capacity": "1e4", "facility": "separations2"}
+       ]
+      },
        "record": "1",
        "steps": "1"
       }
@@ -278,18 +308,40 @@ for calc_method in calc_methods:
         output_file, demand_eq, 'power')
     all_dict['sourceoutput'] = tester.supply_demand_dict_nondriving(
         output_file, 'sourceoutput',True)
+    all_dict['reactor1output'] = tester.supply_demand_dict_nondriving(
+        output_file, 'reactor1output',False)
+    all_dict['separations1Pu'] = tester.supply_demand_dict_nondriving(
+        output_file, 'separations1Pu',False)
+    all_dict['reactor2output'] = tester.supply_demand_dict_nondriving(
+        output_file, 'reactor2output',False)
     
     agent_entry_dict['power'] = tester.get_agent_dict(output_file, ['reactor1', 'reactor2'])
     agent_entry_dict['sourceoutput'] = tester.get_agent_dict(output_file, ['source'])
-
+    agent_entry_dict['reactor1output'] = tester.get_agent_dict(output_file, ['separations1'])
+    agent_entry_dict['separations1Pu'] = tester.get_agent_dict(output_file, ['mixer'])
+    agent_entry_dict['reactor2output'] = tester.get_agent_dict(output_file, ['separations2'])
+    
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-    plotter.plot_demand_supply_agent(all_dict['power'], agent_entry_dict['power'], 'power', name, True)
+    name1 = "scenario_7_input_"+ calc_method +"_power"
+    plotter.plot_demand_supply_agent(all_dict['power'], agent_entry_dict['power'], 'power', name1, True,False,False)
     name2 = "scenario_7_input_"+ calc_method +"_sourceoutput"
     plotter.plot_demand_supply_agent(all_dict['sourceoutput'], agent_entry_dict['sourceoutput'],
-                                     'sourceoutput', name2, True)
-    
+                                     'sourceoutput', name2, True,False,False)
+    name3 = "scenario_7_input_"+ calc_method +"_reactor1output"
+    plotter.plot_demand_supply_agent(all_dict['reactor1output'], agent_entry_dict['reactor1output'],
+                                     'reactor1output', name3, False,False,False)
+    name4 = "scenario_7_input_"+ calc_method +"_separations1Pu"
+    plotter.plot_demand_supply_agent(all_dict['separations1Pu'], agent_entry_dict['separations1Pu'],
+                                     'separations1Pu', name4, False,False,False)
+    name5 = "scenario_7_input_"+ calc_method +"_reactor2output"
+    plotter.plot_demand_supply_agent(all_dict['reactor2output'], agent_entry_dict['reactor1output'],
+                                     'reactor2output', name5, False,False,False)
+
     metric_dict = tester.metrics(all_dict['power'],metric_dict,calc_method,'power',True)
     metric_dict = tester.metrics(all_dict['sourceoutput'],metric_dict,calc_method,'sourceoutput',True)
-        
+    metric_dict = tester.metrics(all_dict['reactor1output'],metric_dict,calc_method,'reactor1output',False)
+    metric_dict = tester.metrics(all_dict['separations1Pu'],metric_dict,calc_method,'separations1Pu',False)
+    metric_dict = tester.metrics(all_dict['reactor2output'],metric_dict,calc_method,'reactor2output',False)
+    
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_7_output.csv')
