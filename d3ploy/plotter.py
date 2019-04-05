@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_demand_supply(all_dict, commod, test, demand_driven, log_scale):
+def plot_demand_supply(all_dict, commod, test, demand_driven, log_scale,calculated):
     """ Plots demand, supply, calculated demand and calculated supply
     on a curve for a non-driving commodity
     Parameters
@@ -26,36 +26,42 @@ def plot_demand_supply(all_dict, commod, test, demand_driven, log_scale):
         if log_scale:
             ax.semilogy(*zip(*sorted(dict_demand.items())), '+', color='red',
                     label='Demand')
-            ax.semilogy(*zip(*sorted(dict_calc_demand.items())),
-                    'o', color='red', label='Calculated Demand')
+            if calculated:
+                ax.semilogy(*zip(*sorted(dict_calc_demand.items())),
+                        'o', color='red', label='Calculated Demand')
         else:
             ax.plot(*zip(*sorted(dict_demand.items())), '+', color='red',
                     label='Demand')
-            ax.plot(*zip(*sorted(dict_calc_demand.items())),
-                    'o', color='red', label='Calculated Demand')
+            if calculated: 
+                ax.plot(*zip(*sorted(dict_calc_demand.items())),
+                        'o', color='red', label='Calculated Demand')
         ax.set_title('%s Demand Supply plot' % test)
     else:
         if log_scale:
             ax.semilogy(*zip(*sorted(dict_demand.items())),
                     '+', color='red', label='Capacity')
-            ax.semilogy(*zip(*sorted(dict_calc_demand.items())),
-                    'o', color='red', label='Calculated Capacity')
+            if calculated:
+                ax.semilogy(*zip(*sorted(dict_calc_demand.items())),
+                        'o', color='red', label='Calculated Capacity')
         else:
             ax.plot(*zip(*sorted(dict_demand.items())),
                     '+', color='red', label='Capacity')
-            ax.plot(*zip(*sorted(dict_calc_demand.items())),
-                    'o', color='red', label='Calculated Capacity')
+            if calculated:
+                ax.plot(*zip(*sorted(dict_calc_demand.items())),
+                        'o', color='red', label='Calculated Capacity')
         ax.set_title('%s Capacity Supply plot' % test)
     if log_scale:
         ax.semilogy(*zip(*sorted(dict_supply.items())), 'x', color='c',
                     label='Supply')
-        ax.semilogy(*zip(*sorted(dict_calc_supply.items())),
-                    'o', alpha=0.5, color='c', label='Calculated Supply')
+        if calculated:            
+            ax.semilogy(*zip(*sorted(dict_calc_supply.items())),
+                        'o', alpha=0.5, color='c', label='Calculated Supply')
     else:
         ax.plot(*zip(*sorted(dict_supply.items())), 'x', color='c',
                 label='Supply')
-        ax.plot(*zip(*sorted(dict_calc_supply.items())),
-                'o', alpha=0.5, color='c', label='Calculated Supply')
+        if calculated:
+            ax.plot(*zip(*sorted(dict_calc_supply.items())),
+                    'o', alpha=0.5, color='c', label='Calculated Supply')
     ax.grid()
     ax.set_xlabel('Time (month timestep)', fontsize=14)
     if commod.lower() == 'power':
@@ -77,7 +83,7 @@ def plot_demand_supply(all_dict, commod, test, demand_driven, log_scale):
 
 
 def plot_demand_supply_agent(all_dict, agent_dict, commod, test,
-                             demand_driven, log_scale):
+                             demand_driven, log_scale,calculated):
     """ Plots demand, supply, calculated demand and calculated supply on a curve 
     for a non-driving commodity
     Parameters
@@ -121,39 +127,45 @@ def plot_demand_supply_agent(all_dict, agent_dict, commod, test,
         if log_scale:
             ax2.semilogy(*zip(*sorted(dict_demand.items())),
                          label='Demand')
-            ax2.semilogy(*zip(*sorted(dict_calc_demand.items())),
-                         label='Calculated Demand')
+            if calculated:
+                ax2.semilogy(*zip(*sorted(dict_calc_demand.items())),
+                            label='Calculated Demand')
         else:
             ax2.plot(*zip(*sorted(dict_demand.items())),
                          label='Demand')
-            ax2.plot(*zip(*sorted(dict_calc_demand.items())),
-                         label='Calculated Demand')
+            if calculated:
+                ax2.plot(*zip(*sorted(dict_calc_demand.items())),
+                            label='Calculated Demand')
     else:
         if log_scale:
             ax2.semilogy(*zip(*sorted(dict_demand.items())),
                          label='Capacity')
-            ax2.semilogy(*zip(*sorted(dict_calc_demand.items())),
-                         label='Calculated Capacity')
+            if calculated:
+                ax2.semilogy(*zip(*sorted(dict_calc_demand.items())),
+                            label='Calculated Capacity')
         else:
             ax2.plot(*zip(*sorted(dict_demand.items())),
                          label='Capacity')
-            ax2.plot(*zip(*sorted(dict_calc_demand.items())),
-                         label='Calculated Capacity')
+            if calculated:
+                ax2.plot(*zip(*sorted(dict_calc_demand.items())),
+                            label='Calculated Capacity')
     if log_scale:
         ax2.semilogy(*zip(*sorted(dict_supply.items())),
                      label='Supply')
-        ax2.semilogy(*zip(*sorted(dict_calc_supply.items())),
-                     alpha=0.5,  label='Calculated Supply')
+        if calculated:
+            ax2.semilogy(*zip(*sorted(dict_calc_supply.items())),
+                        alpha=0.5,  label='Calculated Supply')
     else:
         ax2.plot(*zip(*sorted(dict_supply.items())),
                  label='Supply')
-        ax2.plot(*zip(*sorted(dict_calc_supply.items())),
-                 alpha=0.5,  label='Calculated Supply')
+        if calculated:
+            ax2.plot(*zip(*sorted(dict_calc_supply.items())),
+                    alpha=0.5,  label='Calculated Supply')
     ax2.grid()
     if commod.lower() == 'power':
-        ax.set_ylabel('Power (MW)', fontsize=14)
+        ax2.set_ylabel('Power (MW)', fontsize=14)
     else:
-        ax.set_ylabel('Mass (Kg)', fontsize=14)
+        ax2.set_ylabel('Mass (Kg)', fontsize=14)
     handles, labels = ax2.get_legend_handles_labels()
     ax2.legend(handles, labels, fontsize=11, loc='upper left',
                fancybox=True)
