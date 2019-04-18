@@ -1,12 +1,12 @@
 """
-This python file that compares calc methods for difference scenarios. 
+This python file that compares calc methods for difference scenarios.
 
-How to use: 
+How to use:
 python [file name]
 
-A scenario_#_output.txt file is output for each scenario. 
-In each text file, the chi2 goodness of fit and supply falling below demand results are shown 
-and the best calc method is determined for each type of results. 
+A scenario_#_output.txt file is output for each scenario.
+In each text file, the chi2 goodness of fit and supply falling below demand results are shown
+and the best calc method is determined for each type of results.
 
 
 """
@@ -16,21 +16,21 @@ import re
 import subprocess
 import os
 import sqlite3 as lite
-import pytest
 import copy
 import glob
 import sys
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
-import d3ploy.tester as functions
+import d3ploy.tester as tester
+import d3ploy.plotter as plotter
 import collections
 
-from nose.tools import assert_in, assert_true, assert_equals
 
 # Delete previously generated files
 direc = os.listdir('./')
-hit_list = glob.glob('*.sqlite') + glob.glob('*.json') + glob.glob('*.png')
+hit_list = glob.glob('*.sqlite') + glob.glob('*.json') + \
+    glob.glob('*.png') + glob.glob('*.csv') + glob.glob('*.txt')
 for file in hit_list:
     os.remove(file)
 
@@ -42,87 +42,96 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 calc_methods = ["ma", "arma", "arch", "poly",
                 "exp_smoothing", "holt_winters", "fft"]
 
+scenario_template = {
+    "simulation": {
+        "archetypes": {
+            "spec": [
+                    {"lib": "agents", "name": "NullRegion"},
+                    {"lib": "cycamore", "name": "Source"},
+                    {"lib": "cycamore", "name": "Reactor"},
+                    {"lib": "cycamore", "name": "Sink"},
+                    {"lib": "d3ploy.demand_driven_deployment_inst", "name": "DemandDrivenDeploymentInst"}
+            ]
+        },
+        "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
+        "recipe": [
+            {
+                "basis": "mass",
+                "name": "fresh_uox",
+                "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
+            },
+            {
+                "basis": "mass",
+                "name": "spent_uox",
+                "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
+            }
+        ]}}
 
-######################################SCENARIO 1################################################
+
+######################################SCENARIO 1##########################
 # scenario 1, source -> sink
 scenario_1_input = {}
 demand_eq = "1000*t"
 
 for calc_method in calc_methods:
-    scenario_1_input[calc_method] = {
-        "simulation": {
-            "archetypes": {
-                "spec": [
-                    {"lib": "agents", "name": "NullRegion"},
-                    {"lib": "cycamore", "name": "Source"},
-                    {"lib": "cycamore", "name": "Reactor"},
-                    {"lib": "cycamore", "name": "Sink"},
-                    {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
-                ]
-            },
-            "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
-            "recipe": [
-                {
-                    "basis": "mass",
-                    "name": "fresh_uox",
-                    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-                },
-                {
-                    "basis": "mass",
-                    "name": "spent_uox",
-                    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
-                }
-            ],
-            "facility": [{
-                "config": {"Source": {"outcommod": "fuel",
-                                      "outrecipe": "fresh_uox",
-                                      "throughput": "3000"}},
-                "name": "source"
-            },
-                {
-                "config": {"Sink": {"in_commods": {"val": "fuel"},
-                                    "max_inv_size": "1e6"}},
-                "name": "sink"
-            },
-                {
-                "config": {
-                    "Reactor": {
-                        "assem_size": "1000",
-                        "cycle_time": "1",
-                        "fuel_incommods": {"val": "fuel"},
-                        "fuel_inrecipes": {"val": "fresh_uox"},
-                        "fuel_outcommods": {"val": "spentfuel"},
-                        "fuel_outrecipes": {"val": "spent_uox"},
-                        "n_assem_batch": "1",
-                        "n_assem_core": "3",
-                        "power_cap": "1000",
-                        "refuel_time": "1",
-                    }
-                },
-                "name": "reactor"
-            }],
-            "region": {
-                "config": {"NullRegion": "\n      "},
-                "institution": {
-                    "config": {
-                        "TimeSeriesInst": {
-                            "calc_method": calc_method,
-                            "commodities": {"val": ["fuel_source_3000"]},
-                            "driving_commod": "fuel",
-                            "demand_std_dev": "1.0",
-                            "demand_eq": demand_eq,
-                            "record": "1",
-                            "steps": "1"
-                        }
-                    },
-                    "name": "source_inst"
-                },
-                "name": "SingleRegion"
+    scenario_1_input[calc_method] = copy.deepcopy(scenario_template)
+    scenario_1_input[calc_method]["simulation"].update({"facility": [{
+        "config": {"Source": {"outcommod": "fuel",
+                              "outrecipe": "fresh_uox",
+                              "throughput": "3000"}},
+        "name": "source"
+    },
+        {
+        "config": {"Sink": {"in_commods": {"val": "fuel"},
+                            "max_inv_size": "1e6"}},
+        "name": "sink"
+    },
+        {
+        "config": {
+            "Reactor": {
+                "assem_size": "1000",
+                "cycle_time": "1",
+                "fuel_incommods": {"val": "fuel"},
+                "fuel_inrecipes": {"val": "fresh_uox"},
+                "fuel_outcommods": {"val": "spentfuel"},
+                "fuel_outrecipes": {"val": "spent_uox"},
+                "n_assem_batch": "1",
+                "n_assem_core": "3",
+                "power_cap": "1000",
+                "refuel_time": "1",
             }
-        }
-    }
+        },
+        "name": "reactor"
+    }]})
+    scenario_1_input[calc_method]["simulation"].update({"region": {
+        "config": {"NullRegion": "\n      "},
+        "institution": {
+            "config": {
+                "DemandDrivenDeploymentInst": {
+                    "calc_method": calc_method,
+                    "facility_commod": {
+                        "item": [
+                            {"commod": "fuel", "facility": "source"}
+                        ]
+                    },
+                    "facility_capacity": {
+                        "item": [
+                            {"capacity": "3000", "facility": "source"}
+                        ]
+                    },
+                    "driving_commod": "fuel",
+                    "demand_std_dev": "1.0",
+                    "demand_eq": demand_eq,
+                    "record": "1",
+                    "steps": "1"
+                }
+            },
+            "name": "source_inst"
+        },
+        "name": "SingleRegion"
+    }})
 
-metric_dict = collections.OrderedDict({'residuals': {}, 'chi2': {}, 'undersupply': {}})
+metric_dict = {}
 
 for calc_method in calc_methods:
     name = 'scenario_1_input_' + calc_method
@@ -132,103 +141,97 @@ for calc_method in calc_methods:
         json.dump(scenario_1_input[calc_method], f)
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
-    dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(
-        output_file, demand_eq, 'fuel')
-    functions.plot_demand_supply(
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'fuel', name)
-    
-    metric_dict['residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
-    metric_dict['chi2'][calc_method] = functions.chi_goodness_test(dict_demand, dict_supply)
-    metric_dict['undersupply'][calc_method] = functions.supply_under_demand(dict_demand, dict_supply)
+
+    # Initialize dicts
+    all_dict_fuel = {}
+    agent_entry_dict = {}
+
+    all_dict_fuel = tester.supply_demand_dict_driving(output_file,
+                                                      demand_eq, 'fuel')
+    agent_entry_dict['fuel'] = tester.get_agent_dict(output_file, ['source'])
+    plotter.plot_demand_supply_agent(
+        all_dict_fuel,
+        agent_entry_dict['fuel'],
+        'fuel',
+        name + '_fuel',
+        True,
+        False,
+        False)
+
+    metric_dict = tester.metrics(all_dict_fuel, metric_dict,
+                                 calc_method, 'fuel', True)
 
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_1_output.csv')
 
-##########################################################################################
+##########################################################################
 
-######################################SCENARIO 2##########################################
+######################################SCENARIO 2##########################
 # scenario 2, source -> reactor (cycle time = 1, refuel time = 0) -> sink
 scenario_2_input = {}
 demand_eq = "1000*t"
 
 for calc_method in calc_methods:
-    scenario_2_input[calc_method] = {
-        "simulation": {
-            "archetypes": {
-                "spec": [
-                    {"lib": "agents", "name": "NullRegion"},
-                    {"lib": "cycamore", "name": "Source"},
-                    {"lib": "cycamore", "name": "Reactor"},
-                    {"lib": "cycamore", "name": "Sink"},
-                    {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
-                ]
-            },
-            "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
-            "recipe": [
-                {
-                    "basis": "mass",
-                    "name": "fresh_uox",
-                    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-                },
-                {
-                    "basis": "mass",
-                    "name": "spent_uox",
-                    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
-                }
-            ],
-            "facility": [{
-                "config": {"Source": {"outcommod": "fuel",
-                                      "outrecipe": "fresh_uox",
-                                      "throughput": "3000"}},
-                "name": "source"
-            },
-                {
-                "config": {"Sink": {"in_commods": {"val": "spentfuel"},
-                                    "max_inv_size": "1e6"}},
-                "name": "sink"
-            },
-                {
-                "config": {
-                    "Reactor": {
-                        "assem_size": "1000",
-                        "cycle_time": "1",
-                        "fuel_incommods": {"val": "fuel"},
-                        "fuel_inrecipes": {"val": "fresh_uox"},
-                        "fuel_outcommods": {"val": "spentfuel"},
-                        "fuel_outrecipes": {"val": "spent_uox"},
-                        "n_assem_batch": "1",
-                        "n_assem_core": "3",
-                        "power_cap": "1000",
-                        "refuel_time": "0",
-                    }
-                },
-                "name": "reactor"
-            }],
-            "region": {
-                "config": {"NullRegion": "\n      "},
-                "institution": {
-                    "config": {
-                        "TimeSeriesInst": {
-                            "calc_method": calc_method,
-                            "commodities": {"val": ["fuel_source_3000", "POWER_reactor_1000"]},
-                            "driving_commod": "POWER",
-                            "demand_std_dev": "1.0",
-                            "demand_eq": demand_eq,
-                            "record": "1",
-                            "steps": "1"
-                        }
-                    },
-                    "name": "source_inst"
-                },
-                "name": "SingleRegion"
+    scenario_2_input[calc_method] = copy.deepcopy(scenario_template)
+    scenario_2_input[calc_method]["simulation"].update({"facility": [{
+        "config": {"Source": {"outcommod": "fuel",
+                              "outrecipe": "fresh_uox",
+                              "throughput": "3000"}},
+        "name": "source"
+    },
+        {
+        "config": {"Sink": {"in_commods": {"val": "spentfuel"},
+                            "max_inv_size": "1e6"}},
+        "name": "sink"
+    },
+        {
+        "config": {
+            "Reactor": {
+                "assem_size": "1000",
+                "cycle_time": "1",
+                "fuel_incommods": {"val": "fuel"},
+                "fuel_inrecipes": {"val": "fresh_uox"},
+                "fuel_outcommods": {"val": "spentfuel"},
+                "fuel_outrecipes": {"val": "spent_uox"},
+                "n_assem_batch": "1",
+                "n_assem_core": "3",
+                "power_cap": "1000",
+                "refuel_time": "0",
             }
-        }
-    }
+        },
+        "name": "reactor"
+    }]})
+    scenario_2_input[calc_method]["simulation"].update({"region": {
+        "config": {"NullRegion": "\n      "},
+        "institution": {
+            "config": {
+                "DemandDrivenDeploymentInst": {
+                    "calc_method": calc_method,
+                    "facility_commod": {
+                        "item": [
+                            {"commod": "fuel", "facility": "source"},
+                            {"commod": "POWER", "facility": "reactor"}
+                        ]
+                    },
+                    "facility_capacity": {
+                        "item": [
+                            {"capacity": "3000", "facility": "source"},
+                            {"capacity": "1000", "facility": "reactor"}
+                        ]
+                    },
+                    "driving_commod": "POWER",
+                    "demand_std_dev": "1.0",
+                    "demand_eq": demand_eq,
+                    "record": "1",
+                    "steps": "1"
+                }
+            },
+            "name": "source_inst"
+        },
+        "name": "SingleRegion"
+    }})
 
-metric_dict = collections.OrderedDict(
-    {'POWER_residuals': {}, 'POWER_chi2': {}, 'POWER_undersupply': {},
-     'fuel_residuals': {}, 'fuel_chi2': {}, 'fuel_undersupply': {}})
-
+metric_dict = {}
 
 for calc_method in calc_methods:
     name = "scenario_2_input_" + calc_method
@@ -240,120 +243,121 @@ for calc_method in calc_methods:
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
 
-    dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(
+    # Initialize dicts
+    all_dict_power = {}
+    all_dict_fuel = {}
+    agent_entry_dict = {}
+
+    all_dict_power = tester.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
+    all_dict_fuel = tester.supply_demand_dict_nondriving(
+        output_file, 'fuel', True)
 
-    dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2 = functions.supply_demand_dict_nondriving(
-        output_file, 'fuel')
-    # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-    functions.plot_demand_supply(
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name)
-    name2 = "scenario_2_input_"+ calc_method +"_fuel"
-    functions.plot_demand_supply(
-        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2)
+    agent_entry_dict['power'] = tester.get_agent_dict(output_file, ['reactor'])
+    agent_entry_dict['fuel'] = tester.get_agent_dict(output_file, ['source'])
+    # plots demand, supply, calculated demand, calculated supply for the
+    # scenario for each calc method
+    plotter.plot_demand_supply_agent(
+        all_dict_power,
+        agent_entry_dict['power'],
+        'power',
+        name + '_power',
+        True,
+        False,
+        False)
+    plotter.plot_demand_supply_agent(
+        all_dict_fuel,
+        agent_entry_dict['fuel'],
+        'fuel',
+        name + '_fuel',
+        True,
+        False,
+        False)
 
-    metric_dict['POWER_residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
-    metric_dict['POWER_chi2'][calc_method] = functions.chi_goodness_test(dict_demand, dict_supply)
-    metric_dict['POWER_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand, dict_supply)
+    metric_dict = tester.metrics(
+        all_dict_power,
+        metric_dict,
+        calc_method,
+        'power',
+        True)
+    metric_dict = tester.metrics(
+        all_dict_fuel,
+        metric_dict,
+        calc_method,
+        'fuel',
+        True)
 
-    metric_dict['fuel_residuals'][calc_method] = functions.residuals(
-        dict_demand2, dict_supply2)
-    metric_dict['fuel_chi2'][calc_method] = functions.chi_goodness_test(
-        dict_demand2, dict_supply2)
-    metric_dict['fuel_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand2, dict_supply2)
-        
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_2_output.csv')
 
 
-######################################SCENARIO 3##########################################
+######################################SCENARIO 3##########################
 # scenario 3, source -> reactor (cycle time = 3, refuel time = 1) -> sink
 scenario_3_input = {}
 demand_eq = "1000*t"
 
 for calc_method in calc_methods:
-    scenario_3_input[calc_method] = {
-        "simulation": {
-            "archetypes": {
-                "spec": [
-                    {"lib": "agents", "name": "NullRegion"},
-                    {"lib": "cycamore", "name": "Source"},
-                    {"lib": "cycamore", "name": "Reactor"},
-                    {"lib": "cycamore", "name": "Sink"},
-                    {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
-                ]
-            },
-            "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
-            "recipe": [
-                {
-                    "basis": "mass",
-                    "name": "fresh_uox",
-                    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-                },
-                {
-                    "basis": "mass",
-                    "name": "spent_uox",
-                    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
-                }
-            ],
-            "facility": [{
-                "config": {"Source": {"outcommod": "fuel",
-                                      "outrecipe": "fresh_uox",
-                                      "throughput": "3000"}},
-                "name": "source"
-            },
-                {
-                "config": {"Sink": {"in_commods": {"val": "spentfuel"},
-                                    "max_inv_size": "1e6"}},
-                "name": "sink"
-            },
-                {
-                "config": {
-                    "Reactor": {
-                        "assem_size": "1000",
-                        "cycle_time": "3",
-                        "fuel_incommods": {"val": "fuel"},
-                        "fuel_inrecipes": {"val": "fresh_uox"},
-                        "fuel_outcommods": {"val": "spentfuel"},
-                        "fuel_outrecipes": {"val": "spent_uox"},
-                        "n_assem_batch": "1",
-                        "n_assem_core": "3",
-                        "power_cap": "1000",
-                        "refuel_time": "1",
-                    }
-                },
-                "name": "reactor"
-            }],
-            "region": {
-                "config": {"NullRegion": "\n      "},
-                "institution": {
-                    "config": {
-                        "TimeSeriesInst": {
-                            "calc_method": calc_method,
-                            "commodities": {"val": ["fuel_source_3000", "POWER_reactor_1000"]},
-                            "driving_commod": "POWER",
-                            "demand_std_dev": "1.0",
-                            "demand_eq": demand_eq,
-                            "record": "1",
-                            "steps": "1"
-                        }
-                    },
-                    "name": "source_inst"
-                },
-                "name": "SingleRegion"
+    scenario_3_input[calc_method] = copy.deepcopy(scenario_template)
+    scenario_3_input[calc_method]["simulation"].update({"facility": [{
+        "config": {"Source": {"outcommod": "fuel",
+                              "outrecipe": "fresh_uox",
+                              "throughput": "3000"}},
+        "name": "source"
+    },
+        {
+        "config": {"Sink": {"in_commods": {"val": "spentfuel"},
+                            "max_inv_size": "1e6"}},
+        "name": "sink"
+    },
+        {
+        "config": {
+            "Reactor": {
+                "assem_size": "1000",
+                "cycle_time": "3",
+                "fuel_incommods": {"val": "fuel"},
+                "fuel_inrecipes": {"val": "fresh_uox"},
+                "fuel_outcommods": {"val": "spentfuel"},
+                "fuel_outrecipes": {"val": "spent_uox"},
+                "n_assem_batch": "1",
+                "n_assem_core": "3",
+                "power_cap": "1000",
+                "refuel_time": "1",
             }
-        }
-    }
+        },
+        "name": "reactor"
+    }]})
+    scenario_3_input[calc_method]["simulation"].update({"region": {
+        "config": {"NullRegion": "\n      "},
+        "institution": {
+            "config": {
+                "DemandDrivenDeploymentInst": {
+                    "calc_method": calc_method,
+                    "facility_commod": {
+                        "item": [
+                            {"commod": "fuel", "facility": "source"},
+                            {"commod": "POWER", "facility": "reactor"}
+                        ]
+                    },
+                    "facility_capacity": {
+                        "item": [
+                            {"capacity": "3000", "facility": "source"},
+                            {"capacity": "1000", "facility": "reactor"}
+                        ]
+                    },
+                    "driving_commod": "POWER",
+                    "demand_std_dev": "1.0",
+                    "demand_eq": demand_eq,
+                    "record": "1",
+                    "steps": "1"
+                }
+            },
+            "name": "source_inst"
+        },
+        "name": "SingleRegion"
+    }})
 
 
-
-metric_dict = collections.OrderedDict(
-    {'POWER_residuals': {}, 'POWER_chi2': {}, 'POWER_undersupply': {},
-     'fuel_residuals': {}, 'fuel_chi2': {}, 'fuel_undersupply': {}})
-
-
+metric_dict = {}
 
 for calc_method in calc_methods:
     name = "scenario_3_input_" + calc_method
@@ -364,116 +368,120 @@ for calc_method in calc_methods:
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
 
-    dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(
+    # Initialize dicts
+    all_dict_power = {}
+    all_dict_fuel = {}
+    agent_entry_dict = {}
+
+    all_dict_power = tester.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
-    dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2 = functions.supply_demand_dict_nondriving(
-        output_file, 'fuel')
-    # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-    functions.plot_demand_supply(
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name)
-    name2 = "scenario_3_input_"+ calc_method +"_fuel"
-    functions.plot_demand_supply(
-        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2)
+    all_dict_fuel = tester.supply_demand_dict_nondriving(
+        output_file, 'fuel', True)
+    agent_entry_dict['power'] = tester.get_agent_dict(output_file, ['reactor'])
+    agent_entry_dict['fuel'] = tester.get_agent_dict(output_file, ['source'])
 
-    metric_dict['POWER_residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
-    metric_dict['POWER_chi2'][calc_method] = functions.chi_goodness_test(dict_demand, dict_supply)
-    metric_dict['POWER_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand, dict_supply)
+    # plots demand, supply, calculated demand, calculated supply for the
+    # scenario for each calc method
+    plotter.plot_demand_supply_agent(
+        all_dict_power,
+        agent_entry_dict['power'],
+        'power',
+        name + '_power',
+        True,
+        False,
+        False)
+    plotter.plot_demand_supply_agent(
+        all_dict_fuel,
+        agent_entry_dict['fuel'],
+        'fuel',
+        name + '_fuel',
+        True,
+        False,
+        False)
 
-    metric_dict['fuel_residuals'][calc_method] = functions.residuals(
-        dict_demand2, dict_supply2)
-    metric_dict['fuel_chi2'][calc_method] = functions.chi_goodness_test(
-        dict_demand2, dict_supply2)
-    metric_dict['fuel_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand2, dict_supply2)
-        
+    metric_dict = tester.metrics(
+        all_dict_power,
+        metric_dict,
+        calc_method,
+        'power',
+        True)
+    metric_dict = tester.metrics(
+        all_dict_fuel,
+        metric_dict,
+        calc_method,
+        'fuel',
+        True)
+
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_3_output.csv')
 
-######################################SCENARIO 4##########################################
+######################################SCENARIO 4##########################
 # scenario 4, source -> reactor (cycle time = 1, refuel time = 0) -> sink
 scenario_4_input = {}
 demand_eq = "10*(1+1.5)**(t/12)"
 
 for calc_method in calc_methods:
-    scenario_4_input[calc_method] = {
-        "simulation": {
-            "archetypes": {
-                "spec": [
-                    {"lib": "agents", "name": "NullRegion"},
-                    {"lib": "cycamore", "name": "Source"},
-                    {"lib": "cycamore", "name": "Reactor"},
-                    {"lib": "cycamore", "name": "Sink"},
-                    {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"}
-                ]
-            },
-            "control": {"duration": "100", "startmonth": "1", "startyear": "2000"},
-            "recipe": [
-                {
-                    "basis": "mass",
-                    "name": "fresh_uox",
-                    "nuclide": [{"comp": "0.711", "id": "U235"}, {"comp": "99.289", "id": "U238"}]
-                },
-                {
-                    "basis": "mass",
-                    "name": "spent_uox",
-                    "nuclide": [{"comp": "50", "id": "Kr85"}, {"comp": "50", "id": "Cs137"}]
-                }
-            ],
-            "facility": [{
-                "config": {"Source": {"outcommod": "fuel",
-                                      "outrecipe": "fresh_uox",
-                                      "throughput": "3000"}},
-                "name": "source"
-            },
-                {
-                "config": {"Sink": {"in_commods": {"val": "spentfuel"},
-                                    "max_inv_size": "1e6"}},
-                "name": "sink"
-            },
-                {
-                "config": {
-                    "Reactor": {
-                        "assem_size": "1000",
-                        "cycle_time": "1",
-                        "fuel_incommods": {"val": "fuel"},
-                        "fuel_inrecipes": {"val": "fresh_uox"},
-                        "fuel_outcommods": {"val": "spentfuel"},
-                        "fuel_outrecipes": {"val": "spent_uox"},
-                        "n_assem_batch": "1",
-                        "n_assem_core": "3",
-                        "power_cap": "1000",
-                        "refuel_time": "0",
-                    }
-                },
-                "name": "reactor"
-            }],
-            "region": {
-                "config": {"NullRegion": "\n      "},
-                "institution": {
-                    "config": {
-                        "TimeSeriesInst": {
-                            "calc_method": calc_method,
-                            "commodities": {"val": ["fuel_source_3000", "POWER_reactor_1000"]},
-                            "driving_commod": "POWER",
-                            "demand_std_dev": "1.0",
-                            "demand_eq": demand_eq,
-                            "record": "1",
-                            "steps": "1"
-                        }
-                    },
-                    "name": "source_inst"
-                },
-                "name": "SingleRegion"
+    scenario_4_input[calc_method] = copy.deepcopy(scenario_template)
+    scenario_4_input[calc_method]["simulation"].update({"facility": [{
+        "config": {"Source": {"outcommod": "fuel",
+                              "outrecipe": "fresh_uox",
+                              "throughput": "3000"}},
+        "name": "source"
+    },
+        {
+        "config": {"Sink": {"in_commods": {"val": "spentfuel"},
+                            "max_inv_size": "1e6"}},
+        "name": "sink"
+    },
+        {
+        "config": {
+            "Reactor": {
+                "assem_size": "1000",
+                "cycle_time": "1",
+                "fuel_incommods": {"val": "fuel"},
+                "fuel_inrecipes": {"val": "fresh_uox"},
+                "fuel_outcommods": {"val": "spentfuel"},
+                "fuel_outrecipes": {"val": "spent_uox"},
+                "n_assem_batch": "1",
+                "n_assem_core": "3",
+                "power_cap": "1000",
+                "refuel_time": "0",
             }
-        }
-    }
+        },
+        "name": "reactor"
+    }]})
+    scenario_4_input[calc_method]["simulation"].update({"region": {
+        "config": {"NullRegion": "\n      "},
+        "institution": {
+            "config": {
+                "DemandDrivenDeploymentInst": {
+                    "calc_method": calc_method,
+                    "facility_commod": {
+                        "item": [
+                            {"commod": "fuel", "facility": "source"},
+                            {"commod": "POWER", "facility": "reactor"}
+                        ]
+                    },
+                    "facility_capacity": {
+                        "item": [
+                            {"capacity": "3000", "facility": "source"},
+                            {"capacity": "1000", "facility": "reactor"}
+                        ]
+                    },
+                    "driving_commod": "POWER",
+                    "demand_std_dev": "1.0",
+                    "demand_eq": demand_eq,
+                    "record": "1",
+                    "steps": "1"
+                }
+            },
+            "name": "source_inst"
+        },
+        "name": "SingleRegion"
+    }})
 
 
-metric_dict = collections.OrderedDict(
-    {'POWER_residuals': {}, 'POWER_chi2': {}, 'POWER_undersupply': {},
-     'fuel_residuals': {}, 'fuel_chi2': {}, 'fuel_undersupply': {}})
-
+metric_dict = {}
 
 for calc_method in calc_methods:
     name = "scenario_4_input_" + calc_method
@@ -484,28 +492,49 @@ for calc_method in calc_methods:
     s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
                                 universal_newlines=True, env=ENV)
 
-    dict_demand, dict_supply, dict_calc_demand, dict_calc_supply = functions.supply_demand_dict_driving(
+    # Initialize dicts
+    all_dict_power = {}
+    all_dict_fuel = {}
+    agent_entry_dict = {}
+
+    all_dict_power = tester.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
-    dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2 = functions.supply_demand_dict_nondriving(
-        output_file, 'fuel')
-    # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-    functions.plot_demand_supply(
-        dict_demand, dict_supply, dict_calc_demand, dict_calc_supply, 'power', name)
-    name2 = "scenario_4_input_"+ calc_method + "_fuel"
-    functions.plot_demand_supply(
-        dict_demand2, dict_supply2, dict_calc_demand2, dict_calc_supply2, 'fuel', name2)
+    all_dict_fuel = tester.supply_demand_dict_nondriving(
+        output_file, 'fuel', True)
 
-    metric_dict['POWER_residuals'][calc_method] = functions.residuals(dict_demand, dict_supply)
-    metric_dict['POWER_chi2'][calc_method] = functions.chi_goodness_test(dict_demand, dict_supply)
-    metric_dict['POWER_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand, dict_supply)
+    agent_entry_dict['power'] = tester.get_agent_dict(output_file, ['reactor'])
+    agent_entry_dict['fuel'] = tester.get_agent_dict(output_file, ['source'])
+    # plots demand, supply, calculated demand, calculated supply for the
+    # scenario for each calc method
+    plotter.plot_demand_supply_agent(
+        all_dict_power,
+        agent_entry_dict['power'],
+        'power',
+        name + '_power',
+        True,
+        False,
+        False)
+    plotter.plot_demand_supply_agent(
+        all_dict_fuel,
+        agent_entry_dict['fuel'],
+        'fuel',
+        name + '_fuel',
+        True,
+        False,
+        False)
 
-    metric_dict['fuel_residuals'][calc_method] = functions.residuals(
-        dict_demand2, dict_supply2)
-    metric_dict['fuel_chi2'][calc_method] = functions.chi_goodness_test(
-        dict_demand2, dict_supply2)
-    metric_dict['fuel_undersupply'][calc_method] = functions.supply_under_demand(
-        dict_demand2, dict_supply2)
-        
+    metric_dict = tester.metrics(
+        all_dict_power,
+        metric_dict,
+        calc_method,
+        'power',
+        True)
+    metric_dict = tester.metrics(
+        all_dict_fuel,
+        metric_dict,
+        calc_method,
+        'fuel',
+        True)
+
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_4_output.csv')
