@@ -12,11 +12,13 @@ deterministing optimization (DO), and Stochastic optimization (SO).
 
 **arch**: Python package for conditional heteroskidasticity models.[Documentation](https://arch.readthedocs.io/en/latest/index.html)
 
-**Pyramid**: A python package for ARIMA/SARIMA methods. [Documentation](https://www.alkaline-ml.com/pyramid/index.html)
+**Pmdarima**: A python package for ARIMA/SARIMA methods. [Documentation](https://pypi.org/project/pmdarima/)
 
 
-## timeseries_inst
-`timeseries_inst` is a  Cyclus `Institution` archetype that performs demand-driven
+## demand_driven_deployment_inst and supply_driven_deployment_inst
+
+### demand_driven_deployment_inst
+`demand_driven_deployment_inst` is a  Cyclus `Institution` archetype that performs demand-driven
 deployment of Cyclus agents.
 
 The institution works by using the chosen method to predict supply and 
@@ -27,10 +29,37 @@ performed if the method chosen by the institution is 'moving average'. In this i
 the institution will schedule facilities for deployment only if there is a 
 deficit in the current time step. 
 
-### Required Inputs
-- **commodities**: This is a list of strings defining the commodity to track, the facility that supplies the commodity,
- the (initial) capacity of the facility, and the preference of the facility, given by format `commodity_facility_capacity_preference`. The preference can be given as an equation, using
- `t` as the dependent variable (e.g. `(1.01)**t`).
+This institution is used for facilities that exist in the front end of the fuel cycle. 
+
+### supply_driven_deployment_inst 
+`supply_driven_deployment_inst` is a  Cyclus `Institution` archetype that performs supply-driven
+deployment of Cyclus agents.
+
+The institution works by using the chosen method to predict supply and 
+capacity for given commodities. Each timestep the institution calculates a prediction
+on the supply and capacity for the next time step. If the supply exceeds the
+capacity it deploys facilities to ensure capacity exceeds supply. Predictions are not
+performed if the method chosen by the institution is 'moving average'. In this instance
+the institution will schedule facilities for deployment only if there is a 
+deficit in the current time step. 
+
+This institution is used for facilities that exist in the back end of the fuel cycle. 
+
+### Required Inputs for each institution  
+In the first four inputs,  for `demand_driven_deployment_inst`, the facility included should be the facility that supplies the commodity
+and for `supply_driven_deployment_inst`, the facility included should be the facility that supplies capacity for that commodity. 
+- **facility_commod**: This is a mapstringstring defining each facility and the output commodity to track. 
+ Every facility that the user wants to control using this institution must be included in this input. 
+- **facility_capacity**: This is a mapstringdouble defining each facility and the (initial) capacity of the facility. 
+ Every facility that the user wants to control using this institution must be included in this input. 
+- **facility_pref**: This is a mapstringstring defining each facility and the preference for that facility. 
+ The preference can be given as an equation, using `t` as the dependent variable (e.g. `(1.01)**t`). 
+  Only the facilities that the user wants to give preference values to need to be included in this input. 
+- **facility_constraintcommod**: This is a mapstringstring defining each facility and the second commodity that constraints its deployment. 
+ Only the facilities that the user wants to constrain with a second commodity need to be included in this input. 
+- **facility_constraintval**: This is a mapstringdouble defining each facility and the amount accumulated of the second commodity 
+ before the facility can be deployed. 
+ Only the facilities that the user wants to constrain by a second commodity need to be included in this input. 
 - **driving_commod**: The driving commodity for the institution.
 - **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable.
 - **calc_method**: This is the method used to predict the supply and demand.
