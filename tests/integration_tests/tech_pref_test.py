@@ -310,7 +310,7 @@ tech_pref_one_template["simulation"].update({"region": {
                     ]
                 },
                 "facility_pref": {
-                    "item": [{"facility": "reactor1", "pref": "t-6"}]
+                    "item": [{"facility": "reactor1", "pref": "-1"}]
                 },
                 "demand_eq": "3*t",
                 "demand_std_dev": "0.0",
@@ -325,22 +325,22 @@ tech_pref_one_template["simulation"].update({"region": {
 })
 
 
-#def test_tech_pref_one():
-output_file = 'test_tech_pref_one.sqlite'
-input_file = output_file.replace('.sqlite', '.json')
-with open(input_file, 'w') as f:
-    json.dump(tech_pref_one_template, f)
-s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
-                            universal_newlines=True, env=ENV)
-# check if ran successfully and deployed facilities at time step 1
-cur = functions.get_cursor(output_file)
-agent_entry = cur.execute(
-    "select entertime, prototype from agententry").fetchall()
+def test_tech_pref_one():
+    output_file = 'test_tech_pref_one.sqlite'
+    input_file = output_file.replace('.sqlite', '.json')
+    with open(input_file, 'w') as f:
+        json.dump(tech_pref_one_template, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=ENV)
+    # check if ran successfully and deployed facilities at time step 1
+    cur = functions.get_cursor(output_file)
+    agent_entry = cur.execute(
+        "select entertime, prototype from agententry").fetchall()
 
-# check that it does not deploy reactor1 prior to time step 7
-fails = 0
-for x in range(0, len(agent_entry)):
-    if agent_entry[x][0] < 7:
+    # check that it does not deploy reactor1 prior to time step 7
+    fails = 0
+    for x in range(0, len(agent_entry)):
         if agent_entry[x][1] == 'reactor1':
-            fails += 1
-assert(fails == 0)
+            fails = 1
+            break
+    assert(fails == 0)
