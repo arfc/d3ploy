@@ -49,7 +49,7 @@ scenario_template = {
     {"lib": "cycamore", "name": "Reactor"},
     {"lib": "cycamore", "name": "Sink"},
     {"lib": "cycamore", "name": "Storage"},
-    {"lib": "d3ploy.timeseries_inst", "name": "TimeSeriesInst"},
+    {"lib": "d3ploy.demand_driven_deployment_inst", "name": "DemandDrivenDeploymentInst"},
     {
      "lib": "d3ploy.supply_driven_deployment_inst",
      "name": "SupplyDrivenDeploymentInst"
@@ -124,9 +124,20 @@ for calc_method in calc_methods:
    "institution": [
     {
      "config": {
-      "TimeSeriesInst": {
+      "DemandDrivenDeploymentInst": {
        "calc_method": calc_method,
-       "commodities": {"val": ["fuel_source_3e3", "POWER_reactor_1e3"]},
+       "facility_commod": {
+       "item": [
+        {"commod": "POWER", "facility": "reactor"}, 
+        {"commod": "fuel", "facility": "source"}
+       ]
+      },
+       "facility_capacity": {
+       "item": [
+        {"capacity": "1e3", "facility": "reactor"}, 
+        {"capacity": "3e3", "facility": "source"}
+       ]
+      },
        "demand_eq": demand_eq,
        "demand_std_dev": "1.0",
        "driving_commod": "POWER",
@@ -140,7 +151,16 @@ for calc_method in calc_methods:
      "config": {
       "SupplyDrivenDeploymentInst": {
        "calc_method": "ma",
-       "commodities": {"val": "spentfuel_sink_1e6"},
+       "facility_commod": {
+       "item": [
+        {"commod": "spentfuel", "facility": "sink"}
+       ]
+      },
+       "facility_capacity": {
+       "item": [
+        {"capacity": "1e6", "facility": "sink"}
+       ]
+      },
        "capacity_std_dev": "1.0",
        "record": "1",
        "steps": "1"
@@ -169,6 +189,7 @@ for calc_method in calc_methods:
     all_dict_power = {}
     all_dict_fuel = {} 
     all_dict_spentfuel = {} 
+    agent_entry_dict = {}
 
     all_dict_power = tester.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
@@ -176,13 +197,15 @@ for calc_method in calc_methods:
         output_file, 'fuel',True)
     all_dict_spentfuel = tester.supply_demand_dict_nondriving(
         output_file, 'spentfuel',False)
-    
+
+    agent_entry_dict['power'] = tester.get_agent_dict(output_file,['reactor'])
+    agent_entry_dict['fuel'] = tester.get_agent_dict(output_file,['source'])
+    agent_entry_dict['spentfuel'] = tester.get_agent_dict(output_file,['sink'])
+
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-    plotter.plot_demand_supply(all_dict_power, 'power', name, True)
-    name2 = "scenario_5_input_"+ calc_method +"_fuel"
-    plotter.plot_demand_supply(all_dict_fuel, 'fuel', name2, True)
-    name3 = "scenario_5_input_"+ calc_method +"_spentfuel"
-    plotter.plot_demand_supply(all_dict_spentfuel, 'spentfuel', name3, False)
+    plotter.plot_demand_supply_agent(all_dict_power, agent_entry_dict['power'], 'power', name+"_power", True,False,False)
+    plotter.plot_demand_supply_agent(all_dict_fuel, agent_entry_dict['fuel'], 'fuel', name+"_fuel", True,False,False)
+    plotter.plot_demand_supply_agent(all_dict_spentfuel, agent_entry_dict['spentfuel'], 'spentfuel', name+"_spentfuel", False,False,False)
     
     metric_dict = tester.metrics(all_dict_power,metric_dict,calc_method,'power',True)
     metric_dict = tester.metrics(all_dict_fuel,metric_dict,calc_method,'fuel',True)
@@ -245,9 +268,20 @@ for calc_method in calc_methods:
    "institution": [
     {
      "config": {
-      "TimeSeriesInst": {
+      "DemandDrivenDeploymentInst": {
        "calc_method": calc_method,
-       "commodities": {"val": ["fuel_source_3e3", "POWER_reactor_1e3"]},
+       "facility_commod": {
+       "item": [
+        {"commod": "POWER", "facility": "reactor"}, 
+        {"commod": "fuel", "facility": "source"}
+       ]
+      },
+       "facility_capacity": {
+       "item": [
+        {"capacity": "3e3", "facility": "source"},
+        {"capacity": "1e3", "facility": "reactor"}
+       ]
+      },
        "demand_eq": "1000*t",
        "demand_std_dev": "1.0",
        "driving_commod": "POWER",
@@ -262,7 +296,18 @@ for calc_method in calc_methods:
       "SupplyDrivenDeploymentInst": {
        "calc_method": calc_method,
        "capacity_std_dev": "1.0",
-       "commodities": {"val": ["spentfuel_storage_1e6", "coolspentfuel_sink_1e6"]},
+       "facility_commod": {
+       "item": [
+        {"commod": "spentfuel", "facility": "storage"}, 
+        {"commod": "coolspentfuel", "facility": "sink"}
+       ]
+      },
+       "facility_capacity": {
+       "item": [
+        {"capacity": "1e6", "facility": "storage"}, 
+        {"capacity": "1e6", "facility": "sink"}
+       ]
+      },
        "record": "1",
        "steps": "1"
       }
@@ -290,6 +335,7 @@ for calc_method in calc_methods:
     all_dict_fuel = {} 
     all_dict_spentfuel = {} 
     all_dict_coolspentfuel = {} 
+    agent_entry_dict = {}
 
     all_dict_power = tester.supply_demand_dict_driving(
         output_file, demand_eq, 'power')
@@ -300,14 +346,16 @@ for calc_method in calc_methods:
     all_dict_coolspentfuel = tester.supply_demand_dict_nondriving(
     output_file, 'coolspentfuel',False)
 
+    agent_entry_dict['power'] = tester.get_agent_dict(output_file,['reactor'])
+    agent_entry_dict['fuel'] = tester.get_agent_dict(output_file,['source'])
+    agent_entry_dict['coolspentfuel'] = tester.get_agent_dict(output_file,['sink'])
+    agent_entry_dict['spentfuel'] = tester.get_agent_dict(output_file,['storage'])
+
     # plots demand, supply, calculated demand, calculated supply for the scenario for each calc method
-    plotter.plot_demand_supply(all_dict_power, 'power', name, True)
-    name2 = "scenario_6_input_"+ calc_method +"_fuel"
-    plotter.plot_demand_supply(all_dict_fuel, 'fuel', name2, True)
-    name3 = "scenario_6_input_"+ calc_method +"_spentfuel"
-    plotter.plot_demand_supply(all_dict_spentfuel, 'spentfuel', name3, False)
-    name4 = "scenario_6_input_"+ calc_method +"_coolspentfuel"
-    plotter.plot_demand_supply(all_dict_coolspentfuel, 'coolspentfuel', name4, False)
+    plotter.plot_demand_supply_agent(all_dict_power, agent_entry_dict['power'], 'power', name+"_power", True,False,False)
+    plotter.plot_demand_supply_agent(all_dict_fuel, agent_entry_dict['fuel'], 'fuel', name+"_fuel", True,False,False)
+    plotter.plot_demand_supply_agent(all_dict_spentfuel, agent_entry_dict['spentfuel'], 'spentfuel', name+"_spentfuel", False,False,False)
+    plotter.plot_demand_supply_agent(all_dict_coolspentfuel, agent_entry_dict['coolspentfuel'], 'coolspentfuel', name+"_coolspentfuel", False,False,False)
 
     metric_dict = tester.metrics(all_dict_power,metric_dict,calc_method,'power',True)
     metric_dict = tester.metrics(all_dict_fuel,metric_dict,calc_method,'fuel',True)
