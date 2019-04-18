@@ -64,14 +64,19 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
     dict_calc_supply = {}
     for x in range(0, len(fuel_supply)):
         dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
+    for x in range(0,len(calc_fuel_demand)):
         dict_calc_demand[calc_fuel_demand[x][0]] = calc_fuel_demand[x][1]
+    for x in range(0,len(calc_fuel_supply)):
         dict_calc_supply[calc_fuel_supply[x][0]] = calc_fuel_supply[x][1]
-    t = np.fromiter(dict_supply.keys(), dtype=float)
+    oldt = np.fromiter(dict_supply.keys(), dtype=float)
+    t = np.arange(0,oldt[-1]+1)
     fuel_demand = eval(demand_eq)
     if isinstance(fuel_demand, int):
         fuel_demand = fuel_demand*np.ones(len(t))
-    for x in range(0, len(fuel_supply)):
-        dict_demand[fuel_supply[x][0]] = fuel_demand[x]
+    print('FD',fuel_demand)
+    print('t',t)
+    for x in range(0, len(t)):
+        dict_demand[t[x]] = fuel_demand[x]
 
     all_dict = {}
     all_dict['dict_demand'] = dict_demand
@@ -124,17 +129,17 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     dict_calc_supply = {}
     for x in range(0, len(fuel_supply)):
         dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
+    for x in range(0,len(calc_fuel_demand)):
         dict_calc_demand[calc_fuel_demand[x][0]] = calc_fuel_demand[x][1]
+    for x in range(0,len(calc_fuel_supply)):
         dict_calc_supply[calc_fuel_supply[x][0]] = calc_fuel_supply[x][1]
 
     t = np.fromiter(dict_supply.keys(), dtype=float)
     for x in range(0, len(t)):
         dict_demand[t[x]] = 0
 
-    for x in range(0, len(fuel_supply)):
-        for y in range(0, len(fuel_demand)):
-            if fuel_demand[y][0] == fuel_supply[x][0]:
-                dict_demand[fuel_supply[x][0]] = fuel_demand[y][1]
+    for x in range(0, len(fuel_demand)):
+        dict_demand[fuel_demand[x][0]] = fuel_demand[x][1]
 
     all_dict = {}
     all_dict['dict_demand'] = dict_demand
