@@ -79,8 +79,6 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
     fuel_demand = eval(demand_eq)
     if isinstance(fuel_demand, int):
         fuel_demand = fuel_demand * np.ones(len(t))
-    print('FD', fuel_demand)
-    print('t', t)
     for x in range(0, len(t)):
         dict_demand[t[x]] = fuel_demand[x]
 
