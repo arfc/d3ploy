@@ -249,6 +249,7 @@ class DemandDrivenDeploymentInst(Institution):
                                           commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
+            commod_mins = solver.find_mins(self.commod_min, self.commod_dict)
             self.fresh = False
 
     def decision(self):
@@ -273,7 +274,7 @@ class DemandDrivenDeploymentInst(Institution):
 	        if diff > os_limit:
 		        self.commod_os[commod] += 1    
 	        elif diff > os_limit and self.commod_os[commod] > self.os_time:
-		        solver.decommission(self, commod_dict[commod], diff)
+		        solver.decommission(self, self.commod_dict[commod], diff)
             else:
                 self.commod_os[commod] = 0
             if self.record:
