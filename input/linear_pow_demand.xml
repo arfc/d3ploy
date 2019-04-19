@@ -22,7 +22,7 @@
     </spec>
   </archetypes>
   <control>
-    <duration>100</duration>
+    <duration>10</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
   </control>
@@ -132,7 +132,7 @@
           <calc_method>poly</calc_method>
           <record>1</record>
 	        <demand_std_dev>0.0</demand_std_dev>
-          <demand_eq>10-0.1*t</demand_eq>
+          <demand_eq>3*t</demand_eq>
           <facility_commod>
             <item>
               <facility>reactor1</facility>
