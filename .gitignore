@@ -7,3 +7,5 @@ build
 d3ploy/__pycache__
 .pytest_cache
 test/__pycache__
+*.png 
+*.csv
