@@ -40,7 +40,7 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 
 ##### List of types of calc methods that are to be tested #####
 calc_methods = ["ma", "arma", "arch", "poly",
-                "exp_smoothing", "holt_winters", "fft"]
+                "exp_smoothing", "holt_winters", "fft", "sw_seasonal"]
 
 scenario_template = {
     "simulation": {
