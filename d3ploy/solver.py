@@ -60,13 +60,13 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
         # deploy the one with highest preference
         # until it oversupplies
         return preference_deploy(proto_commod, eval_pref_fac, diff)
-    else: 
+    else:
         if list(filtered_pref_fac.values())[0] < 0:
             return preference_deploy(proto_commod, eval_pref_fac, diff)
         else:
-        # if preference is not given,
-        # or all the preference values are the same,
-        # deploy to minimize number of deployment
+            # if preference is not given,
+            # or all the preference values are the same,
+            # deploy to minimize number of deployment
             return minimize_number_of_deployment(proto_commod, diff)
 
 
