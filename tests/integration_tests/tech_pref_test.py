@@ -42,7 +42,8 @@ TEMPLATE = {
         "facility": [
             {
                 "config": {"Source": {"outcommod": "fuel",
-                                      "outrecipe": "fresh_uox", "throughput": "1"}},
+                                      "outrecipe": "fresh_uox", 
+						   "throughput": "1"}},
                 "name": "source"
             },
             {
@@ -288,7 +289,7 @@ def test_tech_pref_cross():
     assert(passes == 1)
 
 
-# ----------------------------------------------------------------------------- #
+# ---------------------------------------------------------- #
 # In this scenario, the preference for reactor 1 is negative
 # This test will fail if there if reactor1 is deployed at all
 tech_pref_one_template = copy.deepcopy(TEMPLATE)
@@ -346,7 +347,7 @@ def test_tech_pref_one():
     assert(fails == 0)
 
 
-# ----------------------------------------------------------------------------- #
+# ------------------------------------------------------------------------- #
 # In this scenario, the preference for reactor 1 is negative until time step 2
 # This test will fail if there if reactor1 is deployed before time step 2
 tech_pref_two_template = copy.deepcopy(TEMPLATE)
