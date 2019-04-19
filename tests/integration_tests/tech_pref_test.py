@@ -42,8 +42,8 @@ TEMPLATE = {
         "facility": [
             {
                 "config": {"Source": {"outcommod": "fuel",
-                                      "outrecipe": "fresh_uox", 
-						   "throughput": "1"}},
+                                      "outrecipe": "fresh_uox",
+                                                   "throughput": "1"}},
                 "name": "source"
             },
             {
