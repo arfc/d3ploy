@@ -135,13 +135,6 @@ class DemandDrivenDeploymentInst(Institution):
         default=0
     )
 
-    demand_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the demand side.",
-        tooltip="The standard deviation adjustment for the demand side.",
-        uilabel="Demand Std Dev",
-        default=0
-    )
-
     degree = ts.Int(
         doc="The degree of the fitting polynomial.",
         tooltip="The degree of the fitting polynomial, if using calc methods" +
@@ -286,7 +279,7 @@ class DemandDrivenDeploymentInst(Institution):
         if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = 0.0
         supply = self.predict_supply(commod)
-        demand = self.predict_demand(commod, time)
+        demand = self.predict_demand(commod, time) * self.demand_std_dev
         diff = supply - demand
         return diff, supply, demand
 
