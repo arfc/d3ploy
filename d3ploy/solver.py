@@ -173,6 +173,46 @@ def minimize_number_of_deployment(proto_commod, remainder):
 
     return deploy_dict
 
-def decommission(agent, diff):
+def find_mins(commod_min, commod_dict):
+    """ This function updates the commod_min
+    dictionary to contain the minimum production
+    for each commodity. 
+     Parameters:
+    ----------
+    commod_min: dictionary
+        key:commodity
+        value: min capacity
+        dictionary of the minimum commod production    
+    commod_dict: dictionary
+        key: prototype name
+        value: prototype capacity
+    
+    Returns:
+    --------
+    commod_min: dictionary
+        key: commodity
+        value: min capacity
+    """
+    for commod, proto in commod_dict.items(): 
+        commod_min[commod] = 1e299
+        for fac, dic in proto.items():
+            if dic['cap'] < commod_min[commod]:
+                commod_min[commod] = dic['cap']
+    return commod_min
+
+def decommission(agent, commod_dict, diff, commod):
+    fac_mins = {}
+    for fac, dic in commod_min[commod]:
+        fac_mins[fac] = dic['cap']
+    tmp = sorted(fac_mins.values())
+    facs = []
+    for i in tmp:
+        facs.append(list(fac_mins.keys())[list(fac_mins.values()).index(i)])
     for agt in agent.children():
+        for i in facs:
+            if commod_dict[agent.prototype]['cap'] < diff:
+                if agent.prototype is i:
+                    agent.decommission()
+                    diff -= commod_dict[agent.prototype]['cap']       
+	
         

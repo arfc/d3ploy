@@ -152,6 +152,20 @@ class DemandDrivenDeploymentInst(Institution):
         default=1
     )
 
+    os_time = ts.Int(
+        doc="The number of oversupply timesteps before decommission",
+        tooltip="",
+        uilabel="Oversupply Time Limit",
+        default=5
+    )
+
+     os_int = ts.Int(
+        doc="The number minimum capacities over supply limit",
+        tooltip="",
+        uilabel="Oversupply Fac Limit",
+        default=1
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.commodity_supply = {}
@@ -159,6 +173,7 @@ class DemandDrivenDeploymentInst(Institution):
         self.rev_commodity_supply = {}
         self.rev_commodity_demand = {}
         self.fresh = True
+	self.commod_mins = {}
         CALC_METHODS['ma'] = no.predict_ma
         CALC_METHODS['arma'] = no.predict_arma
         CALC_METHODS['arch'] = no.predict_arch
@@ -254,6 +269,13 @@ class DemandDrivenDeploymentInst(Institution):
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
+	        os_limit = self.commod_min[commod] * self.os_int
+	        if diff > os_limit:
+		        self.commod_os[commod] += 1    
+	        elif diff > os_limit and self.commod_os[commod] > self.os_time:
+		        solver.decommission(self, commod_dict[commod], diff)
+            else:
+                self.commod_os[commod] = 0
             if self.record:
                 out_text = "Time " + str(time) + \
                     " Deployed " + str(len(self.children))
