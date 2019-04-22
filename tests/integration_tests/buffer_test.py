@@ -1,4 +1,4 @@
-""" This python file contains supply buffer and capacity buffer tests 
+""" This python file contains supply buffer and capacity buffer tests
 for DemandDrivenDeploymentInst and SupplyDrivenDeploymentInst
 archetypes.
 """
@@ -37,7 +37,7 @@ TEMPLATE = {
                 {"lib": "cycamore", "name": "Sink"},
                 {"lib": "d3ploy.demand_driven_deployment_inst",
                  "name": "DemandDrivenDeploymentInst"},
-                 {"lib": "d3ploy.supply_driven_deployment_inst",
+                {"lib": "d3ploy.supply_driven_deployment_inst",
                  "name": "SupplyDrivenDeploymentInst"}
             ]
         },
@@ -90,9 +90,9 @@ TEMPLATE = {
 }
 
 # ----------------------------------------------------------------------------- #
-# This test will fail if the inclusion of a 20% supply buffer doesn't result in 
+# This test will fail if the inclusion of a 20% supply buffer doesn't result in
 # the calculated demand being 20% larger than a simulation without the supply
-# buffer. 
+# buffer.
 
 nobuf_template = copy.deepcopy(TEMPLATE)
 nobuf_template["simulation"].update({"region": {
@@ -146,7 +146,7 @@ yesbuf_template["simulation"].update({"region": {
                 },
                 "supply_buffer": {
                     "item": [
-                        {"commod": "POWER","buffer": "0.2"}
+                        {"commod": "POWER", "buffer": "0.2"}
                     ]
                 },
                 "demand_eq": "3*t",
@@ -160,6 +160,7 @@ yesbuf_template["simulation"].update({"region": {
 }
 })
 
+
 def test_supply_buffer():
     output_file_nobuf = 'nobuf.sqlite'
     output_file_yesbuf = 'yesbuf.sqlite'
@@ -167,131 +168,141 @@ def test_supply_buffer():
     input_file_yesbuf = output_file_yesbuf.replace('.sqlite', '.json')
     with open(input_file_nobuf, 'w') as f:
         json.dump(nobuf_template, f)
-    s = subprocess.check_output(['cyclus', '-o', output_file_nobuf, input_file_nobuf],
-                                universal_newlines=True, env=ENV)
+    s = subprocess.check_output(['cyclus',
+                                 '-o',
+                                 output_file_nobuf,
+                                 input_file_nobuf],
+                                universal_newlines=True,
+                                env=ENV)
     with open(input_file_yesbuf, 'w') as f:
         json.dump(yesbuf_template, f)
-    s = subprocess.check_output(['cyclus', '-o', output_file_yesbuf, input_file_yesbuf],
-                                universal_newlines=True, env=ENV)
-    
+    s = subprocess.check_output(['cyclus',
+                                 '-o',
+                                 output_file_yesbuf,
+                                 input_file_yesbuf],
+                                universal_newlines=True,
+                                env=ENV)
+
     # check if calculated demand is 20% higher for yesbuf case
     cur_nobuf = functions.get_cursor(output_file_nobuf)
     cur_yesbuf = functions.get_cursor(output_file_yesbuf)
-    calcdemand_nobuf = cur_nobuf.execute("select time, value from timeseriescalc_demandpower").fetchall()
-    calcdemand_yesbuf = cur_yesbuf.execute("select time, value from timeseriescalc_demandpower").fetchall()
+    calcdemand_nobuf = cur_nobuf.execute(
+        "select time, value from timeseriescalc_demandpower").fetchall()
+    calcdemand_yesbuf = cur_yesbuf.execute(
+        "select time, value from timeseriescalc_demandpower").fetchall()
     count = 0
     for x in range(len(calcdemand_nobuf)):
         if calcdemand_nobuf[x][0] != calcdemand_yesbuf[x][0]:
-            count +=1
-    
+            count += 1
+
     assert(count == 0)
 
 
 # ----------------------------------------------------------------------------- #
-# This test will fail if the inclusion of a 20% capacity buffer doesn't result in 
+# This test will fail if the inclusion of a 20% capacity buffer doesn't result in
 # the calculated supply being 20% larger than a simulation without the capacity
-# buffer. 
+# buffer.
 
 nobuf_template2 = copy.deepcopy(TEMPLATE)
-nobuf_template2["simulation"].update({  "region": {
-   "config": {"NullRegion": "\n      "}, 
-   "institution": [
-    {
-     "config": {
-            "DemandDrivenDeploymentInst": {
-                "calc_method": "poly",
-                "facility_capacity": {
-                    "item": [
-                        {"capacity": "1", "facility": "reactor1"},
-                        {"capacity": "1", "facility": "source"}
-                    ]
-                },
-                "facility_commod": {
-                    "item": [
-                        {"commod": "POWER", "facility": "reactor1"},
-                        {"commod": "fuel", "facility": "source"}
-                    ]
-                },
-                "supply_buffer": {
-                    "item": [
-                        {"commod": "POWER","buffer": "0.2"}
-                    ]
-                },
-                "demand_eq": "3*t",
-                "record": "1",
-                "steps": "1"
-            }
-     }, 
-     "name": "source_inst"
-    }, 
-    {
-     "config": {
-      "SupplyDrivenDeploymentInst": {
-       "calc_method": "ma", 
-       "capacity_std_dev": "1.0", 
-       "facility_capacity": {"item": {"capacity": "10", "facility": "sink"}}, 
-       "facility_commod": {"item": {"commod": "spent_uox", "facility": "sink"}}, 
-       "record": "1", 
-       "steps": "1"
-      }
-     }, 
-     "name": "hello_inst"
-    }
-   ], 
-   "name": "SingleRegion"
-  }
+nobuf_template2["simulation"].update({"region": {
+    "config": {"NullRegion": "\n      "},
+    "institution": [
+        {
+            "config": {
+                "DemandDrivenDeploymentInst": {
+                    "calc_method": "poly",
+                    "facility_capacity": {
+                        "item": [
+                            {"capacity": "1", "facility": "reactor1"},
+                            {"capacity": "1", "facility": "source"}
+                        ]
+                    },
+                    "facility_commod": {
+                        "item": [
+                            {"commod": "POWER", "facility": "reactor1"},
+                            {"commod": "fuel", "facility": "source"}
+                        ]
+                    },
+                    "supply_buffer": {
+                        "item": [
+                            {"commod": "POWER", "buffer": "0.2"}
+                        ]
+                    },
+                    "demand_eq": "3*t",
+                    "record": "1",
+                    "steps": "1"
+                }
+            },
+            "name": "source_inst"
+        },
+        {
+            "config": {
+                "SupplyDrivenDeploymentInst": {
+                    "calc_method": "ma",
+                    "capacity_std_dev": "1.0",
+                    "facility_capacity": {"item": {"capacity": "10", "facility": "sink"}},
+                    "facility_commod": {"item": {"commod": "spent_uox", "facility": "sink"}},
+                    "record": "1",
+                    "steps": "1"
+                }
+            },
+            "name": "hello_inst"
+        }
+    ],
+    "name": "SingleRegion"
+}
 })
 
 
 yesbuf_template2 = copy.deepcopy(TEMPLATE)
-yesbuf_template2["simulation"].update({  "region": {
-   "config": {"NullRegion": "\n      "}, 
-   "institution": [
-    {
-     "config": {
-            "DemandDrivenDeploymentInst": {
-                "calc_method": "poly",
-                "facility_capacity": {
-                    "item": [
-                        {"capacity": "1", "facility": "reactor1"},
-                        {"capacity": "1", "facility": "source"}
-                    ]
-                },
-                "facility_commod": {
-                    "item": [
-                        {"commod": "POWER", "facility": "reactor1"},
-                        {"commod": "fuel", "facility": "source"}
-                    ]
-                },
-                "supply_buffer": {
-                    "item": [
-                        {"commod": "POWER","buffer": "0.2"}
-                    ]
-                },
-                "demand_eq": "3*t",
-                "record": "1",
-                "steps": "1"
-            }
-     }, 
-     "name": "source_inst"
-    }, 
-    {
-     "config": {
-      "SupplyDrivenDeploymentInst": {
-       "calc_method": "ma", 
-       "capacity_std_dev": "1.0", 
-       "facility_capacity": {"item": {"capacity": "10", "facility": "sink"}}, 
-       "facility_commod": {"item": {"commod": "spent_uox", "facility": "sink"}}, 
-       "capacity_buffer": {"item": {"commod": "spent_uox", "buffer": "0.2"}}, 
-       "record": "1", 
-       "steps": "1"
-      }
-     }, 
-     "name": "hello_inst"
-    }
-   ], 
-   "name": "SingleRegion"
-  }
+yesbuf_template2["simulation"].update({"region": {
+    "config": {"NullRegion": "\n      "},
+    "institution": [
+        {
+            "config": {
+                "DemandDrivenDeploymentInst": {
+                    "calc_method": "poly",
+                    "facility_capacity": {
+                        "item": [
+                            {"capacity": "1", "facility": "reactor1"},
+                            {"capacity": "1", "facility": "source"}
+                        ]
+                    },
+                    "facility_commod": {
+                        "item": [
+                            {"commod": "POWER", "facility": "reactor1"},
+                            {"commod": "fuel", "facility": "source"}
+                        ]
+                    },
+                    "supply_buffer": {
+                        "item": [
+                            {"commod": "POWER", "buffer": "0.2"}
+                        ]
+                    },
+                    "demand_eq": "3*t",
+                    "record": "1",
+                    "steps": "1"
+                }
+            },
+            "name": "source_inst"
+        },
+        {
+            "config": {
+                "SupplyDrivenDeploymentInst": {
+                    "calc_method": "ma",
+                    "capacity_std_dev": "1.0",
+                    "facility_capacity": {"item": {"capacity": "10", "facility": "sink"}},
+                    "facility_commod": {"item": {"commod": "spent_uox", "facility": "sink"}},
+                    "capacity_buffer": {"item": {"commod": "spent_uox", "buffer": "0.2"}},
+                    "record": "1",
+                    "steps": "1"
+                }
+            },
+            "name": "hello_inst"
+        }
+    ],
+    "name": "SingleRegion"
+}
 })
 
 
@@ -302,21 +313,31 @@ def test_capacity_buffer():
     input_file_yesbuf2 = output_file_yesbuf2.replace('.sqlite', '.json')
     with open(input_file_nobuf2, 'w') as f:
         json.dump(nobuf_template2, f)
-    s = subprocess.check_output(['cyclus', '-o', output_file_nobuf2, input_file_nobuf2],
-                                universal_newlines=True, env=ENV)
+    s = subprocess.check_output(['cyclus',
+                                 '-o',
+                                 output_file_nobuf2,
+                                 input_file_nobuf2],
+                                universal_newlines=True,
+                                env=ENV)
     with open(input_file_yesbuf2, 'w') as f:
         json.dump(yesbuf_template2, f)
-    s = subprocess.check_output(['cyclus', '-o', output_file_yesbuf2, input_file_yesbuf2],
-                                universal_newlines=True, env=ENV)
-    
+    s = subprocess.check_output(['cyclus',
+                                 '-o',
+                                 output_file_yesbuf2,
+                                 input_file_yesbuf2],
+                                universal_newlines=True,
+                                env=ENV)
+
     # check if calculated demand is 20% higher for yesbuf case
     cur_nobuf2 = functions.get_cursor(output_file_nobuf2)
     cur_yesbuf2 = functions.get_cursor(output_file_yesbuf2)
-    calcsupply_nobuf = cur_nobuf2.execute("select time, value from timeseriescalc_supplyspent_uox").fetchall()
-    calcsupply_yesbuf = cur_yesbuf2.execute("select time, value from timeseriescalc_supplyspent_uox").fetchall()
+    calcsupply_nobuf = cur_nobuf2.execute(
+        "select time, value from timeseriescalc_supplyspent_uox").fetchall()
+    calcsupply_yesbuf = cur_yesbuf2.execute(
+        "select time, value from timeseriescalc_supplyspent_uox").fetchall()
     count = 0
     for x in range(len(calcsupply_nobuf)):
         if calcsupply_nobuf[x][0] != calcsupply_yesbuf[x][0]:
-            count +=1
-    
+            count += 1
+
     assert(count == 0)

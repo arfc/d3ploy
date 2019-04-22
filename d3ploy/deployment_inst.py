@@ -46,14 +46,14 @@ def build_dict(
     return commodity_dict
 
 
-def build_buffer_dict(buffer,commods):
+def build_buffer_dict(buffer, commods):
     buffer_dict = {}
     for i in commods:
         count = 0
-        for key,value in buffer.items():
+        for key, value in buffer.items():
             if i == key:
                 count += 1
-                print('KV',key,value)
+                print('KV', key, value)
                 buffer_dict[key] = value
         if count == 0:
             buffer_dict[i] = 0.

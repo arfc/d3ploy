@@ -166,7 +166,6 @@ class SupplyDrivenDeploymentInst(Institution):
         print('back_steps: %i' % self.back_steps)
         print('capacity_std_dev: %f' % self.capacity_std_dev)
 
-
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
@@ -179,7 +178,7 @@ class SupplyDrivenDeploymentInst(Institution):
                 self.facility_constraintval)
             commod_list = list(self.commodity_dict.keys())
             self.buffer_dict = di.build_buffer_dict(self.capacity_buffer,
-                                                 commod_list) 
+                                                    commod_list)
             for commod in self.commodity_dict:
                 # swap supply and demand for supply_inst
                 # change demand into capacity
@@ -241,7 +240,8 @@ class SupplyDrivenDeploymentInst(Institution):
         if time not in self.commodity_capacity[commod]:
             self.commodity_capacity[commod][time] = 0.0
         capacity = self.predict_capacity(commod)
-        supply = self.predict_supply(commod, time)*(1+self.buffer_dict[commod])
+        supply = self.predict_supply(
+            commod, time) * (1 + self.buffer_dict[commod])
         diff = capacity - supply
         return diff, capacity, supply
 

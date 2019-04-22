@@ -173,7 +173,6 @@ class DemandDrivenDeploymentInst(Institution):
         print('back_steps: %i' % self.back_steps)
         print('supply_std_dev: %f' % self.supply_std_dev)
 
-
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
@@ -191,7 +190,7 @@ class DemandDrivenDeploymentInst(Institution):
                         commod_list.append(val2['constraint_commod'])
             commod_list = list(set(commod_list))
             self.buffer_dict = di.build_buffer_dict(self.supply_buffer,
-                                                 commod_list) 
+                                                    commod_list)
             for commod in commod_list:
                 lib.TIME_SERIES_LISTENERS["supply" +
                                           commod].append(self.extract_supply)
@@ -251,7 +250,8 @@ class DemandDrivenDeploymentInst(Institution):
         if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = 0.0
         supply = self.predict_supply(commod)
-        demand = self.predict_demand(commod, time)*(1+self.buffer_dict[commod])
+        demand = self.predict_demand(
+            commod, time) * (1 + self.buffer_dict[commod])
         diff = supply - demand
         return diff, supply, demand
 
