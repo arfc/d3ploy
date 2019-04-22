@@ -135,11 +135,13 @@ class DemandDrivenDeploymentInst(Institution):
         default=0
     )
 
-    demand_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the demand side.",
-        tooltip="The standard deviation adjustment for the demand side.",
-        uilabel="Demand Std Dev",
-        default=0
+    supply_buffer = ts.MapStringDouble(
+        doc="The percent above demand the supply should hit. In decimal" +
+            "form",
+        tooltip="Buffer Amount in percent decimal form.",
+        alias=['supply_buffer', 'commod', 'buffer'],
+        uilabel="Supply Buffer",
+        default={}
     )
 
     degree = ts.Int(
@@ -210,6 +212,19 @@ class DemandDrivenDeploymentInst(Institution):
             if key in facility_dict.keys():
                 commodity_dict[val].update({key: facility_dict[key]})
         return commodity_dict
+    
+    def build_buffer_dict(self,buffer,commods):
+        buffer_dict = {}
+        for i in commods:
+            count = 0
+            for key,value in buffer.items():
+                if i == key:
+                    count += 1
+                    print('KV',key,value)
+                    buffer_dict[key] = value
+            if count == 0:
+                buffer_dict[i] = 0.
+        return buffer_dict
 
     def enter_notify(self):
         super().enter_notify()
@@ -227,6 +242,8 @@ class DemandDrivenDeploymentInst(Institution):
                     if val2['constraint_commod'] != '0':
                         commod_list.append(val2['constraint_commod'])
             commod_list = list(set(commod_list))
+            self.buffer_dict = self.build_buffer_dict(self.supply_buffer,
+                                                 commod_list) 
             for commod in commod_list:
                 lib.TIME_SERIES_LISTENERS["supply" +
                                           commod].append(self.extract_supply)
@@ -286,7 +303,7 @@ class DemandDrivenDeploymentInst(Institution):
         if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = 0.0
         supply = self.predict_supply(commod)
-        demand = self.predict_demand(commod, time)
+        demand = self.predict_demand(commod, time)*(1+self.buffer_dict[commod])
         diff = supply - demand
         return diff, supply, demand
 
