@@ -312,7 +312,6 @@ tech_pref_one_template["simulation"].update({"region": {
                     "item": [{"facility": "reactor1", "pref": "-1"}]
                 },
                 "demand_eq": "3*t",
-                "demand_std_dev": "0.0",
                 "record": "1",
                 "steps": "1"
             }
@@ -370,7 +369,6 @@ tech_pref_two_template["simulation"].update({"region": {
                     "item": [{"facility": "reactor1", "pref": "t-2"}]
                 },
                 "demand_eq": "3*t",
-                "demand_std_dev": "0.0",
                 "record": "1",
                 "steps": "1"
             }
