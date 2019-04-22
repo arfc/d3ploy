@@ -64,7 +64,7 @@ and for `supply_driven_deployment_inst`, the facility included should be the fac
 - **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable.
 - **calc_method**: This is the method used to predict the supply and demand.
 
-## Differing Inputs 
+#### Differing Inputs 
 DemandDrivenDeploymentInst:
 - **supply_buffer**: This is the percentage amount above demand that the user wants the supply to meet. If the user wants a 20% value of supply higher than demand, they should input 0.2. 
 
