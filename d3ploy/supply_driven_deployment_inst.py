@@ -117,16 +117,9 @@ class SupplyDrivenDeploymentInst(Institution):
     )
 
     capacity_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the supple side.",
-        tooltip="The standard deviation adjustment for the supple side.",
+        doc="The standard deviation adjustment for the capacity side.",
+        tooltip="The standard deviation adjustment for the capacity side.",
         uilabel="capacity Std Dev",
-        default=0
-    )
-
-    supply_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the supply side.",
-        tooltip="The standard deviation adjustment for the supply side.",
-        uilabel="supply Std Dev",
         default=0
     )
 
@@ -172,7 +165,6 @@ class SupplyDrivenDeploymentInst(Institution):
         print('steps: %i' % self.steps)
         print('back_steps: %i' % self.back_steps)
         print('capacity_std_dev: %f' % self.capacity_std_dev)
-        print('supply_std_dev: %f' % self.supply_std_dev)
 
 
     def enter_notify(self):
