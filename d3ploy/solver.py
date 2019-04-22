@@ -45,7 +45,6 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
     diff = -1.0 * diff
     proto_commod = commodity_dict[commod]
     # if the preference is defined
-
     eval_pref_fac = evaluate_preference(proto_commod, time)
     eval_pref_fac = check_constraint(proto_commod, commodity_supply,
                                      eval_pref_fac, time)
@@ -53,19 +52,22 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
     for key, val in eval_pref_fac.items():
         if val >= 0:
             filtered_pref_fac[key] = val
-    if len(filtered_pref_fac.keys()) == 0:
-        return {}
+        else:
+            filtered_pref_fac[key] = -1
     # check if the preference values are different
     if len(set(filtered_pref_fac.values())) != 1:
         # if there is a difference,
         # deploy the one with highest preference
         # until it oversupplies
         return preference_deploy(proto_commod, eval_pref_fac, diff)
-
-    # if preference is not given,
-    # or all the preference values are the same,
-    # deploy to minimize number of deployment
-    return minimize_number_of_deployment(proto_commod, diff)
+    else:
+        if list(filtered_pref_fac.values())[0] < 0:
+            return preference_deploy(proto_commod, eval_pref_fac, diff)
+        else:
+            # if preference is not given,
+            # or all the preference values are the same,
+            # deploy to minimize number of deployment
+            return minimize_number_of_deployment(proto_commod, diff)
 
 
 def evaluate_preference(proto_commod, time):
@@ -108,10 +110,13 @@ def preference_deploy(proto_commod, pref_fac, diff):
         key: prototype name
         value: number of prototype to deploy
     """
+
     # get the facility with highest preference
     deploy_dict = {}
     proto = sorted(pref_fac,
                    key=pref_fac.get, reverse=True)[0]
+    if pref_fac[proto] < 0:
+        return deploy_dict
     if diff >= proto_commod[proto]['cap']:
         deploy_dict[proto] = 1
         diff -= proto_commod[proto]['cap']
