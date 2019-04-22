@@ -129,13 +129,6 @@ class DemandDrivenDeploymentInst(Institution):
         default=0
     )
 
-    demand_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the demand side.",
-        tooltip="The standard deviation adjustment for the demand side.",
-        uilabel="Demand Std Dev",
-        default=0
-    )
-
     supply_buffer = ts.MapStringDouble(
         doc="The percent above demand the supply should hit. In decimal" +
             "form",
@@ -179,7 +172,6 @@ class DemandDrivenDeploymentInst(Institution):
         print('steps: %i' % self.steps)
         print('back_steps: %i' % self.back_steps)
         print('supply_std_dev: %f' % self.supply_std_dev)
-        print('demand_std_dev: %f' % self.demand_std_dev)
 
 
     def enter_notify(self):

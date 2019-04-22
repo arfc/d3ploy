@@ -254,7 +254,6 @@ for calc_method in calc_methods:
                                     ]
                                 },
                                 "demand_eq": "1000*t",
-                                "demand_std_dev": "0.0",
                                 "record": "1",
                                 "steps": "1"
                             }

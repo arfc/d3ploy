@@ -126,7 +126,6 @@
             </item>
           </facility_capacity>
           <demand_eq>1000</demand_eq>
-          <demand_std_dev>0.0</demand_std_dev>
           <record>1</record>
           <steps>1</steps>
         </DemandDrivenDeploymentInst>

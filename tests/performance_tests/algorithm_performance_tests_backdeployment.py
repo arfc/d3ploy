@@ -140,7 +140,6 @@ for calc_method in calc_methods:
                             ]
                         },
                         "demand_eq": demand_eq,
-                        "demand_std_dev": "1.0",
                         "driving_commod": "POWER",
                         "record": "1",
                         "steps": "1"
@@ -323,7 +322,6 @@ for calc_method in calc_methods:
                             ]
                         },
                         "demand_eq": "1000*t",
-                        "demand_std_dev": "1.0",
                         "driving_commod": "POWER",
                         "record": "1",
                         "steps": "1"
