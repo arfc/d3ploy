@@ -89,7 +89,7 @@ def plot_demand_supply(
 
 
 def plot_demand_supply_agent(all_dict, agent_dict, commod, test,
-                             demand_driven, log_scale, calculated):
+                             demand_driven, log_scale, calculated, size=6):
     """ Plots demand, supply, calculated demand and calculated supply on a curve
     for a non-driving commodity
     Parameters
@@ -127,46 +127,44 @@ def plot_demand_supply_agent(all_dict, agent_dict, commod, test,
     ax1.set_xlabel('Time (month timestep)')
     ax1.set_ylabel('agents')
 
-    marksize = 6
-
     if demand_driven:
         if log_scale:
             ax2.semilogy(*zip(*sorted(dict_demand.items())), '+', color='red',
-                         label='Demand')
+                         label='Demand', markersize=size)
             if calculated:
                 ax2.semilogy(*zip(*sorted(dict_calc_demand.items())),
-                             'o', alpha=0.5, color='red', label='Calculated Demand')
+                             'o', alpha=0.5, color='red', label='Calculated Demand', markersize=size)
         else:
             ax2.plot(*zip(*sorted(dict_demand.items())), '+', color='red',
-                     label='Demand')
+                     label='Demand', markersize=size)
             if calculated:
                 ax2.plot(*zip(*sorted(dict_calc_demand.items())), 'o',
-                         alpha=0.5, color='red', label='Calculated Demand')
+                         alpha=0.5, color='red', label='Calculated Demand', markersize=size)
     else:
         if log_scale:
             ax2.semilogy(*zip(*sorted(dict_demand.items())), '+', color='red',
-                         label='Capacity')
+                         label='Capacity', markersize=size)
             if calculated:
                 ax2.semilogy(*zip(*sorted(dict_calc_demand.items())), 'o',
-                             alpha=0.5, color='red', label='Calculated Capacity')
+                             alpha=0.5, color='red', label='Calculated Capacity', markersize=size)
         else:
             ax2.plot(*zip(*sorted(dict_demand.items())), '+', color='red',
-                     label='Capacity')
+                     label='Capacity', markersize=size)
             if calculated:
                 ax2.plot(*zip(*sorted(dict_calc_demand.items())), 'o',
-                         alpha=0.5, color='red', label='Calculated Capacity')
+                         alpha=0.5, color='red', label='Calculated Capacity', markersize=size)
     if log_scale:
         ax2.semilogy(*zip(*sorted(dict_supply.items())), 'x', color='c',
-                     label='Supply')
+                     label='Supply', markersize=size)
         if calculated:
             ax2.semilogy(*zip(*sorted(dict_calc_supply.items())),
-                         'o', color='c', alpha=0.5, label='Calculated Supply')
+                         'o', color='c', alpha=0.5, label='Calculated Supply', markersize=size)
     else:
         ax2.plot(*zip(*sorted(dict_supply.items())), 'x', color='c',
-                 label='Supply')
+                 label='Supply', markersize=size)
         if calculated:
             ax2.plot(*zip(*sorted(dict_calc_supply.items())), 'o', color='c',
-                     alpha=0.5, label='Calculated Supply')
+                     alpha=0.5, label='Calculated Supply', markersize=size)
     ax2.grid()
     if commod.lower() == 'power':
         ax2.set_ylabel('Power (MW)', fontsize=14)
