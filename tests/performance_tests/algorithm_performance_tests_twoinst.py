@@ -748,7 +748,7 @@ scenario_6_input["simulation"].update({"region": {
         {
             "config": {
                 "SupplyDrivenDeploymentInst": {
-                    "calc_method": "poly",
+                    "calc_method": "fft",
                     "facility_commod": {
                         "item": [
                             {"commod": "coolspentfuel", "facility": "sink"}
