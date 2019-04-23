@@ -193,7 +193,7 @@ def test_supply_buffer():
         "select time, value from timeseriescalc_demandpower").fetchall()
     count = 0
     for x in range(2):
-        if 1.2*calcdemand_nobuf[x][1] != calcdemand_yesbuf[x][1]:
+        if 1.2 * calcdemand_nobuf[x][1] != calcdemand_yesbuf[x][1]:
             count += 1
 
     assert(count == 0)
@@ -315,17 +315,17 @@ def test_capacity_buffer():
     with open(input_file_nobuf2, 'w') as f:
         json.dump(nobuf_template2, f)
     s = subprocess.check_output(['cyclus',
-                                    '-o',
-                                    output_file_nobuf2,
-                                    input_file_nobuf2],
+                                 '-o',
+                                 output_file_nobuf2,
+                                 input_file_nobuf2],
                                 universal_newlines=True,
                                 env=ENV)
     with open(input_file_yesbuf2, 'w') as f:
         json.dump(yesbuf_template2, f)
     s = subprocess.check_output(['cyclus',
-                                    '-o',
-                                    output_file_yesbuf2,
-                                    input_file_yesbuf2],
+                                 '-o',
+                                 output_file_yesbuf2,
+                                 input_file_yesbuf2],
                                 universal_newlines=True,
                                 env=ENV)
 
@@ -338,8 +338,8 @@ def test_capacity_buffer():
         "select time, value from timeseriescalc_supplyspent_uox").fetchall()
     count = 0
     for x in range(2):
-        print(1.2*calcsupply_nobuf2[x][1],calcsupply_yesbuf2[x][1])
-        if 1.2*calcsupply_nobuf2[x][1] != calcsupply_yesbuf2[x][1]:
+        print(1.2 * calcsupply_nobuf2[x][1], calcsupply_yesbuf2[x][1])
+        if 1.2 * calcsupply_nobuf2[x][1] != calcsupply_yesbuf2[x][1]:
             count += 1
 
     assert(count == 0)
@@ -426,17 +426,17 @@ def test_supply_buffer_two():
     with open(input_file_nobuf3, 'w') as f:
         json.dump(nobuf_template3, f)
     s = subprocess.check_output(['cyclus',
-                                    '-o',
-                                    output_file_nobuf3,
-                                    input_file_nobuf3],
+                                 '-o',
+                                 output_file_nobuf3,
+                                 input_file_nobuf3],
                                 universal_newlines=True,
                                 env=ENV)
     with open(input_file_yesbuf3, 'w') as f:
         json.dump(yesbuf_template3, f)
     s = subprocess.check_output(['cyclus',
-                                    '-o',
-                                    output_file_yesbuf3,
-                                    input_file_yesbuf3],
+                                 '-o',
+                                 output_file_yesbuf3,
+                                 input_file_yesbuf3],
                                 universal_newlines=True,
                                 env=ENV)
 
@@ -453,10 +453,12 @@ def test_supply_buffer_two():
         "select time, value from timeseriescalc_demandfuel").fetchall()
     count = 0
     for x in range(2):
-        if int(1.2*calcdemandpower_nobuf3[x][1]) != int(calcdemandpower_yesbuf3[x][1]):
+        if int(
+                1.2 *
+                calcdemandpower_nobuf3[x][1]) != int(
+                calcdemandpower_yesbuf3[x][1]):
             count += 1
     for x in range(2):
         if calcdemandfuel_nobuf3[x][0] != calcdemandfuel_yesbuf3[x][0]:
             count += 1
     assert(count == 0)
-
