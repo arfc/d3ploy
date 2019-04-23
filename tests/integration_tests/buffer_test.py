@@ -89,6 +89,7 @@ TEMPLATE = {
     }
 }
 
+
 # ----------------------------------------------------------------------------- #
 # This test will fail if the inclusion of a 20% supply buffer doesn't result in
 # the calculated demand being 20% larger than a simulation without the supply
@@ -191,8 +192,8 @@ def test_supply_buffer():
     calcdemand_yesbuf = cur_yesbuf.execute(
         "select time, value from timeseriescalc_demandpower").fetchall()
     count = 0
-    for x in range(len(calcdemand_nobuf)):
-        if calcdemand_nobuf[x][0] != calcdemand_yesbuf[x][0]:
+    for x in range(1):
+        if 1.2*calcdemand_nobuf[x][1] != calcdemand_yesbuf[x][1]:
             count += 1
 
     assert(count == 0)
@@ -314,30 +315,148 @@ def test_capacity_buffer():
     with open(input_file_nobuf2, 'w') as f:
         json.dump(nobuf_template2, f)
     s = subprocess.check_output(['cyclus',
-                                 '-o',
-                                 output_file_nobuf2,
-                                 input_file_nobuf2],
+                                    '-o',
+                                    output_file_nobuf2,
+                                    input_file_nobuf2],
                                 universal_newlines=True,
                                 env=ENV)
     with open(input_file_yesbuf2, 'w') as f:
         json.dump(yesbuf_template2, f)
     s = subprocess.check_output(['cyclus',
-                                 '-o',
-                                 output_file_yesbuf2,
-                                 input_file_yesbuf2],
+                                    '-o',
+                                    output_file_yesbuf2,
+                                    input_file_yesbuf2],
                                 universal_newlines=True,
                                 env=ENV)
 
     # check if calculated demand is 20% higher for yesbuf case
     cur_nobuf2 = functions.get_cursor(output_file_nobuf2)
     cur_yesbuf2 = functions.get_cursor(output_file_yesbuf2)
-    calcsupply_nobuf = cur_nobuf2.execute(
+    calcsupply_nobuf2 = cur_nobuf2.execute(
         "select time, value from timeseriescalc_supplyspent_uox").fetchall()
-    calcsupply_yesbuf = cur_yesbuf2.execute(
+    calcsupply_yesbuf2 = cur_yesbuf2.execute(
         "select time, value from timeseriescalc_supplyspent_uox").fetchall()
     count = 0
-    for x in range(len(calcsupply_nobuf)):
-        if calcsupply_nobuf[x][0] != calcsupply_yesbuf[x][0]:
+    for x in range(1):
+        print(1.2*calcsupply_nobuf2[x][1],calcsupply_yesbuf2[x][1])
+        if 1.2*calcsupply_nobuf2[x][1] != calcsupply_yesbuf2[x][1]:
             count += 1
 
     assert(count == 0)
+
+
+# ----------------------------------------------------------------------------- #
+# This test will fail if the inclusion of a 20% supply buffer doesn't result in
+# the calculated demand being 20% larger than a simulation without the supply
+# buffer.
+
+nobuf_template3 = copy.deepcopy(TEMPLATE)
+nobuf_template3["simulation"].update({"region": {
+    "config": {"NullRegion": "\n      "},
+    "institution": {
+        "config": {
+            "DemandDrivenDeploymentInst": {
+                "calc_method": "poly",
+                "facility_capacity": {
+                    "item": [
+                        {"capacity": "1", "facility": "reactor1"},
+                        {"capacity": "1", "facility": "source"}
+                    ]
+                },
+                "facility_commod": {
+                    "item": [
+                        {"commod": "POWER", "facility": "reactor1"},
+                        {"commod": "fuel", "facility": "source"}
+                    ]
+                },
+                "demand_eq": "3*t",
+                "record": "1",
+                "steps": "1"
+            }
+        },
+        "name": "source_inst"
+    },
+    "name": "SingleRegion"
+}
+})
+
+
+yesbuf_template3 = copy.deepcopy(TEMPLATE)
+yesbuf_template3["simulation"].update({"region": {
+    "config": {"NullRegion": "\n      "},
+    "institution": {
+        "config": {
+            "DemandDrivenDeploymentInst": {
+                "calc_method": "poly",
+                "facility_capacity": {
+                    "item": [
+                        {"capacity": "1", "facility": "reactor1"},
+                        {"capacity": "1", "facility": "source"}
+                    ]
+                },
+                "facility_commod": {
+                    "item": [
+                        {"commod": "POWER", "facility": "reactor1"},
+                        {"commod": "fuel", "facility": "source"}
+                    ]
+                },
+                "supply_buffer": {
+                    "item": [
+                        {"commod": "POWER", "buffer": "0.2"},
+                        {"commod": "fuel", "buffer": "0.2"}
+                    ]
+                },
+                "demand_eq": "3*t",
+                "record": "1",
+                "steps": "1"
+            }
+        },
+        "name": "source_inst"
+    },
+    "name": "SingleRegion"
+}
+})
+
+
+def test_supply_buffer_two():
+    output_file_nobuf3 = 'nobuf3.sqlite'
+    output_file_yesbuf3 = 'yesbuf3.sqlite'
+    input_file_nobuf3 = output_file_nobuf3.replace('.sqlite', '.json')
+    input_file_yesbuf3 = output_file_yesbuf3.replace('.sqlite', '.json')
+    with open(input_file_nobuf3, 'w') as f:
+        json.dump(nobuf_template3, f)
+    s = subprocess.check_output(['cyclus',
+                                    '-o',
+                                    output_file_nobuf3,
+                                    input_file_nobuf3],
+                                universal_newlines=True,
+                                env=ENV)
+    with open(input_file_yesbuf3, 'w') as f:
+        json.dump(yesbuf_template3, f)
+    s = subprocess.check_output(['cyclus',
+                                    '-o',
+                                    output_file_yesbuf3,
+                                    input_file_yesbuf3],
+                                universal_newlines=True,
+                                env=ENV)
+
+    # check if calculated demand is 20% higher for yesbuf case
+    cur_nobuf3 = functions.get_cursor(output_file_nobuf3)
+    cur_yesbuf3 = functions.get_cursor(output_file_yesbuf3)
+    calcdemandpower_nobuf3 = cur_nobuf3.execute(
+        "select time, value from timeseriescalc_demandpower").fetchall()
+    calcdemandpower_yesbuf3 = cur_yesbuf3.execute(
+        "select time, value from timeseriescalc_demandpower").fetchall()
+    calcdemandfuel_nobuf3 = cur_nobuf3.execute(
+        "select time, value from timeseriescalc_demandfuel").fetchall()
+    calcdemandfuel_yesbuf3 = cur_yesbuf3.execute(
+        "select time, value from timeseriescalc_demandfuel").fetchall()
+    count = 0
+    for x in range(1):
+        if int(1.2*calcdemandpower_nobuf3[x][1]) != int(calcdemandpower_yesbuf3[x][1]):
+            count += 1
+    for x in range(1):
+        if calcdemandfuel_nobuf3[x][0] != calcdemandfuel_yesbuf3[x][0]:
+            count += 1
+    assert(count == 0)
+
