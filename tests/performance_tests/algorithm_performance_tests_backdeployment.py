@@ -150,7 +150,7 @@ for calc_method in calc_methods:
             {
                 "config": {
                     "SupplyDrivenDeploymentInst": {
-                        "calc_method": "ma",
+                        "calc_method": calc_method,
                         "facility_commod": {
                             "item": [
                                 {"commod": "spentfuel", "facility": "sink"}

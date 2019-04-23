@@ -290,7 +290,7 @@ for calc_method in calc_methods:
 
 
 ######################################SCENARIO 3##########################
-# scenario 3, source -> reactor (cycle time = 3, refuel time = 1) -> sink
+# scenario 3, source -> reactor (cycle time = 18, refuel time = 1) -> sink
 scenario_3_input = {}
 demand_eq = "1000*t"
 
@@ -311,7 +311,7 @@ for calc_method in calc_methods:
         "config": {
             "Reactor": {
                 "assem_size": "1000",
-                "cycle_time": "3",
+                "cycle_time": "18",
                 "fuel_incommods": {"val": "fuel"},
                 "fuel_inrecipes": {"val": "fresh_uox"},
                 "fuel_outcommods": {"val": "spentfuel"},
