@@ -133,32 +133,37 @@ def plot_demand_supply_agent(all_dict, agent_dict, commod, test,
                          label='Demand', markersize=size)
             if calculated:
                 ax2.semilogy(*zip(*sorted(dict_calc_demand.items())),
-                             'o', alpha=0.5, color='red', label='Calculated Demand', markersize=size)
+                             'o', alpha=0.5, color='red',
+                             label='Calculated Demand', markersize=size)
         else:
             ax2.plot(*zip(*sorted(dict_demand.items())), '+', color='red',
                      label='Demand', markersize=size)
             if calculated:
                 ax2.plot(*zip(*sorted(dict_calc_demand.items())), 'o',
-                         alpha=0.5, color='red', label='Calculated Demand', markersize=size)
+                         alpha=0.5, color='red', label='Calculated Demand',
+                         markersize=size)
     else:
         if log_scale:
             ax2.semilogy(*zip(*sorted(dict_demand.items())), '+', color='red',
                          label='Capacity', markersize=size)
             if calculated:
                 ax2.semilogy(*zip(*sorted(dict_calc_demand.items())), 'o',
-                             alpha=0.5, color='red', label='Calculated Capacity', markersize=size)
+                             alpha=0.5, color='red',
+                             label='Calculated Capacity', markersize=size)
         else:
             ax2.plot(*zip(*sorted(dict_demand.items())), '+', color='red',
                      label='Capacity', markersize=size)
             if calculated:
                 ax2.plot(*zip(*sorted(dict_calc_demand.items())), 'o',
-                         alpha=0.5, color='red', label='Calculated Capacity', markersize=size)
+                         alpha=0.5, color='red', label='Calculated Capacity',
+                         markersize=size)
     if log_scale:
         ax2.semilogy(*zip(*sorted(dict_supply.items())), 'x', color='c',
                      label='Supply', markersize=size)
         if calculated:
             ax2.semilogy(*zip(*sorted(dict_calc_supply.items())),
-                         'o', color='c', alpha=0.5, label='Calculated Supply', markersize=size)
+                         'o', color='c', alpha=0.5,
+                         label='Calculated Supply', markersize=size)
     else:
         ax2.plot(*zip(*sorted(dict_supply.items())), 'x', color='c',
                  label='Supply', markersize=size)
