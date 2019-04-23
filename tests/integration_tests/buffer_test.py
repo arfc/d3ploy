@@ -192,7 +192,7 @@ def test_supply_buffer():
     calcdemand_yesbuf = cur_yesbuf.execute(
         "select time, value from timeseriescalc_demandpower").fetchall()
     count = 0
-    for x in range(1):
+    for x in range(2):
         if 1.2*calcdemand_nobuf[x][1] != calcdemand_yesbuf[x][1]:
             count += 1
 
@@ -337,7 +337,7 @@ def test_capacity_buffer():
     calcsupply_yesbuf2 = cur_yesbuf2.execute(
         "select time, value from timeseriescalc_supplyspent_uox").fetchall()
     count = 0
-    for x in range(1):
+    for x in range(2):
         print(1.2*calcsupply_nobuf2[x][1],calcsupply_yesbuf2[x][1])
         if 1.2*calcsupply_nobuf2[x][1] != calcsupply_yesbuf2[x][1]:
             count += 1
@@ -452,10 +452,10 @@ def test_supply_buffer_two():
     calcdemandfuel_yesbuf3 = cur_yesbuf3.execute(
         "select time, value from timeseriescalc_demandfuel").fetchall()
     count = 0
-    for x in range(1):
+    for x in range(2):
         if int(1.2*calcdemandpower_nobuf3[x][1]) != int(calcdemandpower_yesbuf3[x][1]):
             count += 1
-    for x in range(1):
+    for x in range(2):
         if calcdemandfuel_nobuf3[x][0] != calcdemandfuel_yesbuf3[x][0]:
             count += 1
     assert(count == 0)
