@@ -76,8 +76,8 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
         fuel_demand = fuel_demand * np.ones(len(t))
     for x in range(0, len(t)):
         dict_demand[t[x]] = fuel_demand[x]
-    
-    # give dict supply zeros at timesteps 1 and 2 
+
+    # give dict supply zeros at timesteps 1 and 2
     for key in dict_demand.keys():
         if key not in dict_supply:
             dict_supply[key] = 0.0
@@ -150,7 +150,7 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     for x in range(0, len(fuel_demand)):
         dict_demand[fuel_demand[x][0]] = fuel_demand[x][1]
 
-    # give dict supply zeros at timesteps 1 and 2 
+    # give dict supply zeros at timesteps 1 and 2
     for key in dict_demand.keys():
         if key not in dict_supply:
             dict_supply[key] = 0.0
@@ -263,7 +263,6 @@ def supply_under_demand(all_dict, demand_driven):
             except KeyError:
                 num_under += 0
     return num_under
-
 
 
 def best_calc_method(in_dict, maximum):
