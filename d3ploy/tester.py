@@ -236,12 +236,10 @@ def chi_goodness_test(all_dict):
 def supply_under_demand(all_dict, demand_driven):
     """ Calculates the number of time steps supply is
     under demand
-
     Parameters
     ----------
     dict_demand: timeseries dictionary of demand values
     dict_supply: timeseries dictionary of supply values
-
     Returns
     -------
     returns an int of the number of time steps supply is
@@ -251,21 +249,22 @@ def supply_under_demand(all_dict, demand_driven):
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
-    num_negative = 0
+    num_under = 0
     start = int(list(dict_demand.keys())[0])
-    for x in range(start - 1, len(dict_demand)):
-        y = x + 1
-        try:
-            if dict_supply[y] < dict_demand[y]:
-                num_negative = num_negative + 1
-        except KeyError:
-            num_negative += 0
-
-    if demand_driven:
-        number_under = num_negative
-    else:
-        number_under = len(dict_demand) - num_negative
-    return number_under
+    for x in range(len(dict_demand)):
+        if demand_driven:
+            try:
+                if dict_supply[x+start] < dict_demand[x+start]:
+                    num_under = num_under + 1
+            except KeyError:
+                num_under += 0
+        else:
+            try:
+                if dict_supply[x+start] > dict_demand[x+start]:
+                    num_under = num_under + 1
+            except KeyError:
+                num_under += 0
+    return num_under
 
 
 def best_calc_method(in_dict, maximum):
