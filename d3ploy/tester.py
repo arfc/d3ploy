@@ -81,6 +81,11 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
         fuel_demand = fuel_demand * np.ones(len(t))
     for x in range(0, len(t)):
         dict_demand[t[x]] = fuel_demand[x]
+    
+    # give dict supply zeros at timesteps 1 and 2 
+    for key in dict_demand.keys():
+        if key not in dict_supply:
+            dict_supply[key] = 0.0
 
     all_dict = {}
     all_dict['dict_demand'] = dict_demand
@@ -152,6 +157,11 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
 
     for x in range(0, len(fuel_demand)):
         dict_demand[fuel_demand[x][0]] = fuel_demand[x][1]
+
+    # give dict supply zeros at timesteps 1 and 2 
+    for key in dict_demand.keys():
+        if key not in dict_supply:
+            dict_supply[key] = 0.0
 
     all_dict = {}
     all_dict['dict_demand'] = dict_demand
@@ -250,17 +260,17 @@ def supply_under_demand(all_dict, demand_driven):
     dict_supply = all_dict['dict_supply']
 
     num_under = 0
-    start = int(list(dict_demand.keys())[0])
+    #start = int(list(dict_demand.keys())[0])
     for x in range(len(dict_demand)):
         if demand_driven:
             try:
-                if dict_supply[x+start] < dict_demand[x+start]:
+                if dict_supply[x] < dict_demand[x]:
                     num_under = num_under + 1
             except KeyError:
                 num_under += 0
         else:
             try:
-                if dict_supply[x+start] > dict_demand[x+start]:
+                if dict_supply[x] > dict_demand[x]:
                     num_under = num_under + 1
             except KeyError:
                 num_under += 0
