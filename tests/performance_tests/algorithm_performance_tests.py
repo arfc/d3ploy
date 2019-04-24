@@ -120,7 +120,6 @@ for calc_method in calc_methods:
                         ]
                     },
                     "driving_commod": "fuel",
-                    "demand_std_dev": "1.0",
                     "demand_eq": demand_eq,
                     "record": "1",
                     "steps": "1"
@@ -220,7 +219,6 @@ for calc_method in calc_methods:
                         ]
                     },
                     "driving_commod": "POWER",
-                    "demand_std_dev": "1.0",
                     "demand_eq": demand_eq,
                     "record": "1",
                     "steps": "1"
@@ -345,7 +343,6 @@ for calc_method in calc_methods:
                         ]
                     },
                     "driving_commod": "POWER",
-                    "demand_std_dev": "1.0",
                     "demand_eq": demand_eq,
                     "record": "1",
                     "steps": "1"
@@ -469,7 +466,6 @@ for calc_method in calc_methods:
                         ]
                     },
                     "driving_commod": "POWER",
-                    "demand_std_dev": "1.0",
                     "demand_eq": demand_eq,
                     "record": "1",
                     "steps": "1"
