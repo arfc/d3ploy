@@ -248,7 +248,6 @@ def supply_under_demand(all_dict, demand_driven):
     dict_supply = all_dict['dict_supply']
 
     num_under = 0
-    #start = int(list(dict_demand.keys())[0])
     for x in range(len(dict_demand)):
         if demand_driven:
             try:
