@@ -13,12 +13,10 @@ import operator
 
 def get_cursor(file_name):
     """ Connects and returns a cursor to an sqlite output file
-
     Parameters
     ----------
     file_name: str
         name of the sqlite file
-
     Returns
     -------
     sqlite cursor3
@@ -33,15 +31,12 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
     calculated supply into a nice dictionary format
     if given the sql file, demand_eq of driving commodity
     and commodity name
-
     for a driving commodity
-
     Parameters
     ----------
     sqlite: sql file to analyze
     demand_eq: string of demand equation
     commod: string of commod name
-
     Returns
     -------
     returns 4 dicts: dictionaries of supply, demand, calculated
@@ -82,6 +77,11 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
     for x in range(0, len(t)):
         dict_demand[t[x]] = fuel_demand[x]
 
+    # give dict supply zeros at timesteps 1 and 2
+    for key in dict_demand.keys():
+        if key not in dict_supply:
+            dict_supply[key] = 0.0
+
     all_dict = {}
     all_dict['dict_demand'] = dict_demand
     all_dict['dict_supply'] = dict_supply
@@ -95,16 +95,13 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     """ Puts supply, demand, calculated demand and
     calculated supply into a nice dictionary format
     if given the sql file and commodity name
-
     for a non-driving commodity
-
     Parameters
     ----------
     sqlite: sql file to analyze
     commod: string of commod name
     demand_driven: Boolean. If true, the commodity is demand driven,
     if false, the commodity is supply driven
-
     Returns
     -------
     returns 4 dicts: dictionaries of supply, demand, calculated
@@ -153,6 +150,11 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     for x in range(0, len(fuel_demand)):
         dict_demand[fuel_demand[x][0]] = fuel_demand[x][1]
 
+    # give dict supply zeros at timesteps 1 and 2
+    for key in dict_demand.keys():
+        if key not in dict_supply:
+            dict_supply[key] = 0.0
+
     all_dict = {}
     all_dict['dict_demand'] = dict_demand
     all_dict['dict_supply'] = dict_supply
@@ -164,12 +166,10 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
 
 def residuals(all_dict):
     """ Conducts a chi2 goodness of fit test
-
     Parameters
     ----------
     dict_demand: timeseries dictionary of demand values
     dict_supply: timeseries dictionary of supply values
-
     Returns
     -------
     returns an int of the chi2 (goodness of fit value) for
@@ -206,12 +206,10 @@ def residuals(all_dict):
 
 def chi_goodness_test(all_dict):
     """ Conducts a chi2 goodness of fit test
-
     Parameters
     ----------
     dict_demand: timeseries dictionary of demand values
     dict_supply: timeseries dictionary of supply values
-
     Returns
     -------
     returns an int of the chi2 (goodness of fit value) for
@@ -250,17 +248,16 @@ def supply_under_demand(all_dict, demand_driven):
     dict_supply = all_dict['dict_supply']
 
     num_under = 0
-    start = int(list(dict_demand.keys())[0])
     for x in range(len(dict_demand)):
         if demand_driven:
             try:
-                if dict_supply[x+start] < dict_demand[x+start]:
+                if dict_supply[x] < dict_demand[x]:
                     num_under = num_under + 1
             except KeyError:
                 num_under += 0
         else:
             try:
-                if dict_supply[x+start] > dict_demand[x+start]:
+                if dict_supply[x] > dict_demand[x]:
                     num_under = num_under + 1
             except KeyError:
                 num_under += 0
@@ -270,14 +267,12 @@ def supply_under_demand(all_dict, demand_driven):
 def best_calc_method(in_dict, maximum):
     """ Calculates the number of time steps supply is
     under demand
-
     Parameters
     ----------
     in_dict: keys => calc methods, values => results from
     tests of each calc method (chi2 goodness of fit etc)
     max: true/false boolean, true => find max of in_dict,
     false => find min of in_dict
-
     Returns
     -------
     returns a list of the calc methods that have the max
