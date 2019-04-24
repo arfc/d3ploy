@@ -71,7 +71,7 @@ scenario_template = {
             }
         ]}
 }
-"""
+
 ######################################SCENARIO 5##########################
 # scenario 5, source -> reactor (cycle time = 1, refuel time = 0) -> sink
 scenario_5_input = {}
@@ -454,7 +454,7 @@ for calc_method in calc_methods:
     df = pd.DataFrame(metric_dict)
     df.to_csv('scenario_6_output.csv')
 
-"""
+
 ######################################SCENARIO 7##########################
 # scenario 7, source -> reactor (cycle time = 18, refuel time = 0) -> sink
 scenario_7_input = {}

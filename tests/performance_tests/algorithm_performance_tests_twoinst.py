@@ -65,7 +65,7 @@ scenario_template = {
             }
         ]}}
 
-"""
+
 ##########################TWO INST SCENARIO 2##########################
 # scenario 2, source -> reactor (cycle time = 1, refuel time = 0) -> sink
 demand_eq = "1000*t"
@@ -869,7 +869,7 @@ metric_dict = tester.metrics(
 
 df = pd.DataFrame(metric_dict)
 df.to_csv('scenario_6_output.csv')
-"""
+
 
 ######################################SCENARIO 7##########################
 # scenario 7, source -> reactor (cycle time = 1, refuel time = 0) -> sink
