@@ -876,7 +876,7 @@ df.to_csv('scenario_6_output.csv')
 demand_eq = "1000*t"
 
 scenario_7_input = copy.deepcopy(scenario_template)
-scenario_5_input["simulation"].update({"facility": [
+scenario_7_input["simulation"].update({"facility": [
     {
         "config": {
             "Source": {"outcommod": "fuel", "outrecipe": "fresh_uox", "throughput": "3e3"}
@@ -891,7 +891,7 @@ scenario_5_input["simulation"].update({"facility": [
         "config": {
             "Reactor": {
                 "assem_size": "1000",
-                "cycle_time": "1",
+                "cycle_time": "18",
                 "fuel_incommods": {"val": "fuel"},
                 "fuel_inrecipes": {"val": "fresh_uox"},
                 "fuel_outcommods": {"val": "spentfuel"},
@@ -899,7 +899,7 @@ scenario_5_input["simulation"].update({"facility": [
                 "n_assem_batch": "1",
                 "n_assem_core": "3",
                 "power_cap": "1000",
-                "refuel_time": "0"
+                "refuel_time": "1"
             }
         },
         "name": "reactor"
@@ -928,7 +928,7 @@ scenario_7_input["simulation"].update({"region": {
     "driving_commod": "POWER", 
     "facility_capacity": {"item": {"capacity": "3000", "facility": "source"}}, 
     "facility_commod": {"item": {"commod": "fuel", "facility": "source"}}, 
-    "supply_buffer":{"item": {"commod": "fuel", "buffer": "0.20"}}, 
+    "supply_buffer":{"item": {"commod": "fuel", "buffer": "0.50"}}, 
     "record": "1", 
     "steps": "1"
     }
@@ -938,12 +938,12 @@ scenario_7_input["simulation"].update({"region": {
 {
     "config": {
     "DemandDrivenDeploymentInst": {
-    "calc_method": "ma", 
+    "calc_method": "fft", 
     "demand_eq": demand_eq , 
     "driving_commod": "POWER", 
     "facility_capacity": {"item": {"capacity": "1000", "facility": "reactor"}}, 
     "facility_commod": {"item": {"commod": "POWER", "facility": "reactor"}}, 
-    "supply_buffer":{"item": {"commod": "POWER", "buffer": "0.20"}}, 
+    "supply_buffer":{"item": {"commod": "POWER", "buffer": "0.60"}}, 
     "record": "1", 
     "steps": "1"
     }
