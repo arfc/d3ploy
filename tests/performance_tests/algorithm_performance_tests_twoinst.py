@@ -86,7 +86,7 @@ scenario_2_input["simulation"].update({"facility": [{
     "config": {
         "Reactor": {
             "assem_size": "1000",
-            "cycle_time": "1",
+            "cycle_time": "18",
             "fuel_incommods": {"val": "fuel"},
             "fuel_inrecipes": {"val": "fresh_uox"},
             "fuel_outcommods": {"val": "spentfuel"},
@@ -168,7 +168,7 @@ plotter.plot_demand_supply_agent(
     name + '_power',
     True,
     False,
-    False)
+    True)
 plotter.plot_demand_supply_agent(
     all_dict_fuel,
     agent_entry_dict['fuel'],
@@ -176,7 +176,7 @@ plotter.plot_demand_supply_agent(
     name + '_fuel',
     True,
     False,
-    False)
+    True)
 
 calc_method = "scenario2"
 
@@ -327,7 +327,7 @@ metric_dict = tester.metrics(
 df = pd.DataFrame(metric_dict)
 df.to_csv('scenario_3_output.csv')
 
-
+"""
 ##########################TWO INST SCENARIO 4##########################
 # scenario 4, source -> reactor (cycle time = 1, refuel time = 0) -> sink
 demand_eq = "10*2.5**(t/12)"
@@ -1055,3 +1055,4 @@ metric_dict = tester.metrics(
 
 df = pd.DataFrame(metric_dict)
 df.to_csv('scenario_7_output.csv')
+"""
