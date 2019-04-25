@@ -97,7 +97,6 @@ def test_d3ploy(calc_method):
                                 ]
                             },
                             "demand_eq": "1000",
-                            "demand_std_dev": "0.0",
                             "record": "1",
                             "steps": "1"
                         }
