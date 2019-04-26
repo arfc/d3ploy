@@ -123,7 +123,7 @@ class SupplyDrivenDeploymentInst(Institution):
         default=0
     )
 
-    capacity_buffer = ts.MapStringDouble(
+    capacity_buffer = ts.MapStringString(
         doc="The percent above supply the capacity should hit. In decimal" +
             "form",
         tooltip="Buffer Amount in decimal form.",
@@ -240,8 +240,15 @@ class SupplyDrivenDeploymentInst(Institution):
         if time not in self.commodity_capacity[commod]:
             self.commodity_capacity[commod][time] = 0.0
         capacity = self.predict_capacity(commod)
-        supply = self.predict_supply(
-            commod, time) * (1 + self.buffer_dict[commod])
+        
+        if self.buffer_dict[commod][0] == 'p':  
+            supply = self.predict_supply(
+                commod, time) * (1 + self.buffer_dict[commod][1])
+        elif self.buffer_dict[commod][0] == 'n': 
+             supply = self.predict_supply(
+                commod, time) + self.buffer_dict[commod][1]
+        else: 
+            raise Exception('You can only choose p (%) or n (double) for buffer size')
         diff = capacity - supply
         return diff, capacity, supply
 

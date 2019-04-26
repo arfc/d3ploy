@@ -66,11 +66,16 @@ and for `supply_driven_deployment_inst`, the facility included should be the fac
 
 #### Differing Inputs 
 DemandDrivenDeploymentInst:
-- **supply_buffer**: This is the percentage amount above demand that the user wants the supply to meet. If the user wants a 20% value of supply higher than demand, they should input 0.2. 
+- **supply_buffer**: This is the amount above demand that the user wants the supply to meet. The user 
+has an option of inputting a percentage or a float. The choice is determined by adding a 'p' or 'n'
+before the value. If the user wants a 20% value of supply higher than demand, they should input 'p0.2'
+and if the user wants a 100[whatever unit] value of supply higher than demand, they should input 'n100'. 
 
 SupplyDrivenDeploymentInst:
-- **capacity_buffer**: This is the percentage amount above supply that the user wants the capacity to meet. If the user wants a 20% value of capacity higher than supply, they should input 0.2.
-
+- **capacity_buffer**: This is the amount above supply that the user wants the capacity to meet. The user 
+has an option of inputting a percentage or a float. The choice is determined by adding a 'p' or 'n'
+before the value. If the user wants a 20% value of capacity higher than supply, they should input 'p0.2'
+and if the user wants a 100[whatever unit] value of capacity higher than supply, they should input 'n100'. 
 
 
 ### Prediction Methods

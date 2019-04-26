@@ -53,8 +53,7 @@ def build_buffer_dict(buffer, commods):
         for key, value in buffer.items():
             if i == key:
                 count += 1
-                print('KV', key, value)
-                buffer_dict[key] = value
+                buffer_dict[key] = [value[0],float(value[1:])]
         if count == 0:
-            buffer_dict[i] = 0.
+            buffer_dict[i] = ['p',0.]
     return buffer_dict
