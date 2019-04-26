@@ -20,6 +20,7 @@ import d3ploy.solver as solver
 import d3ploy.NO_solvers as no
 import d3ploy.DO_solvers as do
 import d3ploy.ML_solvers as ml
+import d3ploy.deployment_inst as di
 
 CALC_METHODS = {}
 
@@ -116,24 +117,19 @@ class SupplyDrivenDeploymentInst(Institution):
     )
 
     capacity_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the supple side.",
-        tooltip="The standard deviation adjustment for the supple side.",
+        doc="The standard deviation adjustment for the capacity side.",
+        tooltip="The standard deviation adjustment for the capacity side.",
         uilabel="capacity Std Dev",
         default=0
     )
 
-    supply_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the supply side.",
-        tooltip="The standard deviation adjustment for the supply side.",
-        uilabel="supply Std Dev",
-        default=0
-    )
-
-    supply_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the supply side.",
-        tooltip="The standard deviation adjustment for the supply side.",
-        uilabel="supply Std Dev",
-        default=0
+    capacity_buffer = ts.MapStringDouble(
+        doc="The percent above supply the capacity should hit. In decimal" +
+            "form",
+        tooltip="Buffer Amount in decimal form.",
+        alias=['capacity_buffer', 'commod', 'buffer'],
+        uilabel="Capacity Buffer",
+        default={}
     )
 
     degree = ts.Int(
@@ -184,51 +180,20 @@ class SupplyDrivenDeploymentInst(Institution):
         print('steps: %i' % self.steps)
         print('back_steps: %i' % self.back_steps)
         print('capacity_std_dev: %f' % self.capacity_std_dev)
-        print('supply_std_dev: %f' % self.supply_std_dev)
-
-    def build_dict(
-            self,
-            facility_commod,
-            facility_capacity,
-            facility_pref,
-            facility_constraintcommod,
-            facility_constraintval):
-        facility_dict = {}
-        commodity_dict = {}
-        for key, val in facility_capacity.items():
-            facility_dict[key] = {}
-            facility_dict[key] = {'cap': val}
-            if key in facility_pref.keys():
-                facility_dict[key].update({'pref': facility_pref[key]})
-            else:
-                facility_dict[key].update({'pref': '0'})
-            if key in facility_constraintcommod.keys():
-                facility_dict[key].update(
-                    {'constraint_commod': facility_constraintcommod[key]})
-            else:
-                facility_dict[key].update({'constraint_commod': '0'})
-            if key in facility_constraintval.keys():
-                facility_dict[key].update(
-                    {'constraint': facility_constraintval[key]})
-            else:
-                facility_dict[key].update({'constraint': 0.0})
-        for key, val in facility_commod.items():
-            if val not in commodity_dict.keys():
-                commodity_dict[val] = {}
-            if key in facility_dict.keys():
-                commodity_dict[val].update({key: facility_dict[key]})
-        return commodity_dict
 
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
             # convert list of strings to dictionary
-            self.commodity_dict = self.build_dict(
+            self.commodity_dict = di.build_dict(
                 self.facility_commod,
                 self.facility_capacity,
                 self.facility_pref,
                 self.facility_constraintcommod,
                 self.facility_constraintval)
+            commod_list = list(self.commodity_dict.keys())
+            self.buffer_dict = di.build_buffer_dict(self.capacity_buffer,
+                                                    commod_list)
             for commod in self.commodity_dict:
                 # swap supply and demand for supply_inst
                 # change demand into capacity
@@ -297,7 +262,8 @@ class SupplyDrivenDeploymentInst(Institution):
         if time not in self.commodity_capacity[commod]:
             self.commodity_capacity[commod][time] = 0.0
         capacity = self.predict_capacity(commod)
-        supply = self.predict_supply(commod, time)
+        supply = self.predict_supply(
+            commod, time) * (1 + self.buffer_dict[commod])
         diff = capacity - supply
         return diff, capacity, supply
 

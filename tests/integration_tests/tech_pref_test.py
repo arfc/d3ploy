@@ -34,20 +34,21 @@ TEMPLATE = {
                 {"lib": "cycamore", "name": "Source"},
                 {"lib": "cycamore", "name": "Reactor"},
                 {"lib": "cycamore", "name": "Sink"},
-                {"lib": "d3ploy.demand_driven_deployment_inst", 
-                "name": "DemandDrivenDeploymentInst"}
+                {"lib": "d3ploy.demand_driven_deployment_inst",
+                 "name": "DemandDrivenDeploymentInst"}
             ]
         },
         "control": {"duration": "10", "startmonth": "1", "startyear": "2000"},
         "facility": [
             {
-                "config": {"Source": {"outcommod": "fuel", 
-                           "outrecipe": "fresh_uox", "throughput": "1"}},
+                "config": {"Source": {"outcommod": "fuel",
+                                      "outrecipe": "fresh_uox",
+                                                   "throughput": "1"}},
                 "name": "source"
             },
             {
-                "config": {"Sink": {"in_commods": {"val": "spent_uox"}, 
-                                                   "max_inv_size": "10"}},
+                "config": {"Sink": {"in_commods": {"val": "spent_uox"},
+                                    "max_inv_size": "10"}},
                 "name": "sink"
             },
             {
@@ -89,13 +90,13 @@ TEMPLATE = {
             {
                 "basis": "mass",
                 "name": "fresh_uox",
-                "nuclide": [{"comp": "0.711", "id": "U235"}, 
+                "nuclide": [{"comp": "0.711", "id": "U235"},
                             {"comp": "99.289", "id": "U238"}]
             },
             {
                 "basis": "mass",
                 "name": "spent_uox",
-                "nuclide": [{"comp": "50", "id": "Kr85"}, 
+                "nuclide": [{"comp": "50", "id": "Kr85"},
                             {"comp": "50", "id": "Cs137"}]
             }
         ]
@@ -131,11 +132,10 @@ tech_pref_subprocess_template["simulation"].update({"region": {
                     ]
                 },
                 "facility_pref": {
-                    "item": [{"facility": "reactor1", "pref": "3*t"}, 
+                    "item": [{"facility": "reactor1", "pref": "3*t"},
                              {"facility": "reactor2", "pref": "t"}]
                 },
                 "demand_eq": "3*t",
-                "demand_std_dev": "0.0",
                 "record": "1",
                 "steps": "1"
             }
@@ -190,11 +190,10 @@ tech_pref_allreactor1_template["simulation"].update({"region": {
                     ]
                 },
                 "facility_pref": {
-                    "item": [{"facility": "reactor1", "pref": "2"}, 
+                    "item": [{"facility": "reactor1", "pref": "2"},
                              {"facility": "reactor2", "pref": "1"}]
                 },
                 "demand_eq": "3*t",
-                "demand_std_dev": "0.0",
                 "record": "1",
                 "steps": "1"
             }
@@ -250,11 +249,10 @@ tech_pref_cross_template["simulation"].update({"region": {
                     ]
                 },
                 "facility_pref": {
-                    "item": [{"facility": "reactor1", "pref": "11-t"}, 
+                    "item": [{"facility": "reactor1", "pref": "11-t"},
                              {"facility": "reactor2", "pref": "t"}]
                 },
                 "demand_eq": "3*t",
-                "demand_std_dev": "0.0",
                 "record": "1",
                 "steps": "1"
             }
@@ -286,3 +284,119 @@ def test_tech_pref_cross():
                 passes = 1
                 break
     assert(passes == 1)
+
+
+# ---------------------------------------------------------- #
+# In this scenario, the preference for reactor 1 is negative
+# This test will fail if there if reactor1 is deployed at all
+tech_pref_one_template = copy.deepcopy(TEMPLATE)
+tech_pref_one_template["simulation"].update({"region": {
+    "config": {"NullRegion": "\n      "},
+    "institution": {
+        "config": {
+            "DemandDrivenDeploymentInst": {
+                "calc_method": "poly",
+                "facility_capacity": {
+                    "item": [
+                        {"capacity": "1", "facility": "reactor1"},
+                        {"capacity": "1", "facility": "source"}
+                    ]
+                },
+                "facility_commod": {
+                    "item": [
+                        {"commod": "POWER", "facility": "reactor1"},
+                        {"commod": "fuel", "facility": "source"}
+                    ]
+                },
+                "facility_pref": {
+                    "item": [{"facility": "reactor1", "pref": "-1"}]
+                },
+                "demand_eq": "3*t",
+                "record": "1",
+                "steps": "1"
+            }
+        },
+        "name": "source_inst"
+    },
+    "name": "SingleRegion"
+}
+})
+
+
+def test_tech_pref_one():
+    output_file = 'test_tech_pref_one.sqlite'
+    input_file = output_file.replace('.sqlite', '.json')
+    with open(input_file, 'w') as f:
+        json.dump(tech_pref_one_template, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=ENV)
+    cur = functions.get_cursor(output_file)
+    agent_entry = cur.execute(
+        "select entertime, prototype from agententry").fetchall()
+
+    # check that it does not deploy reactor1 at all
+    fails = 0
+    for x in range(0, len(agent_entry)):
+        if agent_entry[x][1] == 'reactor1':
+            fails = 1
+            break
+    assert(fails == 0)
+
+
+# ------------------------------------------------------------------------- #
+# In this scenario, the preference for reactor 1 is negative until time step 2
+# This test will fail if there if reactor1 is deployed before time step 2
+tech_pref_two_template = copy.deepcopy(TEMPLATE)
+tech_pref_two_template["simulation"].update({"region": {
+    "config": {"NullRegion": "\n      "},
+    "institution": {
+        "config": {
+            "DemandDrivenDeploymentInst": {
+                "calc_method": "poly",
+                "facility_capacity": {
+                    "item": [
+                        {"capacity": "1", "facility": "reactor1"},
+                        {"capacity": "1", "facility": "source"}
+                    ]
+                },
+                "facility_commod": {
+                    "item": [
+                        {"commod": "POWER", "facility": "reactor1"},
+                        {"commod": "fuel", "facility": "source"}
+                    ]
+                },
+                "facility_pref": {
+                    "item": [{"facility": "reactor1", "pref": "t-2"}]
+                },
+                "demand_eq": "3*t",
+                "record": "1",
+                "steps": "1"
+            }
+        },
+        "name": "source_inst"
+    },
+    "name": "SingleRegion"
+}
+})
+
+
+def test_tech_pref_two():
+    output_file = 'test_tech_pref_two.sqlite'
+    input_file = output_file.replace('.sqlite', '.json')
+    with open(input_file, 'w') as f:
+        json.dump(tech_pref_two_template, f)
+    s = subprocess.check_output(['cyclus', '-o', output_file, input_file],
+                                universal_newlines=True, env=ENV)
+    # check if ran successfully and deployed facilities at time step 1
+    cur = functions.get_cursor(output_file)
+    agent_entry = cur.execute(
+        "select entertime, prototype from agententry").fetchall()
+
+    # check that it does not deploy reactor1 prior to time step 3
+    fails = 0
+    for x in range(0, len(agent_entry)):
+        if agent_entry[x][0] < 3:
+            if agent_entry[x][1] == 'reactor1':
+                fails = 1
+                break
+    assert(fails == 0)

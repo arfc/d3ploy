@@ -14,7 +14,7 @@
     </spec>
   </archetypes>
   <control>
-    <duration>40</duration>
+    <duration>10</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
   </control>
