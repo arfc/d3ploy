@@ -464,8 +464,8 @@ def test_supply_buffer_two():
 
 
 # ----------------------------------------------------------------------------- #
-# This test will fail if the inclusion of a 3MW value power supply buffer 
-# doesn't result in the calculated demand being 3MW larger than a simulation 
+# This test will fail if the inclusion of a 3MW value power supply buffer
+# doesn't result in the calculated demand being 3MW larger than a simulation
 # without the supply buffer.
 
 nobuf_template4 = copy.deepcopy(TEMPLATE)
@@ -573,8 +573,8 @@ def test_supply_buffer_num():
 
 
 # ----------------------------------------------------------------------------- #
-# This test will fail if the inclusion of a 3kg spent fuel capacity buffer doesn't 
-# result in the calculated supply being 20% larger than a simulation without the 
+# This test will fail if the inclusion of a 3kg spent fuel capacity buffer doesn't
+# result in the calculated supply being 20% larger than a simulation without the
 # capacity buffer.
 
 nobuf_template5 = copy.deepcopy(TEMPLATE)

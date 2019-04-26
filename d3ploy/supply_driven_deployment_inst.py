@@ -240,15 +240,16 @@ class SupplyDrivenDeploymentInst(Institution):
         if time not in self.commodity_capacity[commod]:
             self.commodity_capacity[commod][time] = 0.0
         capacity = self.predict_capacity(commod)
-        
-        if self.buffer_dict[commod][0] == 'p':  
+
+        if self.buffer_dict[commod][0] == 'p':
             supply = self.predict_supply(
                 commod, time) * (1 + self.buffer_dict[commod][1])
-        elif self.buffer_dict[commod][0] == 'n': 
-             supply = self.predict_supply(
+        elif self.buffer_dict[commod][0] == 'n':
+            supply = self.predict_supply(
                 commod, time) + self.buffer_dict[commod][1]
-        else: 
-            raise Exception('You can only choose p (%) or n (double) for buffer size')
+        else:
+            raise Exception(
+                'You can only choose p (%) or n (double) for buffer size')
         diff = capacity - supply
         return diff, capacity, supply
 
