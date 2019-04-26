@@ -173,7 +173,7 @@ class DemandDrivenDeploymentInst(Institution):
         self.rev_commodity_supply = {}
         self.rev_commodity_demand = {}
         self.fresh = True
-	    self.commod_mins = {}
+        self.commod_mins = {}
         CALC_METHODS['ma'] = no.predict_ma
         CALC_METHODS['arma'] = no.predict_arma
         CALC_METHODS['arch'] = no.predict_arch
