@@ -208,7 +208,7 @@ def find_mins(commod_min, commod_dict):
 
 def decommission(agent, commod_dict, diff, commod):
     fac_mins = {}
-    for fac, dic in commod_min[commod]:
+    for fac, dic in agent.commod_min[commod]:
         fac_mins[fac] = dic['cap']
     tmp = sorted(fac_mins.values())
     facs = []
