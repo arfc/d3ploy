@@ -164,6 +164,55 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     return all_dict
 
 
+def supply_demand_dict_nond3ploy(sqlite, commod, demand_eq=0):
+    """ Puts supply and demand into a nice dictionary format
+    if given the sql file and commodity name
+
+    Parameters
+    ----------
+    sqlite: sql file to analyze
+    commod: string of commod name
+    demand_eq: provide a demand eq is the commodity is 'power'
+
+    Returns
+    -------
+    returns 2 dicts: dictionaries of supply and demand
+    """
+    cur = get_cursor(sqlite)
+    tables = {}
+    all_dict = {}
+
+    tables[0] = "timeseriessupply" + commod
+    fuel_supply = cur.execute(
+        "select time, sum(value) from " +
+        tables[0] +
+        " group by time").fetchall()
+    dict_supply = {}
+    for x in range(0, len(fuel_supply)):
+        dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
+    all_dict['dict_supply'] = dict_supply
+
+    dict_demand = {}
+    if commod.lower() == 'power':
+        oldt = np.fromiter(dict_supply.keys(), dtype=float)
+        t = np.arange(0, oldt[-1] + 1)
+        fuel_demand = eval(demand_eq)
+        if isinstance(fuel_demand, int):
+            fuel_demand = fuel_demand * np.ones(len(t))
+        for x in range(0, len(t)):
+            dict_demand[t[x]] = fuel_demand[x]
+    else:
+        tables[1] = "timeseriesdemand" + commod
+        fuel_demand = cur.execute(
+            "select time, sum(value) from " + tables[1] +
+            " group by time").fetchall()
+        for x in range(0, len(fuel_demand)):
+            dict_demand[fuel_demand[x][0]] = fuel_demand[x][1]
+    all_dict['dict_demand'] = dict_demand
+
+    return all_dict
+
+
 def residuals(all_dict):
     """ Conducts a chi2 goodness of fit test
     Parameters
