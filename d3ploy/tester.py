@@ -200,7 +200,7 @@ def supply_demand_dict_nond3ploy(sqlite, commod, demand_eq=0):
         if isinstance(fuel_demand, int):
             fuel_demand = fuel_demand * np.ones(len(t))
         for x in range(0, len(t)):
-            dict_demand[t[x]] = fuel_demand[x]      
+            dict_demand[t[x]] = fuel_demand[x]
     else:
         tables[1] = "timeseriesdemand" + commod
         fuel_demand = cur.execute(
