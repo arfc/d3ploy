@@ -63,19 +63,22 @@ and for `supply_driven_deployment_inst`, the facility included should be the fac
 - **driving_commod**: The driving commodity for the institution.
 - **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable.
 - **calc_method**: This is the method used to predict the supply and demand.
+- **buffer_type**: This is a mapstringstring defining each commodity and the type of supply/capacity 
+buffer for it. For percentage, the user should input `perc`, for a absolute value, the user should 
+input `float`. The default is percentage. 
 
 #### Differing Inputs 
 DemandDrivenDeploymentInst:
-- **supply_buffer**: This is the amount above demand that the user wants the supply to meet. The user 
-has an option of inputting a percentage or a float. The choice is determined by adding a 'p' or 'n'
-before the value. If the user wants a 20% value of supply higher than demand, they should input 'p0.2'
-and if the user wants a 100[whatever unit] value of supply higher than demand, they should input 'n100'. 
+- **supply_buffer**: This is the amount above demand that the user wants the supply to meet. 
+The user can define the buffer type in the state variable `buffer_type`.
+If the user wants a 20% value of supply higher than demand, they should input '0.2'
+and if the user wants a 100[whatever unit] value of supply higher than demand, they should input '100'. 
 
 SupplyDrivenDeploymentInst:
-- **capacity_buffer**: This is the amount above supply that the user wants the capacity to meet. The user 
-has an option of inputting a percentage or a float. The choice is determined by adding a 'p' or 'n'
-before the value. If the user wants a 20% value of capacity higher than supply, they should input 'p0.2'
-and if the user wants a 100[whatever unit] value of capacity higher than supply, they should input 'n100'. 
+- **capacity_buffer**: This is the amount above supply that the user wants the capacity to meet. 
+The user can define the buffer type in the state variable `buffer_type`.
+If the user wants a 20% value of capacity higher than supply, they should input '0.2'
+and if the user wants a 100[whatever unit] value of capacity higher than supply, they should input '100'. 
 
 
 ### Prediction Methods
