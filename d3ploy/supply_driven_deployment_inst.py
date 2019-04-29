@@ -124,13 +124,15 @@ class SupplyDrivenDeploymentInst(Institution):
     )
 
     buffer_type = ts.MapStringString(
-    doc="Indicates whether the buffer is in percentage or float form, perc: %,"+
+        doc="Indicates whether the buffer is in percentage or float form, perc: %," +
         "float: float for each commodity",
-    tooltip="Capacity buffer in Percentage or float form for each commodity",
-    alias=['buffer_type', 'commod', 'type'],
-    uilabel="Capacity Buffer type",
-    default={}
-    )
+        tooltip="Capacity buffer in Percentage or float form for each commodity",
+        alias=[
+            'buffer_type',
+            'commod',
+            'type'],
+        uilabel="Capacity Buffer type",
+        default={})
 
     capacity_buffer = ts.MapStringDouble(
         doc="Capacity buffer size: % or float amount",
@@ -187,7 +189,8 @@ class SupplyDrivenDeploymentInst(Institution):
             commod_list = list(self.commodity_dict.keys())
             self.buffer_dict = di.build_buffer_dict(self.capacity_buffer,
                                                     commod_list)
-            self.buffer_type_dict = di.build_buffer_type_dict(self.buffer_type,commod_list)
+            self.buffer_type_dict = di.build_buffer_type_dict(
+                self.buffer_type, commod_list)
             for commod in self.commodity_dict:
                 # swap supply and demand for supply_inst
                 # change demand into capacity

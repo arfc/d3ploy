@@ -523,7 +523,7 @@ yesbuf_template4["simulation"].update({"region": {
                         {"commod": "POWER", "buffer": 3}
                     ]
                 },
-                "buffer_type":{
+                "buffer_type": {
                     "item": [
                         {"commod": "POWER", "type": "float"}
                     ]

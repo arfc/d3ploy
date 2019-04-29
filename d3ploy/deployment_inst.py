@@ -59,7 +59,7 @@ def build_buffer_dict(buffer, commods):
     return buffer_dict
 
 
-def build_buffer_type_dict(buffer,commods):
+def build_buffer_type_dict(buffer, commods):
     buffer_dict = {}
     for i in commods:
         count = 0
@@ -69,4 +69,4 @@ def build_buffer_type_dict(buffer,commods):
                 buffer_dict[key] = value
         if count == 0:
             buffer_dict[i] = "perc"
-    return buffer_dict 
+    return buffer_dict

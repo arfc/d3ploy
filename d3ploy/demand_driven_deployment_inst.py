@@ -128,15 +128,17 @@ class DemandDrivenDeploymentInst(Institution):
         uilabel="Supply Std Dev",
         default=0
     )
-    
+
     buffer_type = ts.MapStringString(
-    doc="Indicates whether the buffer is in percentage or float form, perc: %,"+
+        doc="Indicates whether the buffer is in percentage or float form, perc: %," +
         "float: float for each commodity",
-    tooltip="Supply buffer in Percentage or float form for each commodity",
-    alias=['buffer_type', 'commod', 'type'],
-    uilabel="Supply Buffer type",
-    default={}
-    )
+        tooltip="Supply buffer in Percentage or float form for each commodity",
+        alias=[
+            'buffer_type',
+            'commod',
+            'type'],
+        uilabel="Supply Buffer type",
+        default={})
 
     supply_buffer = ts.MapStringDouble(
         doc="Supply buffer size: Percentage or float amount ",
@@ -144,7 +146,7 @@ class DemandDrivenDeploymentInst(Institution):
         alias=['supply_buffer', 'commod', 'buffer'],
         uilabel="Supply Buffer",
         default={}
-)
+    )
 
     degree = ts.Int(
         doc="The degree of the fitting polynomial.",
@@ -199,7 +201,8 @@ class DemandDrivenDeploymentInst(Institution):
             commod_list = list(set(commod_list))
             self.buffer_dict = di.build_buffer_dict(self.supply_buffer,
                                                     commod_list)
-            self.buffer_type_dict = di.build_buffer_type_dict(self.buffer_type,commod_list)
+            self.buffer_type_dict = di.build_buffer_type_dict(
+                self.buffer_type, commod_list)
             for commod in commod_list:
                 lib.TIME_SERIES_LISTENERS["supply" +
                                           commod].append(self.extract_supply)
