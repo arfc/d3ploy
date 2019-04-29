@@ -136,7 +136,6 @@ tech_pref_subprocess_template["simulation"].update({"region": {
                              {"facility": "reactor2", "pref": "t"}]
                 },
                 "demand_eq": "3*t",
-                "demand_std_dev": "0.0",
                 "record": "1",
                 "steps": "1"
             }
@@ -195,7 +194,6 @@ tech_pref_allreactor1_template["simulation"].update({"region": {
                              {"facility": "reactor2", "pref": "1"}]
                 },
                 "demand_eq": "3*t",
-                "demand_std_dev": "0.0",
                 "record": "1",
                 "steps": "1"
             }
@@ -255,7 +253,6 @@ tech_pref_cross_template["simulation"].update({"region": {
                              {"facility": "reactor2", "pref": "t"}]
                 },
                 "demand_eq": "3*t",
-                "demand_std_dev": "0.0",
                 "record": "1",
                 "steps": "1"
             }
@@ -315,7 +312,6 @@ tech_pref_one_template["simulation"].update({"region": {
                     "item": [{"facility": "reactor1", "pref": "-1"}]
                 },
                 "demand_eq": "3*t",
-                "demand_std_dev": "0.0",
                 "record": "1",
                 "steps": "1"
             }
@@ -373,7 +369,6 @@ tech_pref_two_template["simulation"].update({"region": {
                     "item": [{"facility": "reactor1", "pref": "t-2"}]
                 },
                 "demand_eq": "3*t",
-                "demand_std_dev": "0.0",
                 "record": "1",
                 "steps": "1"
             }

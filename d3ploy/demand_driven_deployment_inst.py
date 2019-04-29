@@ -19,6 +19,7 @@ import d3ploy.solver as solver
 import d3ploy.NO_solvers as no
 import d3ploy.DO_solvers as do
 import d3ploy.ML_solvers as ml
+import d3ploy.deployment_inst as di
 
 CALC_METHODS = {}
 
@@ -128,18 +129,13 @@ class DemandDrivenDeploymentInst(Institution):
         default=0
     )
 
-    demand_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the demand side.",
-        tooltip="The standard deviation adjustment for the demand side.",
-        uilabel="Demand Std Dev",
-        default=0
-    )
-
-    demand_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the demand side.",
-        tooltip="The standard deviation adjustment for the demand side.",
-        uilabel="Demand Std Dev",
-        default=0
+    supply_buffer = ts.MapStringDouble(
+        doc="The percent above demand the supply should hit. In decimal" +
+            "form",
+        tooltip="Buffer Amount in decimal form.",
+        alias=['supply_buffer', 'commod', 'buffer'],
+        uilabel="Supply Buffer",
+        default={}
     )
 
     degree = ts.Int(
@@ -176,46 +172,12 @@ class DemandDrivenDeploymentInst(Institution):
         print('steps: %i' % self.steps)
         print('back_steps: %i' % self.back_steps)
         print('supply_std_dev: %f' % self.supply_std_dev)
-        print('demand_std_dev: %f' % self.demand_std_dev)
-
-    def build_dict(
-            self,
-            facility_commod,
-            facility_capacity,
-            facility_pref,
-            facility_constraintcommod,
-            facility_constraintval):
-        facility_dict = {}
-        commodity_dict = {}
-        for key, val in facility_capacity.items():
-            facility_dict[key] = {}
-            facility_dict[key] = {'cap': val}
-            if key in facility_pref.keys():
-                facility_dict[key].update({'pref': facility_pref[key]})
-            else:
-                facility_dict[key].update({'pref': '0'})
-            if key in facility_constraintcommod.keys():
-                facility_dict[key].update(
-                    {'constraint_commod': facility_constraintcommod[key]})
-            else:
-                facility_dict[key].update({'constraint_commod': '0'})
-            if key in facility_constraintval.keys():
-                facility_dict[key].update(
-                    {'constraint': facility_constraintval[key]})
-            else:
-                facility_dict[key].update({'constraint': 0.0})
-        for key, val in facility_commod.items():
-            if val not in commodity_dict.keys():
-                commodity_dict[val] = {}
-            if key in facility_dict.keys():
-                commodity_dict[val].update({key: facility_dict[key]})
-        return commodity_dict
 
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
             # convert input into dictionary
-            self.commodity_dict = self.build_dict(
+            self.commodity_dict = di.build_dict(
                 self.facility_commod,
                 self.facility_capacity,
                 self.facility_pref,
@@ -227,6 +189,8 @@ class DemandDrivenDeploymentInst(Institution):
                     if val2['constraint_commod'] != '0':
                         commod_list.append(val2['constraint_commod'])
             commod_list = list(set(commod_list))
+            self.buffer_dict = di.build_buffer_dict(self.supply_buffer,
+                                                    commod_list)
             for commod in commod_list:
                 lib.TIME_SERIES_LISTENERS["supply" +
                                           commod].append(self.extract_supply)
@@ -286,7 +250,8 @@ class DemandDrivenDeploymentInst(Institution):
         if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = 0.0
         supply = self.predict_supply(commod)
-        demand = self.predict_demand(commod, time)
+        demand = self.predict_demand(
+            commod, time) * (1 + self.buffer_dict[commod])
         diff = supply - demand
         return diff, supply, demand
 
