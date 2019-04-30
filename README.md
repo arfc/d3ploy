@@ -66,6 +66,7 @@ and for `supply_driven_deployment_inst`, the facility included should be the fac
 - **buffer_type**: This is a mapstringstring defining each commodity and the type of supply/capacity 
 buffer for it. For percentage, the user should input `perc`, for a absolute value, the user should 
 input `float`. The default is percentage. 
+- **installed_cap**: This is a boolean to determine whether deployment is governed by supply of the commodity of installed capacity for that commodity. 
 
 #### Differing Inputs 
 DemandDrivenDeploymentInst:
