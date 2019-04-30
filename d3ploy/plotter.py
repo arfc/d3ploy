@@ -184,6 +184,73 @@ def plot_demand_supply_agent(all_dict, agent_dict, commod, test,
     plt.close()
 
 
+def plot_demand_supply_nond3ploy(all_dict, agent_dict, commod, test,
+                                 demand_driven, log_scale, size=6):
+    """ Plots demand and supply on a curve for a non-driving commodity
+    Parameters
+    ----------
+    2 dicts: dictionaries of supply and demand
+    demand_driven: Boolean. If true, the commodity is demand driven,
+    if false, the commodity is supply driven
+    Returns
+    -------
+    plot of all four dicts
+    """
+
+    dict_demand = all_dict['dict_demand']
+    dict_supply = all_dict['dict_supply']
+    f, (ax1, ax2) = plt.subplots(2, 1, sharex='all',
+                                 gridspec_kw={'height_ratios': [1, 3]})
+    top_indx = True
+    for key, val in agent_dict.items():
+        x, y = get_xy_from_dict(val)
+        if top_indx:
+            ax1.bar(x, y, label=key,
+                    edgecolor='none')
+            prev = y
+            top_indx = False
+        else:
+            ax1.bar(x, y, label=key,
+                    bottom=prev, edgecolor='none')
+            prev = np.add(prev, y)
+    ax1.grid()
+    ax1.legend()
+    ax1.set_xlabel('Time (month timestep)')
+    ax1.set_ylabel('agents')
+
+    if demand_driven:
+        if log_scale:
+            ax2.semilogy(*zip(*sorted(dict_demand.items())), '+', color='red',
+                         label='Demand', markersize=size)
+        else:
+            ax2.plot(*zip(*sorted(dict_demand.items())), '+', color='red',
+                     label='Demand', markersize=size)
+    else:
+        if log_scale:
+            ax2.semilogy(*zip(*sorted(dict_demand.items())), '+', color='red',
+                         label='Capacity', markersize=size)
+        else:
+            ax2.plot(*zip(*sorted(dict_demand.items())), '+', color='red',
+                     label='Capacity', markersize=size)
+    if log_scale:
+        ax2.semilogy(*zip(*sorted(dict_supply.items())), 'x', color='c',
+                     label='Supply', markersize=size)
+    else:
+        ax2.plot(*zip(*sorted(dict_supply.items())), 'x', color='c',
+                 label='Supply', markersize=size)
+    ax2.grid()
+    if commod.lower() == 'power':
+        ax2.set_ylabel('Power (MW)', fontsize=14)
+    else:
+        ax2.set_ylabel('Mass (Kg)', fontsize=14)
+    handles, labels = ax2.get_legend_handles_labels()
+    ax2.legend(handles, labels, fontsize=11, loc='upper left',
+               fancybox=True)
+    ax1.set_title('Supply, Demand and prototypes for %s' % test)
+    plt.savefig(test, dpi=300, bbox_inches='tight')
+    plt.close()
+
+
 def get_xy_from_dict(dictionary):
     maxindx = max(dictionary.keys()) + 1
     y = np.zeros(maxindx)
