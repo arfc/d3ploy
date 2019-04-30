@@ -236,10 +236,10 @@ class DemandDrivenDeploymentInst(Institution):
             if diff < 0:
                 if self.installed_cap:
                     deploy_dict = solver.deploy_solver(
-                    self.installed_capacity, self.commodity_dict, commod, diff, time)
+                        self.installed_capacity, self.commodity_dict, commod, diff, time)
                 else:
                     deploy_dict = solver.deploy_solver(
-                    self.commodity_supply, self.commodity_dict, commod, diff, time)
+                        self.commodity_supply, self.commodity_dict, commod, diff, time)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
@@ -248,7 +248,7 @@ class DemandDrivenDeploymentInst(Institution):
                     if time == 0:
                         self.installed_capacity[commod][time] = 0
                         self.installed_capacity[commod][time +
-                        1] = self.commodity_dict[commod][proto]['cap'] * num
+                                                        1] = self.commodity_dict[commod][proto]['cap'] * num
                     else:
                         self.installed_capacity[commod][time + 1] = \
                             self.installed_capacity[commod][time] + \
@@ -259,7 +259,7 @@ class DemandDrivenDeploymentInst(Institution):
                     self.installed_capacity[commod][time + 1] = 0
                 else:
                     self.installed_capacity[commod][time +
-                    1] = self.installed_capacity[commod][time]
+                                                    1] = self.installed_capacity[commod][time]
 
             if self.record:
                 out_text = "Time " + str(time) + \
