@@ -76,6 +76,11 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
         fuel_demand = fuel_demand * np.ones(len(t))
     for x in range(0, len(t)):
         dict_demand[t[x]] = fuel_demand[x]
+    
+    # give dict supply zeros at timesteps 1 and 2 
+    for key in dict_demand.keys():
+        if key not in dict_supply:
+            dict_supply[key] = 0.0
 
     # give dict supply zeros at timesteps 1 and 2
     for key in dict_demand.keys():
@@ -297,6 +302,7 @@ def supply_under_demand(all_dict, demand_driven):
     dict_supply = all_dict['dict_supply']
 
     num_under = 0
+
     for x in range(len(dict_demand)):
         if demand_driven:
             try:
