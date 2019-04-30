@@ -123,10 +123,20 @@ class SupplyDrivenDeploymentInst(Institution):
         default=0
     )
 
+    buffer_type = ts.MapStringString(
+        doc="Indicates whether the buffer is in percentage or float form, perc: %," +
+        "float: float for each commodity",
+        tooltip="Capacity buffer in Percentage or float form for each commodity",
+        alias=[
+            'buffer_type',
+            'commod',
+            'type'],
+        uilabel="Capacity Buffer type",
+        default={})
+
     capacity_buffer = ts.MapStringDouble(
-        doc="The percent above supply the capacity should hit. In decimal" +
-            "form",
-        tooltip="Buffer Amount in decimal form.",
+        doc="Capacity buffer size: % or float amount",
+        tooltip="Capacity buffer amount",
         alias=['capacity_buffer', 'commod', 'buffer'],
         uilabel="Capacity Buffer",
         default={}
@@ -179,6 +189,8 @@ class SupplyDrivenDeploymentInst(Institution):
             commod_list = list(self.commodity_dict.keys())
             self.buffer_dict = di.build_buffer_dict(self.capacity_buffer,
                                                     commod_list)
+            self.buffer_type_dict = di.build_buffer_type_dict(
+                self.buffer_type, commod_list)
             for commod in self.commodity_dict:
                 # swap supply and demand for supply_inst
                 # change demand into capacity
@@ -240,8 +252,17 @@ class SupplyDrivenDeploymentInst(Institution):
         if time not in self.commodity_capacity[commod]:
             self.commodity_capacity[commod][time] = 0.0
         capacity = self.predict_capacity(commod)
-        supply = self.predict_supply(
-            commod, time) * (1 + self.buffer_dict[commod])
+
+        if self.buffer_type_dict[commod] == 'perc':
+            supply = self.predict_supply(
+                commod, time) * (1 + self.buffer_dict[commod])
+        elif self.buffer_type_dict[commod] == 'float':
+            supply = self.predict_supply(
+                commod, time) + self.buffer_dict[commod]
+        else:
+            raise Exception(
+                'You can only choose perc (%) or float (double) for buffer size')
+
         diff = capacity - supply
         return diff, capacity, supply
 
