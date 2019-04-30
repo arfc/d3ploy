@@ -57,8 +57,8 @@ demand_eq = "1000"
 scenario_input = copy.deepcopy(scenario_template)
 scenario_input["simulation"].update({"facility": [{
     "config": {"Source": {"outcommod": "fuel",
-                            "outrecipe": "fresh_uox",
-                            "throughput": "3000"}},
+                          "outrecipe": "fresh_uox",
+                          "throughput": "3000"}},
     "name": "source"
 },
     {
@@ -83,43 +83,43 @@ scenario_input["simulation"].update({"facility": [{
     },
     "name": "reactor"
 }]})
-scenario_input["simulation"].update({"region": {   "config": {"NullRegion": "\n      "}, 
-"institution": [
-{
-    "config": {
-    "DemandDrivenDeploymentInst": {
-    "calc_method": "ma", 
-    "demand_eq": demand_eq , 
-    "driving_commod": "POWER", 
-    "facility_capacity": {"item": {"capacity": "3000", "facility": "source"}}, 
-    "facility_commod": {"item": {"commod": "fuel", "facility": "source"}}, 
-    #"supply_buffer":{"item": {"commod": "fuel", "buffer": "0.5"}}, 
-    "installed_cap":"1",
-    "record": "0", 
-    "steps": "1"
+scenario_input["simulation"].update({"region": {"config": {"NullRegion": "\n      "},
+                                                "institution": [
+    {
+        "config": {
+            "DemandDrivenDeploymentInst": {
+                "calc_method": "ma",
+                "demand_eq": demand_eq,
+                "driving_commod": "POWER",
+                "facility_capacity": {"item": {"capacity": "3000", "facility": "source"}},
+                "facility_commod": {"item": {"commod": "fuel", "facility": "source"}},
+                #"supply_buffer":{"item": {"commod": "fuel", "buffer": "0.5"}},
+                "installed_cap": "1",
+                "record": "0",
+                "steps": "1"
+            }
+        },
+        "name": "non_driving_inst"
+    },
+    {
+        "config": {
+            "DemandDrivenDeploymentInst": {
+                "calc_method": "ma",
+                "demand_eq": demand_eq,
+                "driving_commod": "POWER",
+                "facility_capacity": {"item": {"capacity": "1000", "facility": "reactor"}},
+                "facility_commod": {"item": {"commod": "POWER", "facility": "reactor"}},
+                #"buffer_type":{"item": {"commod": "POWER", "type": "float"}},
+                #"supply_buffer":{"item": {"commod": "POWER", "buffer": "1000"}},
+                "installed_cap": "1",
+                "record": "0",
+                "steps": "1"
+            }
+        },
+        "name": "driving_inst"
     }
-    }, 
-    "name": "non_driving_inst"
-}, 
-{
-    "config": {
-    "DemandDrivenDeploymentInst": {
-    "calc_method": "ma", 
-    "demand_eq": demand_eq , 
-    "driving_commod": "POWER", 
-    "facility_capacity": {"item": {"capacity": "1000", "facility": "reactor"}}, 
-    "facility_commod": {"item": {"commod": "POWER", "facility": "reactor"}}, 
-    #"buffer_type":{"item": {"commod": "POWER", "type": "float"}}, 
-    #"supply_buffer":{"item": {"commod": "POWER", "buffer": "1000"}}, 
-    "installed_cap":"1",
-    "record": "0", 
-    "steps": "1"
-    }
-    }, 
-    "name": "driving_inst"
-}
-], 
-"name": "SingleRegion"
+],
+    "name": "SingleRegion"
 
 }})
 
@@ -137,6 +137,5 @@ def test_installed_cap():
                                 universal_newlines=True,)
     cursor = functions.get_cursor(output_file)
     agententry = cursor.execute('SELECT entertime FROM agententry WHERE ' +
-                                 'prototype == "reactor"').fetchall()
+                                'prototype == "reactor"').fetchall()
     assert (len(agententry) == 1)
-

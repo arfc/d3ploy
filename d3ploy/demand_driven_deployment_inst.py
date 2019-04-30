@@ -108,12 +108,11 @@ class DemandDrivenDeploymentInst(Institution):
     )
 
     installed_cap = ts.Bool(
-    doc = "Indicates whether or not to use installed capacity as the supply rather than" +
-            "the amount of that commodity in the simulation.",
-    tooltip = "Boolean to indicate whether or not to use installed capacity as supply",
-    uilabel="installed cap", 
-    default = False
-    )
+        doc="Indicates whether or not to use installed capacity as the supply rather than" +
+        "the amount of that commodity in the simulation.",
+        tooltip="Boolean to indicate whether or not to use installed capacity as supply",
+        uilabel="installed cap",
+        default=False)
 
     steps = ts.Int(
         doc="The number of timesteps forward to predict supply and demand",
@@ -243,19 +242,22 @@ class DemandDrivenDeploymentInst(Institution):
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
-                # update installed capacity dict 
+                # update installed capacity dict
                 for proto, num in deploy_dict.items():
                     if time == 0:
                         self.installed_capacity[commod][time] = 0
-                        self.installed_capacity[commod][time+1] = self.commodity_dict[commod][proto]['cap']*num
+                        self.installed_capacity[commod][time +
+                                                        1] = self.commodity_dict[commod][proto]['cap'] * num
                     else:
-                        self.installed_capacity[commod][time+1] = self.installed_capacity[commod][time] + self.commodity_dict[commod][proto]['cap']*num
-            else: 
+                        self.installed_capacity[commod][time + 1] = self.installed_capacity[commod][time] + \
+                            self.commodity_dict[commod][proto]['cap'] * num
+            else:
                 if time == 0:
                     self.installed_capacity[commod][time] = 0
-                    self.installed_capacity[commod][time+1] = 0
+                    self.installed_capacity[commod][time + 1] = 0
                 else:
-                    self.installed_capacity[commod][time+1] = self.installed_capacity[commod][time]
+                    self.installed_capacity[commod][time +
+                                                    1] = self.installed_capacity[commod][time]
 
             if self.record:
                 out_text = "Time " + str(time) + \
@@ -266,7 +268,6 @@ class DemandDrivenDeploymentInst(Institution):
                     str(self.commodity_demand[commod][time]) + "\n"
                 with open(commod + ".txt", 'a') as f:
                     f.write(out_text)
-
 
     def calc_diff(self, commod, time):
         """
@@ -305,9 +306,9 @@ class DemandDrivenDeploymentInst(Institution):
         return diff, supply, demand
 
     def predict_supply(self, commod):
-        if self.installed_cap: 
+        if self.installed_cap:
             input = self.installed_capacity[commod]
-        else: 
+        else:
             input = self.commodity_supply[commod]
 
         if self.calc_method in ['arma', 'ma', 'arch']:
