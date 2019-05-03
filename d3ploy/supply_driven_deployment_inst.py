@@ -224,10 +224,10 @@ class SupplyDrivenDeploymentInst(Institution):
                     for i in range(num):
                         self.context.schedule_build(self, proto)
             os_limit = self.commod_min[commod] * self.os_int
-	        if diff > os_limit:
-		        self.commod_os[commod] += 1    
-	        elif diff > os_limit and self.commod_os[commod] > self.os_time:
-		        solver.decommission(self, self.commod_dict[commod], diff)
+            if diff > os_limit:
+                self.commod_os[commod] += 1    
+            elif diff > os_limit and self.commod_os[commod] > self.os_time:
+                solver.decommission(self, self.commod_dict[commod], diff)
             else:
                 self.commod_os[commod] = 0
             if self.record:
