@@ -201,9 +201,7 @@ class DemandDrivenDeploymentInst(Institution):
                 self.facility_constraintcommod,
                 self.facility_constraintval)
             commod_list = list(self.commodity_dict.keys())
-            for commod in commod_list:
-                self.installed_capacity[commod] = defaultdict(float)
-                self.installed_capacity[commod][0] = 0.
+            self.installed_capacity = dict(zip(commod_list, [defaultdict(float)]*len(commod_list)))
             for key, val in self.commodity_dict.items():
                 for key2, val2 in val.items():
                     if val2['constraint_commod'] != '0':

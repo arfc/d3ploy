@@ -194,9 +194,7 @@ class SupplyDrivenDeploymentInst(Institution):
                 self.facility_constraintcommod,
                 self.facility_constraintval)
             commod_list = list(self.commodity_dict.keys())
-            for commod in commod_list:
-                self.installed_capacity[commod] = defaultdict(float)
-                self.installed_capacity[commod][0] = 0.
+            self.installed_capacity = dict(zip(commod_list, [defaultdict(float)]*len(commod_list)))
             self.buffer_dict = di.build_buffer_dict(self.capacity_buffer,
                                                     commod_list)
             self.buffer_type_dict = di.build_buffer_type_dict(
