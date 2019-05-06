@@ -99,8 +99,8 @@ class SupplyDrivenDeploymentInst(Institution):
         default=False)
 
     installed_cap = ts.Bool(
-        doc="Indicates whether or not to use installed capacity as the" +
-        "supply rather than the amount of that commodity in the simulation.",
+        doc="True if facility deployment is governed by installed capacity. " +
+        "False if deployment is governed by actual commodity capacity",
         tooltip="Boolean to indicate whether or not to use installed" +
                 "capacity as supply",
         uilabel="installed cap",
