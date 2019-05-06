@@ -210,7 +210,7 @@ class SupplyDrivenDeploymentInst(Institution):
                 self.commodity_supply[commod] = defaultdict(float)
             for child in self.children:
                 for commod, commod_dict in self.commodity_dict.items():
-                    for proto, proto_dict in val.items():
+                    for proto, proto_dict in commod_dict.items():
                         if proto == child.prototype:
                             itscommod = commod
                 self.installed_capacity[itscommod][0] = self.commodity_dict[itscommod][child.prototype]['cap']
