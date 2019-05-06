@@ -220,7 +220,7 @@ class DemandDrivenDeploymentInst(Institution):
                                           commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
-            for child in self.children: 
+            for child in self.children:
                 count = 0
                 for key, val in self.commodity_dict.items():
                     for key2, val2 in val.items():
@@ -228,7 +228,9 @@ class DemandDrivenDeploymentInst(Institution):
                             count = 1
                             itscommod = key
                 if count == 0:
-                    raise Exception('The {} facility that was added to the initial facility list must be included in facility_commod and facility_pref'.format(child.prototype))
+                    raise Exception(
+                        'The {} facility that was added to the initial facility list must be included in facility_commod and facility_pref'.format(
+                            child.prototype))
                 self.installed_capacity[itscommod][0] = self.commodity_dict[itscommod][child.prototype]['cap']
             self.fresh = False
 

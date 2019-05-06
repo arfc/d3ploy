@@ -53,7 +53,7 @@ scenario_template = {
             }
         ]}}
 
-######################## Test Installed Cap ##############################################
+######################## Test Installed Cap ##############################
 demand_eq = "1000"
 scenario_input = copy.deepcopy(scenario_template)
 scenario_input["simulation"].update({"facility": [{
@@ -123,7 +123,7 @@ scenario_input["simulation"].update({"region": {"config": {"NullRegion": "\n    
 
 
 def test_installed_cap():
-    """This test will pass if only one reactor agent enter the simulation 
+    """This test will pass if only one reactor agent enter the simulation
     because the deployment of facilities is based on installed capacity"""
 
     name = "scenario_input_"
@@ -138,6 +138,7 @@ def test_installed_cap():
     agententry = cursor.execute('SELECT entertime FROM agententry WHERE ' +
                                 'prototype == "reactor"').fetchall()
     assert (len(agententry) == 1)
+
 
 ###################### TEST initial facility list ######################
 demand_eq = "1000"
@@ -171,7 +172,7 @@ scenario_input2["simulation"].update({"facility": [{
     "name": "reactor"
 }]})
 scenario_input2["simulation"].update({"region": {"config": {"NullRegion": "\n      "},
-                                                "institution": [
+                                                 "institution": [
     {
         "config": {
             "DemandDrivenDeploymentInst": {
@@ -210,9 +211,9 @@ scenario_input2["simulation"].update({"region": {"config": {"NullRegion": "\n   
 
 
 def test_initial_facility():
-    """This test will pass if only 1 reactor agent enter the simulation 
-    , 1 reactor is added using the initial facility list. So if the deployment 
-    of facilities is based on installed capacity, no other facilities will be 
+    """This test will pass if only 1 reactor agent enter the simulation
+    , 1 reactor is added using the initial facility list. So if the deployment
+    of facilities is based on installed capacity, no other facilities will be
     deployed """
 
     name = "scenario_input2_"
@@ -229,11 +230,11 @@ def test_initial_facility():
     assert (len(agententry) == 1)
 
 
-############################ TEST SUPPLY DRIVEN ###################################
+############################ TEST SUPPLY DRIVEN ##########################
 def test_backdeployment_IC():
-    """This test will pass if only 1 sink agent enters the simulation 
-    , 1 sink is added using the initial facility list. So if the deployment 
-    of facilities is based on installed capacity, no other facilities will be 
+    """This test will pass if only 1 sink agent enters the simulation
+    , 1 sink is added using the initial facility list. So if the deployment
+    of facilities is based on installed capacity, no other facilities will be
     deployed """
     output_ = 'test_supplydriven_installedcap.sqlite'
     input_path = os.path.abspath(__file__)

@@ -210,7 +210,7 @@ class SupplyDrivenDeploymentInst(Institution):
                                           commod].append(self.extract_capacity)
                 self.commodity_capacity[commod] = defaultdict(float)
                 self.commodity_supply[commod] = defaultdict(float)
-            for child in self.children: 
+            for child in self.children:
                 count = 0
                 for key, val in self.commodity_dict.items():
                     for key2, val2 in val.items():
@@ -218,7 +218,9 @@ class SupplyDrivenDeploymentInst(Institution):
                             count = 1
                             itscommod = key
                 if count == 0:
-                    raise Exception('The {} facility that was added to the initial facility list must be included in facility_commod and facility_pref'.format(child.prototype))
+                    raise Exception(
+                        'The {} facility that was added to the initial facility list must be included in facility_commod and facility_pref'.format(
+                            child.prototype))
                 self.installed_capacity[itscommod][0] = self.commodity_dict[itscommod][child.prototype]['cap']
             self.fresh = False
             self.fresh = False
@@ -310,9 +312,8 @@ class SupplyDrivenDeploymentInst(Institution):
                                                       std_dev=self.capacity_std_dev,
                                                       back_steps=self.back_steps)
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
-            capacity = CALC_METHODS[self.calc_method](input,
-                                                      back_steps=self.back_steps,
-                                                      degree=self.degree)
+            capacity = CALC_METHODS[self.calc_method](
+                input, back_steps=self.back_steps, degree=self.degree)
         elif self.calc_method in ['sw_seasonal']:
             capacity = CALC_METHODS[self.calc_method](
                 input, period=self.degree)
