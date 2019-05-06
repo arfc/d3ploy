@@ -301,23 +301,24 @@ class DemandDrivenDeploymentInst(Institution):
         return diff, supply, demand
 
     def predict_supply(self, commod):
-        if self.installed_cap:
-            input = self.installed_capacity[commod]
-        else:
-            input = self.commodity_supply[commod]
+        def target(incommod):
+            if self.installed_cap:
+                return self.installed_capacity[incommod]
+            else:
+                return self.commodity_supply[incommod]
 
         if self.calc_method in ['arma', 'ma', 'arch']:
-            supply = CALC_METHODS[self.calc_method](input,
+            supply = CALC_METHODS[self.calc_method](target(commod),
                                                     steps=self.steps,
                                                     std_dev=self.supply_std_dev,
                                                     back_steps=self.back_steps)
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
-            supply = CALC_METHODS[self.calc_method](input,
+            supply = CALC_METHODS[self.calc_method](target(commod),
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
         elif self.calc_method in ['sw_seasonal']:
             supply = CALC_METHODS[self.calc_method](
-                input, period=self.degree)
+                target(commod), period=self.degree)
         else:
             raise ValueError(
                 'The input calc_method is not valid. Check again.')
