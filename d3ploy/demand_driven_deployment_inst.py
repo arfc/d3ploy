@@ -107,6 +107,14 @@ class DemandDrivenDeploymentInst(Institution):
         default="POWER"
     )
 
+    installed_cap = ts.Bool(
+        doc="Indicates whether or not to use installed capacity as the" +
+        "supply rather than the amount of that commodity in the simulation.",
+        tooltip="Boolean to indicate whether or not to use installed" +
+                "capacity as supply",
+        uilabel="installed cap",
+        default=False)
+
     steps = ts.Int(
         doc="The number of timesteps forward to predict supply and demand",
         tooltip="The number of predicted steps forward",
@@ -162,8 +170,7 @@ class DemandDrivenDeploymentInst(Institution):
         super().__init__(*args, **kwargs)
         self.commodity_supply = {}
         self.commodity_demand = {}
-        self.rev_commodity_supply = {}
-        self.rev_commodity_demand = {}
+        self.installed_capacity = {}
         self.fresh = True
         CALC_METHODS['ma'] = no.predict_ma
         CALC_METHODS['arma'] = no.predict_arma
@@ -194,22 +201,35 @@ class DemandDrivenDeploymentInst(Institution):
                 self.facility_constraintcommod,
                 self.facility_constraintval)
             commod_list = list(self.commodity_dict.keys())
+            for commod in commod_list:
+                self.installed_capacity[commod] = defaultdict(float)
+                self.installed_capacity[commod][0] = 0.
             for key, val in self.commodity_dict.items():
                 for key2, val2 in val.items():
                     if val2['constraint_commod'] != '0':
                         commod_list.append(val2['constraint_commod'])
-            commod_list = list(set(commod_list))
+            self.commod_list = list(set(commod_list))
             self.buffer_dict = di.build_buffer_dict(self.supply_buffer,
-                                                    commod_list)
+                                                    self.commod_list)
             self.buffer_type_dict = di.build_buffer_type_dict(
                 self.buffer_type, commod_list)
-            for commod in commod_list:
+            for commod in self.commod_list:
                 lib.TIME_SERIES_LISTENERS["supply" +
                                           commod].append(self.extract_supply)
                 lib.TIME_SERIES_LISTENERS["demand" +
                                           commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
+            for child in self.children: 
+                count = 0
+                for key, val in self.commodity_dict.items():
+                    for key2, val2 in val.items():
+                        if key2 == child.prototype:
+                            count = 1
+                            itscommod = key
+                if count == 0:
+                    raise Exception('The {} facility that was added to the initial facility list must be included in facility_commod and facility_pref'.format(child.prototype))
+                self.installed_capacity[itscommod][0] = self.commodity_dict[itscommod][child.prototype]['cap']
             self.fresh = False
 
     def decision(self):
@@ -219,17 +239,28 @@ class DemandDrivenDeploymentInst(Institution):
         """
         time = self.context.time
         for commod, proto_dict in self.commodity_dict.items():
-
             diff, supply, demand = self.calc_diff(commod, time)
             lib.record_time_series('calc_supply' + commod, self, supply)
             lib.record_time_series('calc_demand' + commod, self, demand)
-
             if diff < 0:
-                deploy_dict = solver.deploy_solver(
-                    self.commodity_supply, self.commodity_dict, commod, diff, time)
+                if self.installed_cap:
+                    deploy_dict = solver.deploy_solver(
+                        self.installed_capacity, self.commodity_dict, commod, diff, time)
+                else:
+                    deploy_dict = solver.deploy_solver(
+                        self.commodity_supply, self.commodity_dict, commod, diff, time)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
+                # update installed capacity dict
+                for proto, num in deploy_dict.items():
+                    self.installed_capacity[commod][time + 1] = \
+                        self.installed_capacity[commod][time] + \
+                        self.commodity_dict[commod][proto]['cap'] * num
+            else:
+                self.installed_capacity[commod][time +
+                                                1] = self.installed_capacity[commod][time]
+
             if self.record:
                 out_text = "Time " + str(time) + \
                     " Deployed " + str(len(self.children))
@@ -277,18 +308,23 @@ class DemandDrivenDeploymentInst(Institution):
         return diff, supply, demand
 
     def predict_supply(self, commod):
+        if self.installed_cap:
+            input = self.installed_capacity[commod]
+        else:
+            input = self.commodity_supply[commod]
+
         if self.calc_method in ['arma', 'ma', 'arch']:
-            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
+            supply = CALC_METHODS[self.calc_method](input,
                                                     steps=self.steps,
                                                     std_dev=self.supply_std_dev,
                                                     back_steps=self.back_steps)
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
-            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
+            supply = CALC_METHODS[self.calc_method](input,
                                                     back_steps=self.back_steps,
                                                     degree=self.degree)
         elif self.calc_method in ['sw_seasonal']:
             supply = CALC_METHODS[self.calc_method](
-                self.commodity_supply[commod], period=self.degree)
+                input, period=self.degree)
         else:
             raise ValueError(
                 'The input calc_method is not valid. Check again.')
