@@ -231,6 +231,10 @@ def test_initial_facility():
 
 ############################ TEST SUPPLY DRIVEN ###################################
 def test_backdeployment_IC():
+    """This test will pass if only 1 sink agent enters the simulation 
+    , 1 sink is added using the initial facility list. So if the deployment 
+    of facilities is based on installed capacity, no other facilities will be 
+    deployed """
     output_ = 'test_supplydriven_installedcap.sqlite'
     input_path = os.path.abspath(__file__)
     find = 'd3ploy/'
