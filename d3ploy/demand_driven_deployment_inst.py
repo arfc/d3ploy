@@ -202,10 +202,10 @@ class DemandDrivenDeploymentInst(Institution):
                 self.facility_constraintval)
             self.commod_list = list(self.commodity_dict.keys())
             self.installed_capacity = dict(zip(self.commod_list, [defaultdict(float)]*len(self.commod_list)))
-            for key, val in self.commodity_dict.items():
-                for key2, val2 in val.items():
-                    if val2['constraint_commod'] != '0':
-                        self.commod_list.append(val2['constraint_commod'])
+            for commod, commod_dict in self.commodity_dict.items():
+                for proto, proto_dict in commod_dict.items():
+                    if proto_dict['constraint_commod'] != '0':
+                        self.commod_list.append(proto_dict['constraint_commod'])
             self.buffer_dict = di.build_buffer_dict(self.supply_buffer,
                                                     self.commod_list)
             self.buffer_type_dict = di.build_buffer_type_dict(
