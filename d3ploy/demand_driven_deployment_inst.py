@@ -237,7 +237,6 @@ class DemandDrivenDeploymentInst(Institution):
         time = self.context.time
         for commod, proto_dict in self.commodity_dict.items():
             diff, supply, demand = self.calc_diff(commod, time)
-            if commod == 'POWER':
             lib.record_time_series('calc_supply' + commod, self, supply)
             lib.record_time_series('calc_demand' + commod, self, demand)
             if diff < 0:
