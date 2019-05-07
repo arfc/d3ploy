@@ -237,6 +237,7 @@ class DemandDrivenDeploymentInst(Institution):
         time = self.context.time
         for commod, proto_dict in self.commodity_dict.items():
             diff, supply, demand = self.calc_diff(commod, time)
+            if commod == 'POWER':
             lib.record_time_series('calc_supply' + commod, self, supply)
             lib.record_time_series('calc_demand' + commod, self, demand)
             if diff < 0:
@@ -267,11 +268,12 @@ class DemandDrivenDeploymentInst(Institution):
                     str(self.commodity_demand[commod][time]) + "\n"
                 with open(commod + ".txt", 'a') as f:
                     f.write(out_text)
+            
         for child in self.children:
             if child.exit_time == time:
                 itscommod = self.fac_commod[child.prototype]
                 self.installed_capacity[itscommod][time +
-                                                   1] -= self.commodity_dict[itscommod][child.prototype]['cap']
+                                        1] -= self.commodity_dict[itscommod][child.prototype]['cap']
 
     def calc_diff(self, commod, time):
         """
@@ -290,7 +292,6 @@ class DemandDrivenDeploymentInst(Institution):
             The calculated demand of the demand commodity at [time]
         """
         if time not in self.commodity_demand[commod]:
-            t = 0
             self.commodity_demand[commod][time] = eval(self.demand_eq)
         if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = 0.0
