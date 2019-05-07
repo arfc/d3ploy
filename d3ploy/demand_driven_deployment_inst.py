@@ -171,6 +171,7 @@ class DemandDrivenDeploymentInst(Institution):
         self.commodity_supply = {}
         self.commodity_demand = {}
         self.installed_capacity = {}
+        self.fac_commod = {}
         self.fresh = True
         CALC_METHODS['ma'] = no.predict_ma
         CALC_METHODS['arma'] = no.predict_arma
@@ -200,8 +201,14 @@ class DemandDrivenDeploymentInst(Institution):
                 self.facility_pref,
                 self.facility_constraintcommod,
                 self.facility_constraintval)
+            for commod, proto_dict in self.commodity_dict.items():
+                protos = proto_dict.keys()
+                for proto in protos:
+                    self.fac_commod[proto] = commod
             self.commod_list = list(self.commodity_dict.keys())
-            self.installed_capacity = dict(zip(self.commod_list, [defaultdict(float)]*len(self.commod_list)))
+            for commod in self.commod_list:
+                self.installed_capacity[commod] = defaultdict(float)
+                self.installed_capacity[commod][0] = 0.
             for commod, commod_dict in self.commodity_dict.items():
                 for proto, proto_dict in commod_dict.items():
                     if proto_dict['constraint_commod'] != '0':
@@ -218,11 +225,8 @@ class DemandDrivenDeploymentInst(Institution):
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
             for child in self.children:
-                for commod, commod_dict in self.commodity_dict.items():
-                    for proto, proto_dict in commod_dict.items():
-                        if proto == child.prototype:
-                            itscommod = commod
-                self.installed_capacity[itscommod][0] = self.commodity_dict[itscommod][child.prototype]['cap']
+                itscommod = self.fac_commod[child.prototype]
+                self.installed_capacity[itscommod][0] += self.commodity_dict[itscommod][child.prototype]['cap']
             self.fresh = False
 
     def decision(self):
@@ -263,6 +267,11 @@ class DemandDrivenDeploymentInst(Institution):
                     str(self.commodity_demand[commod][time]) + "\n"
                 with open(commod + ".txt", 'a') as f:
                     f.write(out_text)
+        for child in self.children:
+            if child.exit_time == time:
+                itscommod = self.fac_commod[child.prototype]
+                self.installed_capacity[itscommod][time +
+                                                   1] -= self.commodity_dict[itscommod][child.prototype]['cap']
 
     def calc_diff(self, commod, time):
         """
