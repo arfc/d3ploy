@@ -212,7 +212,8 @@ class DemandDrivenDeploymentInst(Institution):
             for commod, commod_dict in self.commodity_dict.items():
                 for proto, proto_dict in commod_dict.items():
                     if proto_dict['constraint_commod'] != '0':
-                        self.commod_list.append(proto_dict['constraint_commod'])
+                        self.commod_list.append(
+                            proto_dict['constraint_commod'])
             self.buffer_dict = di.build_buffer_dict(self.supply_buffer,
                                                     self.commod_list)
             self.buffer_type_dict = di.build_buffer_type_dict(
@@ -271,7 +272,7 @@ class DemandDrivenDeploymentInst(Institution):
             if child.exit_time == time:
                 itscommod = self.fac_commod[child.prototype]
                 self.installed_capacity[itscommod][time +
-                                        1] -= self.commodity_dict[itscommod][child.prototype]['cap']
+                                                   1] -= self.commodity_dict[itscommod][child.prototype]['cap']
 
     def calc_diff(self, commod, time):
         """

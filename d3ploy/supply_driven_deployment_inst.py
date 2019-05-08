@@ -263,7 +263,7 @@ class SupplyDrivenDeploymentInst(Institution):
             if child.exit_time == time:
                 itscommod = self.fac_commod[child.prototype]
                 self.installed_capacity[itscommod][time +
-                                        1] -= self.commodity_dict[itscommod][child.prototype]['cap']
+                                                   1] -= self.commodity_dict[itscommod][child.prototype]['cap']
 
     def calc_diff(self, commod, time):
         """
