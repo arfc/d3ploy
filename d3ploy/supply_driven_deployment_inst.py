@@ -98,6 +98,14 @@ class SupplyDrivenDeploymentInst(Institution):
         uilabel="Record to Text",
         default=False)
 
+    installed_cap = ts.Bool(
+        doc="True if facility deployment is governed by installed capacity. " +
+        "False if deployment is governed by actual commodity capacity",
+        tooltip="Boolean to indicate whether or not to use installed" +
+                "capacity as supply",
+        uilabel="installed cap",
+        default=False)
+
     steps = ts.Int(
         doc="The number of timesteps forward to predict supply and capacity",
         tooltip="The number of predicted steps forward",
@@ -156,8 +164,8 @@ class SupplyDrivenDeploymentInst(Institution):
         super().__init__(*args, **kwargs)
         self.commodity_capacity = {}
         self.commodity_supply = {}
-        self.rev_commodity_capacity = {}
-        self.rev_commodity_supply = {}
+        self.installed_capacity = {}
+        self.fac_commod = {}
         self.fresh = True
         CALC_METHODS['ma'] = no.predict_ma
         CALC_METHODS['arma'] = no.predict_arma
@@ -186,7 +194,14 @@ class SupplyDrivenDeploymentInst(Institution):
                 self.facility_pref,
                 self.facility_constraintcommod,
                 self.facility_constraintval)
+            for commod, proto_dict in self.commodity_dict.items():
+                protos = proto_dict.keys()
+                for proto in protos:
+                    self.fac_commod[proto] = commod
             commod_list = list(self.commodity_dict.keys())
+            for commod in commod_list:
+                self.installed_capacity[commod] = defaultdict(float)
+                self.installed_capacity[commod][0] = 0.
             self.buffer_dict = di.build_buffer_dict(self.capacity_buffer,
                                                     commod_list)
             self.buffer_type_dict = di.build_buffer_type_dict(
@@ -200,6 +215,9 @@ class SupplyDrivenDeploymentInst(Institution):
                                           commod].append(self.extract_capacity)
                 self.commodity_capacity[commod] = defaultdict(float)
                 self.commodity_supply[commod] = defaultdict(float)
+            for child in self.children:
+                itscommod = self.fac_commod[child.prototype]
+                self.installed_capacity[itscommod][0] += self.commodity_dict[itscommod][child.prototype]['cap']
             self.fresh = False
 
     def decision(self):
@@ -215,11 +233,23 @@ class SupplyDrivenDeploymentInst(Institution):
             lib.record_time_series('calc_capacity' + commod, self, capacity)
 
             if diff < 0:
-                deploy_dict = solver.deploy_solver(
-                    self.commodity_supply, self.commodity_dict, commod, diff, time)
+                if self.installed_cap:
+                    deploy_dict = solver.deploy_solver(
+                        self.installed_capacity, self.commodity_dict, commod, diff, time)
+                else:
+                    deploy_dict = solver.deploy_solver(
+                        self.commodity_supply, self.commodity_dict, commod, diff, time)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
+                # update installed capacity dict
+                for proto, num in deploy_dict.items():
+                    self.installed_capacity[commod][time + 1] = \
+                        self.installed_capacity[commod][time] + \
+                        self.commodity_dict[commod][proto]['cap'] * num
+            else:
+                self.installed_capacity[commod][time +
+                                                1] = self.installed_capacity[commod][time]
             if self.record:
                 out_text = "Time " + str(time) + \
                     " Deployed " + str(len(self.children))
@@ -229,6 +259,11 @@ class SupplyDrivenDeploymentInst(Institution):
                     str(self.commodity_supply[commod][time]) + "\n"
                 with open(commod + ".txt", 'a') as f:
                     f.write(out_text)
+        for child in self.children:
+            if child.exit_time == time:
+                itscommod = self.fac_commod[child.prototype]
+                self.installed_capacity[itscommod][time +
+                                                   1] -= self.commodity_dict[itscommod][child.prototype]['cap']
 
     def calc_diff(self, commod, time):
         """
@@ -267,18 +302,22 @@ class SupplyDrivenDeploymentInst(Institution):
         return diff, capacity, supply
 
     def predict_capacity(self, commod):
+        def target(incommod):
+            if self.installed_cap:
+                return self.installed_capacity[incommod]
+            else:
+                return self.commodity_capacity[incommod]
         if self.calc_method in ['arma', 'ma', 'arch']:
-            capacity = CALC_METHODS[self.calc_method](self.commodity_capacity[commod],
+            capacity = CALC_METHODS[self.calc_method](target(commod),
                                                       steps=self.steps,
                                                       std_dev=self.capacity_std_dev,
                                                       back_steps=self.back_steps)
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
-            capacity = CALC_METHODS[self.calc_method](self.commodity_capacity[commod],
-                                                      back_steps=self.back_steps,
-                                                      degree=self.degree)
+            capacity = CALC_METHODS[self.calc_method](
+                target(commod), back_steps=self.back_steps, degree=self.degree)
         elif self.calc_method in ['sw_seasonal']:
             capacity = CALC_METHODS[self.calc_method](
-                self.commodity_capacity[commod], period=self.degree)
+                target(commod), period=self.degree)
         else:
             raise ValueError(
                 'The input calc_method is not valid. Check again.')
