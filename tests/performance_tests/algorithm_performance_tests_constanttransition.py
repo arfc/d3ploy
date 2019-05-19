@@ -47,8 +47,22 @@ all_dict_power = tester.supply_demand_dict_driving(
 all_dict_fuel = tester.supply_demand_dict_nondriving(
     output_file, 'fuel', True)
 
-agent_entry_dict['power'] = tester.get_agent_dict(output_file, ['reactor1','reactor2','reactor3','reactor4','reactor5','reactor6','reactor7','reactor8','reactor9','reactor10','newreactor'])
-agent_entry_dict['fuel'] = tester.get_agent_dict(output_file, ['source','initialsource'])
+agent_entry_dict['power'] = tester.get_agent_dict(
+    output_file,
+    [
+        'reactor1',
+        'reactor2',
+        'reactor3',
+        'reactor4',
+        'reactor5',
+        'reactor6',
+        'reactor7',
+        'reactor8',
+        'reactor9',
+        'reactor10',
+        'newreactor'])
+agent_entry_dict['fuel'] = tester.get_agent_dict(
+    output_file, ['source', 'initialsource'])
 # plots demand, supply, calculated demand, calculated supply for the
 # scenario for each calc method
 plotter.plot_demand_supply_agent(
