@@ -173,8 +173,10 @@ def plot_demand_supply_agent(all_dict, agent_dict, commod, test,
     ax2.grid()
     if commod.lower() == 'power':
         ax2.set_ylabel('Power (MW)', fontsize=14)
+        ax2.set_ylim(0)
     else:
         ax2.set_ylabel('Mass (Kg)', fontsize=14)
+        ax2.set_ylim(0)
     handles, labels = ax2.get_legend_handles_labels()
     ax2.legend(
         handles,
@@ -183,7 +185,7 @@ def plot_demand_supply_agent(all_dict, agent_dict, commod, test,
         loc='upper center',
         bbox_to_anchor=(
             1.20,
-            1.0),
+            0.4),
         fancybox=True)
 
     ax1.set_title('Supply, Demand and prototypes for %s' % test)
