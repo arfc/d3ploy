@@ -111,11 +111,14 @@ def plot_demand_supply_agent(all_dict, agent_dict, commod, test,
                                  gridspec_kw={'height_ratios': [1, 3]})
 
     top_indx = True
+    NUM_COLORS = 12
+    cm = plt.get_cmap('tab20_r')
     for key, val in agent_dict.items():
         x, y = get_xy_from_dict(val)
         if top_indx:
             ax1.bar(x, y, label=key,
                     edgecolor='none')
+            ax1.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
             prev = y
             top_indx = False
         else:
