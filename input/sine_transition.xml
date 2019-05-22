@@ -29,6 +29,10 @@
       <lib>d3ploy.demand_driven_deployment_inst</lib>
       <name>DemandDrivenDeploymentInst</name>
     </spec>
+    <spec>
+      <lib>d3ploy.supply_driven_deployment_inst</lib>
+      <name>SupplyDrivenDeploymentInst</name>
+    </spec>
   </archetypes>
 
   <control>
@@ -363,7 +367,7 @@
             <in_commods>
                 <val>spent_fuel</val>
             </in_commods>
-            <max_inv_size>1e20</max_inv_size>
+            <max_inv_size>5e4</max_inv_size>
         </Sink>
     </config>
 </facility>
@@ -403,7 +407,7 @@
     <institution>
       <config>
         <DemandDrivenDeploymentInst>
-          <calc_method>ma</calc_method>
+          <calc_method>holt_winters</calc_method>
           <facility_commod>
           <item>
               <facility>newreactor</facility>
@@ -448,18 +452,6 @@
             <item>
               <facility>reactor1</facility>
               <commod>POWER</commod>
-            </item>
-            <item>
-              <facility>source</facility>
-              <commod>fuel</commod>
-            </item>
-            <item>
-              <facility>initialsource</facility>
-              <commod>fuel</commod>
-            </item>
-            <item>
-              <facility>lwrsink</facility>
-              <commod>spent_fuel</commod>
             </item>
           </facility_commod>
           <facility_capacity>
@@ -507,24 +499,8 @@
               <facility>reactor1</facility>
               <capacity>1000</capacity>
             </item>
-            <item>
-              <facility>source</facility>
-              <capacity>3000</capacity>
-            </item>
-            <item>
-              <facility>initialsource</facility>
-              <capacity>90000</capacity>
-            </item>
-            <item>
-              <facility>lwrsink</facility>
-              <capacity>1e20</capacity>
-            </item>
           </facility_capacity>
           <facility_pref>
-            <item>
-            <facility>lwrsink</facility>
-            <pref>-1</pref>
-            </item>
             <item>
             <facility>reactor1</facility>
             <pref>-1</pref>
@@ -565,12 +541,8 @@
             <facility>reactor10</facility>
             <pref>-1</pref>
             </item>
-            <item>
-            <facility>initialsource</facility>
-            <pref>-1</pref>
-            </item>
           </facility_pref>
-          <demand_eq>10000</demand_eq>
+          <demand_eq>1000*np.sin(np.pi*t/6)+10000</demand_eq>
           <record>1</record>
           <steps>1</steps>
           <buffer_type>
@@ -582,17 +554,13 @@
           <supply_buffer>
             <item>
                 <commod>POWER</commod>
-                <buffer>3000</buffer>
+                <buffer>2000</buffer>
             </item>
           </supply_buffer>
           <installed_cap>1</installed_cap>
         </DemandDrivenDeploymentInst>
       </config>
         <initialfacilitylist>
-        <entry>
-          <number>1</number>
-          <prototype>initialsource</prototype>
-        </entry>
         <entry>
           <number>1</number>
           <prototype>reactor1</prototype>
@@ -633,13 +601,97 @@
           <number>1</number>
           <prototype>reactor10</prototype>
         </entry>
+      </initialfacilitylist>
+      <name>driving_demand_inst</name>
+    </institution>
+
+    <institution>
+      <config>
+        <DemandDrivenDeploymentInst>
+          <calc_method>fft</calc_method>
+          <facility_commod>
+            <item>
+              <facility>source</facility>
+              <commod>fuel</commod>
+            </item>
+            <item>
+              <facility>initialsource</facility>
+              <commod>fuel</commod>
+            </item>
+          </facility_commod>
+          <facility_capacity>
+            <item>
+              <facility>source</facility>
+              <capacity>3000</capacity>
+            </item>
+            <item>
+              <facility>initialsource</facility>
+              <capacity>90000</capacity>
+            </item>
+          </facility_capacity>
+          <facility_pref>
+            <item>
+            <facility>initialsource</facility>
+            <pref>-1</pref>
+            </item>
+          </facility_pref>
+          <demand_eq>1000*np.sin(np.pi*t/6)+10000</demand_eq>
+          <record>1</record>
+          <steps>1</steps>
+          <installed_cap>1</installed_cap>
+        </DemandDrivenDeploymentInst>
+      </config>
+        <initialfacilitylist>
+        <entry>
+          <number>1</number>
+          <prototype>initialsource</prototype>
+        </entry>
+      </initialfacilitylist>
+      <name>nondriving_demand_inst</name>
+    </institution>
+
+    <institution>
+      <config>
+        <SupplyDrivenDeploymentInst>
+          <calc_method>fft</calc_method>
+          <facility_commod>
+            <item>
+              <facility>lwrsink</facility>
+              <commod>spent_fuel</commod>
+            </item>
+          </facility_commod>
+          <facility_capacity>
+            <item>
+              <facility>lwrsink</facility>
+              <capacity>5e4</capacity>
+            </item>
+          </facility_capacity>
+          <capacity_std_dev>1.0</capacity_std_dev>
+          <record>1</record>
+          <steps>1</steps>
+          <buffer_type>
+          <item>
+            <commod>spent_fuel</commod>
+            <type>float</type>
+          </item>
+          </buffer_type>
+          <capacity_buffer>
+            <item>
+                <commod>spent_fuel</commod>
+                <buffer>1000</buffer>
+            </item>
+          </capacity_buffer>
+        </SupplyDrivenDeploymentInst>
+      </config>
+      <initialfacilitylist>
         <entry>
           <number>1</number>
           <prototype>lwrsink</prototype>
         </entry>
       </initialfacilitylist>
-      <name>source_inst</name>
+      <name>supply_inst</name>
     </institution>
+    
 
     <name>SingleRegion</name>
   </region>

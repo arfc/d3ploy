@@ -24,21 +24,22 @@ ENV = dict(os.environ)
 ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 
 
-output_file = 'constant_transition.sqlite'
+output_file = 'sine_transition.sqlite'
 input_path = os.path.abspath(__file__)
 find = 'd3ploy/'
 indx = input_path.rfind('d3ploy/')
 input = input_path.replace(
-    input_path[indx + len(find):], 'input/constant_transition.xml')
+    input_path[indx + len(find):], 'input/sine_transition.xml')
 s = subprocess.check_output(['cyclus', '-o', output_file, input],
                             universal_newlines=True, env=ENV)
 
-demand_eq = '10000'
+demand_eq = '1000*np.sin(np.pi*t/6)+10000'
 name = 'scenario'
 
 # Initialize dicts
 all_dict_power = {}
 all_dict_fuel = {}
+all_dict_spent_fuel = {}
 agent_entry_dict = {}
 metric_dict = {}
 
@@ -46,6 +47,8 @@ all_dict_power = tester.supply_demand_dict_driving(
     output_file, demand_eq, 'power')
 all_dict_fuel = tester.supply_demand_dict_nondriving(
     output_file, 'fuel', True)
+all_dict_spent_fuel = tester.supply_demand_dict_nondriving(
+    output_file, 'spent_fuel', False)
 
 agent_entry_dict['power'] = tester.get_agent_dict(
     output_file,
@@ -63,6 +66,8 @@ agent_entry_dict['power'] = tester.get_agent_dict(
         'newreactor'])
 agent_entry_dict['fuel'] = tester.get_agent_dict(
     output_file, ['source', 'initialsource'])
+agent_entry_dict['spent_fuel'] = tester.get_agent_dict(
+    output_file, ['lwrsink'])
 # plots demand, supply, calculated demand, calculated supply for the
 # scenario for each calc method
 plotter.plot_demand_supply_agent(
@@ -81,6 +86,14 @@ plotter.plot_demand_supply_agent(
     True,
     False,
     False)
+plotter.plot_demand_supply_agent(
+    all_dict_spent_fuel,
+    agent_entry_dict['spent_fuel'],
+    'spent_fuel',
+    name + '_spent_fuel',
+    False,
+    False,
+    False)
 
 calc_method = 'scenario'
 
@@ -96,6 +109,12 @@ metric_dict = tester.metrics(
     calc_method,
     'fuel',
     True)
+metric_dict = tester.metrics(
+    all_dict_spent_fuel,
+    metric_dict,
+    calc_method,
+    'spent_fuel',
+    False)
 
 df = pd.DataFrame(metric_dict)
 df.to_csv('scenario.csv')
