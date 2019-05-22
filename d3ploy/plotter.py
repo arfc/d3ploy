@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-
+from cycler import cycler
 
 def plot_demand_supply(
     all_dict, commod, test, demand_driven, log_scale, calculated
@@ -165,13 +165,12 @@ def plot_demand_supply_agent(
     top_indx = True
     NUM_COLORS = 12
     cm = plt.get_cmap("tab20_r")
+    colors = [cm(1.0 * i / NUM_COLORS) for i in range(NUM_COLORS)]
     for key, val in agent_dict.items():
         x, y = get_xy_from_dict(val)
         if top_indx:
             ax1.bar(x, y, label=key, edgecolor="none")
-            ax1.set_color_cycle(
-                [cm(1.0 * i / NUM_COLORS) for i in range(NUM_COLORS)]
-            )
+            ax1.set_prop_cycle(cycler('color', colors))
             prev = y
             top_indx = False
         else:
