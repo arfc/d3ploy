@@ -29,6 +29,10 @@
       <lib>d3ploy.demand_driven_deployment_inst</lib>
       <name>DemandDrivenDeploymentInst</name>
     </spec>
+    <spec>
+      <lib>d3ploy.supply_driven_deployment_inst</lib>
+      <name>SupplyDrivenDeploymentInst</name>
+    </spec>
   </archetypes>
 
   <control>
@@ -363,7 +367,7 @@
             <in_commods>
                 <val>spent_fuel</val>
             </in_commods>
-            <max_inv_size>1e20</max_inv_size>
+            <max_inv_size>5e4</max_inv_size>
         </Sink>
     </config>
 </facility>
@@ -457,10 +461,6 @@
               <facility>initialsource</facility>
               <commod>fuel</commod>
             </item>
-            <item>
-              <facility>lwrsink</facility>
-              <commod>spent_fuel</commod>
-            </item>
           </facility_commod>
           <facility_capacity>
           <item>
@@ -515,16 +515,8 @@
               <facility>initialsource</facility>
               <capacity>90000</capacity>
             </item>
-            <item>
-              <facility>lwrsink</facility>
-              <capacity>1e20</capacity>
-            </item>
           </facility_capacity>
           <facility_pref>
-            <item>
-            <facility>lwrsink</facility>
-            <pref>-1</pref>
-            </item>
             <item>
             <facility>reactor1</facility>
             <pref>-1</pref>
@@ -633,13 +625,52 @@
           <number>1</number>
           <prototype>reactor10</prototype>
         </entry>
+      </initialfacilitylist>
+      <name>demand_inst</name>
+    </institution>
+
+    <institution>
+      <config>
+        <SupplyDrivenDeploymentInst>
+          <calc_method>ma</calc_method>
+          <facility_commod>
+            <item>
+              <facility>lwrsink</facility>
+              <commod>spent_fuel</commod>
+            </item>
+          </facility_commod>
+          <facility_capacity>
+            <item>
+              <facility>lwrsink</facility>
+              <capacity>5e4</capacity>
+            </item>
+          </facility_capacity>
+          <capacity_std_dev>1.0</capacity_std_dev>
+          <record>1</record>
+          <steps>1</steps>
+          <buffer_type>
+          <item>
+            <commod>spent_fuel</commod>
+            <type>float</type>
+          </item>
+          </buffer_type>
+          <capacity_buffer>
+            <item>
+                <commod>spent_fuel</commod>
+                <buffer>1000</buffer>
+            </item>
+          </capacity_buffer>
+        </SupplyDrivenDeploymentInst>
+      </config>
+      <initialfacilitylist>
         <entry>
           <number>1</number>
           <prototype>lwrsink</prototype>
         </entry>
       </initialfacilitylist>
-      <name>source_inst</name>
+      <name>supply_inst</name>
     </institution>
+    
 
     <name>SingleRegion</name>
   </region>
