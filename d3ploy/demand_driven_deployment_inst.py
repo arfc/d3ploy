@@ -77,24 +77,25 @@ class DemandDrivenDeploymentInst(Institution):
     )
 
     demand_eq = ts.String(
-        doc="This is the string for the demand equation of the driving commodity. "
+        doc="This is the string for the demand equation of the "
+        + "driving commodity."
         + "The equation should use `t' as the dependent variable",
         tooltip="Demand equation for driving commodity",
         uilabel="Demand Equation",
     )
 
     calc_method = ts.String(
-        doc="This is the calculated method used to determine the supply and demand "
-        + "for the commodities of this institution. Currently this can be ma for "
-        + "moving average, or arma for autoregressive moving average.",
+        doc="This is the calculated method used to determine the "
+        + "supply and demand for the commodities of this institution"
+        + "Find list in readme ",
         tooltip="Calculation method used to predict supply/demand",
         uilabel="Calculation Method",
     )
 
     record = ts.Bool(
-        doc="Indicates whether or not the institution should record it's output to text "
-        + "file outputs. The output files match the name of the demand commodity of the "
-        + "institution.",
+        doc="Indicates whether or not the institution should record "
+        + "it's output to text file outputs. The output files match "
+        + "the name of the demand commodity of the institution.",
         tooltip="Boolean to indicate whether or not to record output to text file.",
         uilabel="Record to Text",
         default=False,
@@ -141,8 +142,8 @@ class DemandDrivenDeploymentInst(Institution):
     )
 
     buffer_type = ts.MapStringString(
-        doc="Indicates whether the buffer is in percentage or float form, perc: %,"
-        + "float: float for each commodity",
+        doc="Indicates whether the buffer is in percentage or float form,"
+        + " perc: %, float: float for each commodity",
         tooltip="Supply buffer in Percentage or float form for each commodity",
         alias=["buffer_type", "commod", "type"],
         uilabel="Supply Buffer type",
@@ -241,8 +242,9 @@ class DemandDrivenDeploymentInst(Institution):
 
     def decision(self):
         """
-        This is the tock method for decision the institution. Here the institution determines the difference
-        in supply and demand and makes the the decision to deploy facilities or not.
+        This is the tock method for decision the institution. Here the 
+        institution determines the difference in supply and demand and 
+        makes the the decision to deploy facilities or not.
         """
         time = self.context.time
         for commod, proto_dict in self.commodity_dict.items():
@@ -306,7 +308,8 @@ class DemandDrivenDeploymentInst(Institution):
 
     def calc_diff(self, commod, time):
         """
-        This function calculates the different in supply and demand for a given facility
+        This function calculates the different in supply and demand for 
+        a given facility
         Parameters
         ----------
         time : int
@@ -337,7 +340,7 @@ class DemandDrivenDeploymentInst(Institution):
             )
         else:
             raise Exception(
-                "You can only choose perc (%) or float (double) for buffer size"
+                "You can only pick perc (%) or float (double) for buffer size"
             )
 
         diff = supply - demand
