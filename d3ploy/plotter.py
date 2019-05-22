@@ -180,7 +180,7 @@ def plot_demand_supply_agent(
     ax1.grid()
     ax1.legend(loc="upper center", bbox_to_anchor=(1.20, 1.0))
     ax1.set_xlabel("Time (month timestep)")
-    ax1.set_ylabel("agents")
+    ax1.set_ylabel("Facilities")
 
     if demand_driven:
         if log_scale:
@@ -303,7 +303,7 @@ def plot_demand_supply_agent(
         fancybox=True,
     )
 
-    ax1.set_title("Supply, Demand and prototypes for %s" % test)
+    ax1.set_title("Supply, Demand and Facilities for %s" % test)
     plt.savefig(test, dpi=300, bbox_inches="tight")
     plt.close()
 
@@ -340,7 +340,7 @@ def plot_demand_supply_nond3ploy(
     ax1.grid()
     ax1.legend()
     ax1.set_xlabel("Time (month timestep)")
-    ax1.set_ylabel("agents")
+    ax1.set_ylabel("Facilities")
 
     if demand_driven:
         if log_scale:
@@ -399,7 +399,7 @@ def plot_demand_supply_nond3ploy(
         ax2.set_ylabel("Mass (Kg)", fontsize=14)
     handles, labels = ax2.get_legend_handles_labels()
     ax2.legend(handles, labels, fontsize=11, loc="upper left", fancybox=True)
-    ax1.set_title("Supply, Demand and prototypes for %s" % test)
+    ax1.set_title("Supply, Demand and Facilities for %s" % test)
     plt.savefig(test, dpi=300, bbox_inches="tight")
     plt.close()
 
