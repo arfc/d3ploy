@@ -608,7 +608,7 @@
     <institution>
       <config>
         <DemandDrivenDeploymentInst>
-          <calc_method>fft</calc_method>
+          <calc_method>ma</calc_method>
           <facility_commod>
             <item>
               <facility>source</facility>
@@ -635,7 +635,19 @@
             <pref>-1</pref>
             </item>
           </facility_pref>
-          <demand_eq>1000*np.sin(np.pi*t/6)+10000</demand_eq>
+          <demand_eq>(1000*np.sin(np.pi*t/6)+10000)</demand_eq>
+          <buffer_type>
+          <item>
+            <commod>fuel</commod>
+            <type>float</type>
+          </item>
+          </buffer_type>
+          <supply_buffer>
+            <item>
+                <commod>fuel</commod>
+                <buffer>1000</buffer>
+            </item>
+          </supply_buffer>
           <record>1</record>
           <steps>1</steps>
           <installed_cap>1</installed_cap>
