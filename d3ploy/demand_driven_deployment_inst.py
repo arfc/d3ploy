@@ -242,8 +242,8 @@ class DemandDrivenDeploymentInst(Institution):
 
     def decision(self):
         """
-        This is the tock method for decision the institution. Here the 
-        institution determines the difference in supply and demand and 
+        This is the tock method for decision the institution. Here the
+        institution determines the difference in supply and demand and
         makes the the decision to deploy facilities or not.
         """
         time = self.context.time
@@ -308,7 +308,7 @@ class DemandDrivenDeploymentInst(Institution):
 
     def calc_diff(self, commod, time):
         """
-        This function calculates the different in supply and demand for 
+        This function calculates the different in supply and demand for
         a given facility
         Parameters
         ----------
