@@ -73,12 +73,14 @@ DemandDrivenDeploymentInst:
 The user can define the buffer type in the state variable `buffer_type`.
 If the user wants a 20% value of supply higher than demand, they should input '0.2'
 and if the user wants a 100[whatever unit] value of supply higher than demand, they should input '100'. 
+- **installed_cap**: This is a boolean to determine whether deployment is governed by supply of the commodity of installed capacity for that commodity. 
 
 SupplyDrivenDeploymentInst:
 - **capacity_buffer**: This is the amount above supply that the user wants the capacity to meet. 
 The user can define the buffer type in the state variable `buffer_type`.
 If the user wants a 20% value of capacity higher than supply, they should input '0.2'
 and if the user wants a 100[whatever unit] value of capacity higher than supply, they should input '100'. 
+- **installed_cap**: This is a boolean to determine whether deployment is governed by actual capacity of the commodity of installed capacity for that commodity. 
 
 
 ### Prediction Methods
