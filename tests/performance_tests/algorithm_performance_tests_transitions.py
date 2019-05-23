@@ -46,7 +46,7 @@ elif transition_type == "growing":
     name = "Growing Transition, Commodity:"
     calc_method = "Growing Transition"
 elif transition_type == "sine":
-    demand_eq = "(1000*np.sin(np.pi*t/6)+10000)"
+    demand_eq = "(1000*np.sin(np.pi*t/3)+10000)"
     name = "Sinusoidal Transition, Commodity:"
     calc_method = "Sinusoidal Transition"
 else:

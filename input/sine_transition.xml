@@ -542,7 +542,7 @@
             <pref>-1</pref>
             </item>
           </facility_pref>
-          <demand_eq>1000*np.sin(np.pi*t/6)+10000</demand_eq>
+          <demand_eq>1000*np.sin(np.pi*t/3)+10000</demand_eq>
           <record>1</record>
           <steps>1</steps>
           <buffer_type>
@@ -635,7 +635,7 @@
             <pref>-1</pref>
             </item>
           </facility_pref>
-          <demand_eq>(1000*np.sin(np.pi*t/6)+10000)</demand_eq>
+          <demand_eq>(1000*np.sin(np.pi*t/3)+10000)</demand_eq>
           <buffer_type>
           <item>
             <commod>fuel</commod>
@@ -690,7 +690,7 @@
           <capacity_buffer>
             <item>
                 <commod>spent_fuel</commod>
-                <buffer>1000</buffer>
+                <buffer>0</buffer>
             </item>
           </capacity_buffer>
         </SupplyDrivenDeploymentInst>

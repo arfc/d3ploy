@@ -407,7 +407,7 @@
     <institution>
       <config>
         <DemandDrivenDeploymentInst>
-          <calc_method>ma</calc_method>
+          <calc_method>fft</calc_method>
           <facility_commod>
           <item>
               <facility>newreactor</facility>
@@ -452,14 +452,6 @@
             <item>
               <facility>reactor1</facility>
               <commod>POWER</commod>
-            </item>
-            <item>
-              <facility>source</facility>
-              <commod>fuel</commod>
-            </item>
-            <item>
-              <facility>initialsource</facility>
-              <commod>fuel</commod>
             </item>
           </facility_commod>
           <facility_capacity>
@@ -506,14 +498,6 @@
             <item>
               <facility>reactor1</facility>
               <capacity>1000</capacity>
-            </item>
-            <item>
-              <facility>source</facility>
-              <capacity>3000</capacity>
-            </item>
-            <item>
-              <facility>initialsource</facility>
-              <capacity>90000</capacity>
             </item>
           </facility_capacity>
           <facility_pref>
@@ -557,10 +541,6 @@
             <facility>reactor10</facility>
             <pref>-1</pref>
             </item>
-            <item>
-            <facility>initialsource</facility>
-            <pref>-1</pref>
-            </item>
           </facility_pref>
           <demand_eq>10000</demand_eq>
           <record>1</record>
@@ -581,10 +561,6 @@
         </DemandDrivenDeploymentInst>
       </config>
         <initialfacilitylist>
-        <entry>
-          <number>1</number>
-          <prototype>initialsource</prototype>
-        </entry>
         <entry>
           <number>1</number>
           <prototype>reactor1</prototype>
@@ -626,13 +602,70 @@
           <prototype>reactor10</prototype>
         </entry>
       </initialfacilitylist>
-      <name>demand_inst</name>
+      <name>driving_demand_inst</name>
+    </institution>
+
+    <institution>
+      <config>
+        <DemandDrivenDeploymentInst>
+          <calc_method>ma</calc_method>
+          <facility_commod>
+            <item>
+              <facility>source</facility>
+              <commod>fuel</commod>
+            </item>
+            <item>
+              <facility>initialsource</facility>
+              <commod>fuel</commod>
+            </item>
+          </facility_commod>
+          <facility_capacity>
+            <item>
+              <facility>source</facility>
+              <capacity>3000</capacity>
+            </item>
+            <item>
+              <facility>initialsource</facility>
+              <capacity>90000</capacity>
+            </item>
+          </facility_capacity>
+          <facility_pref>
+            <item>
+            <facility>initialsource</facility>
+            <pref>-1</pref>
+            </item>
+          </facility_pref>
+          <demand_eq>10000</demand_eq>
+          <buffer_type>
+          <item>
+            <commod>fuel</commod>
+            <type>float</type>
+          </item>
+          </buffer_type>
+          <supply_buffer>
+            <item>
+                <commod>fuel</commod>
+                <buffer>0</buffer>
+            </item>
+          </supply_buffer>
+          <record>1</record>
+          <steps>1</steps>
+          <installed_cap>1</installed_cap>
+        </DemandDrivenDeploymentInst>
+      </config>
+        <initialfacilitylist>
+        <entry>
+          <number>1</number>
+          <prototype>initialsource</prototype>
+        </entry>
+      </initialfacilitylist>
+      <name>nondriving_demand_inst</name>
     </institution>
 
     <institution>
       <config>
         <SupplyDrivenDeploymentInst>
-          <calc_method>ma</calc_method>
+          <calc_method>fft</calc_method>
           <facility_commod>
             <item>
               <facility>lwrsink</facility>
@@ -657,7 +690,7 @@
           <capacity_buffer>
             <item>
                 <commod>spent_fuel</commod>
-                <buffer>1000</buffer>
+                <buffer>0</buffer>
             </item>
           </capacity_buffer>
         </SupplyDrivenDeploymentInst>

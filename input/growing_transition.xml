@@ -665,7 +665,7 @@
     <institution>
       <config>
         <SupplyDrivenDeploymentInst>
-          <calc_method>ma</calc_method>
+          <calc_method>fft</calc_method>
           <facility_commod>
             <item>
               <facility>lwrsink</facility>
@@ -690,7 +690,7 @@
           <capacity_buffer>
             <item>
                 <commod>spent_fuel</commod>
-                <buffer>1000</buffer>
+                <buffer>0</buffer>
             </item>
           </capacity_buffer>
         </SupplyDrivenDeploymentInst>
