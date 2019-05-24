@@ -53,8 +53,20 @@ def build_buffer_dict(buffer, commods):
         for key, value in buffer.items():
             if i == key:
                 count += 1
-                print('KV', key, value)
                 buffer_dict[key] = value
         if count == 0:
             buffer_dict[i] = 0.
+    return buffer_dict
+
+
+def build_buffer_type_dict(buffer, commods):
+    buffer_dict = {}
+    for i in commods:
+        count = 0
+        for key, value in buffer.items():
+            if i == key:
+                count += 1
+                buffer_dict[key] = value
+        if count == 0:
+            buffer_dict[i] = "perc"
     return buffer_dict
