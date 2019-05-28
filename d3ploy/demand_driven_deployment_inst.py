@@ -340,7 +340,7 @@ class DemandDrivenDeploymentInst(Institution):
             )
         else:
             raise Exception(
-                "You can only pick perc (%) or float (double) for buffer size"
+                "You can only pick perc (%) or float for buffer size"
             )
 
         diff = supply - demand
