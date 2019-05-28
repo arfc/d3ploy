@@ -393,7 +393,7 @@ def plot_demand_supply_nond3ploy(
         )
     ax2.grid()
     if commod.lower() == "power":
-        ax2.set_ylabel("Power (MW)", fontsize=14)
+        ax2.set_ylabel("Power (MWe)", fontsize=14)
     else:
         ax2.set_ylabel("Mass (Kg)", fontsize=14)
     handles, labels = ax2.get_legend_handles_labels()
