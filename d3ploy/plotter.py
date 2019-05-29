@@ -177,7 +177,7 @@ def plot_demand_supply_agent(
             ax1.bar(x, y, label=key, bottom=prev, edgecolor="none")
             prev = np.add(prev, y)
     ax1.grid()
-    ax1.legend(loc="upper center", bbox_to_anchor=(1.20, 1.0))
+    ax1.legend(loc="upper center", bbox_to_anchor=(1.15, 1.0))
     ax1.set_xlabel("Time (month timestep)")
     ax1.set_ylabel("Facilities")
 
@@ -298,7 +298,7 @@ def plot_demand_supply_agent(
         labels,
         fontsize=11,
         loc="upper center",
-        bbox_to_anchor=(1.20, 0.4),
+        bbox_to_anchor=(1.15, 0.4),
         fancybox=True,
     )
 
