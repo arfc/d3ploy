@@ -143,15 +143,15 @@ class DemandDrivenDeploymentInst(Institution):
 
     buffer_type = ts.MapStringString(
         doc="Indicates whether the buffer is in percentage or float form,"
-        + " perc: %, float: float for each commodity",
-        tooltip="Supply buffer in Percentage or float form for each commodity",
+        + " perc: %, float: constant value for each commodity",
+        tooltip="Supply buffer in Percentage or constant form for each commodity",
         alias=["buffer_type", "commod", "type"],
         uilabel="Supply Buffer type",
         default={},
     )
 
     supply_buffer = ts.MapStringDouble(
-        doc="Supply buffer size: Percentage or float amount ",
+        doc="Supply buffer size: Percentage or float ",
         tooltip="Supply buffer Amount.",
         alias=["supply_buffer", "commod", "buffer"],
         uilabel="Supply Buffer",
@@ -340,7 +340,7 @@ class DemandDrivenDeploymentInst(Institution):
             )
         else:
             raise Exception(
-                "You can only pick perc (%) or float (double) for buffer size"
+                "You can only pick perc (%) or float for buffer size"
             )
 
         diff = supply - demand
