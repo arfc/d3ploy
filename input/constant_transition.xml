@@ -361,7 +361,7 @@
   </facility>
 
 <facility>
-    <name>lwrsink</name>
+    <name>sink</name>
     <config>
         <Sink>
             <in_commods>
@@ -668,13 +668,13 @@
           <calc_method>fft</calc_method>
           <facility_commod>
             <item>
-              <facility>lwrsink</facility>
+              <facility>sink</facility>
               <commod>spent_fuel</commod>
             </item>
           </facility_commod>
           <facility_capacity>
             <item>
-              <facility>lwrsink</facility>
+              <facility>sink</facility>
               <capacity>5e4</capacity>
             </item>
           </facility_capacity>
@@ -698,7 +698,7 @@
       <initialfacilitylist>
         <entry>
           <number>1</number>
-          <prototype>lwrsink</prototype>
+          <prototype>sink</prototype>
         </entry>
       </initialfacilitylist>
       <name>supply_inst</name>

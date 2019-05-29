@@ -100,7 +100,7 @@ agent_entry_dict["fuel"] = tester.get_agent_dict(
     output_file, ["source", "initialsource"]
 )
 agent_entry_dict["spent_fuel"] = tester.get_agent_dict(output_file, [
-                                                       "lwrsink"])
+                                                       "sink"])
 # plots demand, supply, calculated demand, calculated supply for the
 # scenario for each calc method
 plotter.plot_demand_supply_agent(
