@@ -34,7 +34,6 @@ for file in hit_list:
     os.remove(file)
 
 ENV = dict(os.environ)
-ENV["PYTHONPATH"] = ".:" + ENV.get("PYTHONPATH", "")
 
 transition_type = str(sys.argv[1])
 if transition_type == "constant":
