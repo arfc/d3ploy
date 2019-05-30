@@ -673,8 +673,8 @@ yesbuf_template5["simulation"].update({"region": {
                     "facility_capacity": {"item": {"capacity": "10", "facility": "sink"}},
                     "facility_commod": {"item": {"commod": "spent_uox", "facility": "sink"}},
                     "capacity_buffer": {"item": {"commod": "spent_uox", "buffer": "3"}},
-                    "buffer_type": {"item": {"commod": "spent_uox", 
-                    "type": "abs"}},
+                    "buffer_type": {"item": {"commod": "spent_uox",
+                                             "type": "abs"}},
                     "record": "1",
                     "steps": "1"
                 }
