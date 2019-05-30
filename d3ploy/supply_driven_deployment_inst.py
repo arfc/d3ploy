@@ -296,7 +296,7 @@ class SupplyDrivenDeploymentInst(Institution):
                 commod, time) + self.buffer_dict[commod]
         else:
             raise Exception(
-            'You can only choose relative (rel) or absolute (abs) types for buffer type')
+                'You can only choose rel or abs types for buffer type')
 
         diff = capacity - supply
         return diff, capacity, supply
