@@ -132,9 +132,9 @@ class SupplyDrivenDeploymentInst(Institution):
     )
 
     buffer_type = ts.MapStringString(
-        doc="Indicates whether the buffer is a relative or absolute value, rel: % value," +
-        "abs: double value, for each commodity",
-        tooltip="Capacity buffer in Percentage or float form for each commodity",
+        doc="Indicates whether the buffer is a relative or absolute value," +
+        "rel: % value, abs: double value, for each commodity",
+        tooltip="Capacity buffer as a rel or avs value for each commodity",
         alias=[
             'buffer_type',
             'commod',
@@ -296,7 +296,7 @@ class SupplyDrivenDeploymentInst(Institution):
                 commod, time) + self.buffer_dict[commod]
         else:
             raise Exception(
-                'You can only choose relative (rel) or absolute (abs) types for buffer type')
+            'You can only choose relative (rel) or absolute (abs) types for buffer type')
 
         diff = capacity - supply
         return diff, capacity, supply
