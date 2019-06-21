@@ -14,8 +14,6 @@ deterministing optimization (DO), and Stochastic optimization (SO).
 
 **Pmdarima**: A python package for ARIMA/SARIMA methods. [Documentation](https://pypi.org/project/pmdarima/)
 
-## Installation and Testing
-Install from the d3ploy directory by typing `python setup.py install` and test with the command `pytest`. If tests fail due to module import errors, try 'pip3 install --upgrade scipy==1.2.0`. Make sure the python version used to install cyclus and d3ploy is consistent. If Python 3 is being used, the python package dependencies should be installed with `pip3`.
 
 ## demand_driven_deployment_inst and supply_driven_deployment_inst
 
