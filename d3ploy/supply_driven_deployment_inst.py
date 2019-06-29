@@ -174,7 +174,6 @@ class SupplyDrivenDeploymentInst(Institution):
         default=1
     )
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.commodity_capacity = {}
