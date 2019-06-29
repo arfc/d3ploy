@@ -4,7 +4,7 @@ scenarios that contain source, reactor and sink type facilities.
 To use this file, in your command line enter:
 python algorithm_performance_tests_transitions.py [transition type]
 There are currently 3 transition types in place:
-constant, growing and sine.
+constant, growing, and sinunsoidal (sine).
 """
 import json
 import re
