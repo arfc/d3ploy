@@ -7,6 +7,7 @@ jobs:
         - image: cyclus/cycamore
       working_directory: ~/d3ploy
       steps:
+        - run: pip3 install pytest
         - checkout
         - run:
             name: build d3ploy
@@ -17,6 +18,7 @@ jobs:
             - image: cyclus/cycamore
         working_directory: ~/d3ploy
         steps:
+          - run: pip3 install pytest
           - checkout
           - run:
                 name: build
@@ -31,6 +33,7 @@ jobs:
             - image: cyclus/cycamore
         working_directory: ~/d3ploy
         steps:
+          - run: pip3 install pytest
           - checkout
           - run:
                 name: build
@@ -46,6 +49,7 @@ jobs:
             - image: cyclus/cycamore
         working_directory: ~/d3ploy
         steps:
+          - run: pip3 install pytest
           - checkout
           - run:
                 name: build
