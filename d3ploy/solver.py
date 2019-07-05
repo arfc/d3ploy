@@ -178,7 +178,4 @@ def minimize_number_of_deployment(proto_commod, remainder):
         break
 
     return deploy_dict
-
-def decommission(agent, diff):
-    for agt in agent.children():
         
