@@ -20,6 +20,7 @@ import d3ploy.solver as solver
 import d3ploy.NO_solvers as no
 import d3ploy.DO_solvers as do
 import d3ploy.ML_solvers as ml
+import d3ploy.deployment_inst as di
 
 CALC_METHODS = {}
 
@@ -97,6 +98,14 @@ class SupplyDrivenDeploymentInst(Institution):
         uilabel="Record to Text",
         default=False)
 
+    installed_cap = ts.Bool(
+        doc="True if facility deployment is governed by installed capacity. " +
+        "False if deployment is governed by actual commodity capacity",
+        tooltip="Boolean to indicate whether or not to use installed" +
+                "capacity as supply",
+        uilabel="installed cap",
+        default=False)
+
     steps = ts.Int(
         doc="The number of timesteps forward to predict supply and capacity",
         tooltip="The number of predicted steps forward",
@@ -116,24 +125,29 @@ class SupplyDrivenDeploymentInst(Institution):
     )
 
     capacity_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the supple side.",
-        tooltip="The standard deviation adjustment for the supple side.",
+        doc="The standard deviation adjustment for the capacity side.",
+        tooltip="The standard deviation adjustment for the capacity side.",
         uilabel="capacity Std Dev",
         default=0
     )
 
-    supply_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the supply side.",
-        tooltip="The standard deviation adjustment for the supply side.",
-        uilabel="supply Std Dev",
-        default=0
-    )
+    buffer_type = ts.MapStringString(
+        doc="Indicates whether the buffer is in percentage or float form, perc: %," +
+        "float: float for each commodity",
+        tooltip="Capacity buffer in Percentage or float form for each commodity",
+        alias=[
+            'buffer_type',
+            'commod',
+            'type'],
+        uilabel="Capacity Buffer type",
+        default={})
 
-    supply_std_dev = ts.Double(
-        doc="The standard deviation adjustment for the supply side.",
-        tooltip="The standard deviation adjustment for the supply side.",
-        uilabel="supply Std Dev",
-        default=0
+    capacity_buffer = ts.MapStringDouble(
+        doc="Capacity buffer size: % or float amount",
+        tooltip="Capacity buffer amount",
+        alias=['capacity_buffer', 'commod', 'buffer'],
+        uilabel="Capacity Buffer",
+        default={}
     )
 
     degree = ts.Int(
@@ -150,8 +164,8 @@ class SupplyDrivenDeploymentInst(Institution):
         super().__init__(*args, **kwargs)
         self.commodity_capacity = {}
         self.commodity_supply = {}
-        self.rev_commodity_capacity = {}
-        self.rev_commodity_supply = {}
+        self.installed_capacity = {}
+        self.fac_commod = {}
         self.fresh = True
         CALC_METHODS['ma'] = no.predict_ma
         CALC_METHODS['arma'] = no.predict_arma
@@ -169,51 +183,29 @@ class SupplyDrivenDeploymentInst(Institution):
         print('steps: %i' % self.steps)
         print('back_steps: %i' % self.back_steps)
         print('capacity_std_dev: %f' % self.capacity_std_dev)
-        print('supply_std_dev: %f' % self.supply_std_dev)
-
-    def build_dict(
-            self,
-            facility_commod,
-            facility_capacity,
-            facility_pref,
-            facility_constraintcommod,
-            facility_constraintval):
-        facility_dict = {}
-        commodity_dict = {}
-        for key, val in facility_capacity.items():
-            facility_dict[key] = {}
-            facility_dict[key] = {'cap': val}
-            if key in facility_pref.keys():
-                facility_dict[key].update({'pref': facility_pref[key]})
-            else:
-                facility_dict[key].update({'pref': '0'})
-            if key in facility_constraintcommod.keys():
-                facility_dict[key].update(
-                    {'constraint_commod': facility_constraintcommod[key]})
-            else:
-                facility_dict[key].update({'constraint_commod': '0'})
-            if key in facility_constraintval.keys():
-                facility_dict[key].update(
-                    {'constraint': facility_constraintval[key]})
-            else:
-                facility_dict[key].update({'constraint': 0.0})
-        for key, val in facility_commod.items():
-            if val not in commodity_dict.keys():
-                commodity_dict[val] = {}
-            if key in facility_dict.keys():
-                commodity_dict[val].update({key: facility_dict[key]})
-        return commodity_dict
 
     def enter_notify(self):
         super().enter_notify()
         if self.fresh:
             # convert list of strings to dictionary
-            self.commodity_dict = self.build_dict(
+            self.commodity_dict = di.build_dict(
                 self.facility_commod,
                 self.facility_capacity,
                 self.facility_pref,
                 self.facility_constraintcommod,
                 self.facility_constraintval)
+            for commod, proto_dict in self.commodity_dict.items():
+                protos = proto_dict.keys()
+                for proto in protos:
+                    self.fac_commod[proto] = commod
+            commod_list = list(self.commodity_dict.keys())
+            for commod in commod_list:
+                self.installed_capacity[commod] = defaultdict(float)
+                self.installed_capacity[commod][0] = 0.
+            self.buffer_dict = di.build_buffer_dict(self.capacity_buffer,
+                                                    commod_list)
+            self.buffer_type_dict = di.build_buffer_type_dict(
+                self.buffer_type, commod_list)
             for commod in self.commodity_dict:
                 # swap supply and demand for supply_inst
                 # change demand into capacity
@@ -223,6 +215,9 @@ class SupplyDrivenDeploymentInst(Institution):
                                           commod].append(self.extract_capacity)
                 self.commodity_capacity[commod] = defaultdict(float)
                 self.commodity_supply[commod] = defaultdict(float)
+            for child in self.children:
+                itscommod = self.fac_commod[child.prototype]
+                self.installed_capacity[itscommod][0] += self.commodity_dict[itscommod][child.prototype]['cap']
             self.fresh = False
 
     def decision(self):
@@ -238,11 +233,23 @@ class SupplyDrivenDeploymentInst(Institution):
             lib.record_time_series('calc_capacity' + commod, self, capacity)
 
             if diff < 0:
-                deploy_dict = solver.deploy_solver(
-                    self.commodity_supply, self.commodity_dict, commod, diff, time)
+                if self.installed_cap:
+                    deploy_dict = solver.deploy_solver(
+                        self.installed_capacity, self.commodity_dict, commod, diff, time)
+                else:
+                    deploy_dict = solver.deploy_solver(
+                        self.commodity_supply, self.commodity_dict, commod, diff, time)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
+                # update installed capacity dict
+                for proto, num in deploy_dict.items():
+                    self.installed_capacity[commod][time + 1] = \
+                        self.installed_capacity[commod][time] + \
+                        self.commodity_dict[commod][proto]['cap'] * num
+            else:
+                self.installed_capacity[commod][time +
+                                                1] = self.installed_capacity[commod][time]
             if self.record:
                 out_text = "Time " + str(time) + \
                     " Deployed " + str(len(self.children))
@@ -252,6 +259,11 @@ class SupplyDrivenDeploymentInst(Institution):
                     str(self.commodity_supply[commod][time]) + "\n"
                 with open(commod + ".txt", 'a') as f:
                     f.write(out_text)
+        for child in self.children:
+            if child.exit_time == time:
+                itscommod = self.fac_commod[child.prototype]
+                self.installed_capacity[itscommod][time +
+                                                   1] -= self.commodity_dict[itscommod][child.prototype]['cap']
 
     def calc_diff(self, commod, time):
         """
@@ -275,23 +287,37 @@ class SupplyDrivenDeploymentInst(Institution):
         if time not in self.commodity_capacity[commod]:
             self.commodity_capacity[commod][time] = 0.0
         capacity = self.predict_capacity(commod)
-        supply = self.predict_supply(commod, time)
+
+        if self.buffer_type_dict[commod] == 'perc':
+            supply = self.predict_supply(
+                commod, time) * (1 + self.buffer_dict[commod])
+        elif self.buffer_type_dict[commod] == 'float':
+            supply = self.predict_supply(
+                commod, time) + self.buffer_dict[commod]
+        else:
+            raise Exception(
+                'You can only choose perc (%) or float (double) for buffer size')
+
         diff = capacity - supply
         return diff, capacity, supply
 
     def predict_capacity(self, commod):
+        def target(incommod):
+            if self.installed_cap:
+                return self.installed_capacity[incommod]
+            else:
+                return self.commodity_capacity[incommod]
         if self.calc_method in ['arma', 'ma', 'arch']:
-            capacity = CALC_METHODS[self.calc_method](self.commodity_capacity[commod],
+            capacity = CALC_METHODS[self.calc_method](target(commod),
                                                       steps=self.steps,
                                                       std_dev=self.capacity_std_dev,
                                                       back_steps=self.back_steps)
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
-            capacity = CALC_METHODS[self.calc_method](self.commodity_capacity[commod],
-                                                      back_steps=self.back_steps,
-                                                      degree=self.degree)
+            capacity = CALC_METHODS[self.calc_method](
+                target(commod), back_steps=self.back_steps, degree=self.degree)
         elif self.calc_method in ['sw_seasonal']:
             capacity = CALC_METHODS[self.calc_method](
-                self.commodity_capacity[commod], period=self.degree)
+                target(commod), period=self.degree)
         else:
             raise ValueError(
                 'The input calc_method is not valid. Check again.')

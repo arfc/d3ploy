@@ -131,7 +131,6 @@
         <DemandDrivenDeploymentInst>
           <calc_method>poly</calc_method>
           <record>1</record>
-	        <demand_std_dev>0.0</demand_std_dev>
           <demand_eq>3*t</demand_eq>
           <facility_commod>
             <item>

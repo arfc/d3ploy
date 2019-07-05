@@ -13,12 +13,10 @@ import operator
 
 def get_cursor(file_name):
     """ Connects and returns a cursor to an sqlite output file
-
     Parameters
     ----------
     file_name: str
         name of the sqlite file
-
     Returns
     -------
     sqlite cursor3
@@ -33,15 +31,12 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
     calculated supply into a nice dictionary format
     if given the sql file, demand_eq of driving commodity
     and commodity name
-
     for a driving commodity
-
     Parameters
     ----------
     sqlite: sql file to analyze
     demand_eq: string of demand equation
     commod: string of commod name
-
     Returns
     -------
     returns 4 dicts: dictionaries of supply, demand, calculated
@@ -81,6 +76,16 @@ def supply_demand_dict_driving(sqlite, demand_eq, commod):
         fuel_demand = fuel_demand * np.ones(len(t))
     for x in range(0, len(t)):
         dict_demand[t[x]] = fuel_demand[x]
+    
+    # give dict supply zeros at timesteps 1 and 2 
+    for key in dict_demand.keys():
+        if key not in dict_supply:
+            dict_supply[key] = 0.0
+
+    # give dict supply zeros at timesteps 1 and 2
+    for key in dict_demand.keys():
+        if key not in dict_supply:
+            dict_supply[key] = 0.0
 
     all_dict = {}
     all_dict['dict_demand'] = dict_demand
@@ -95,16 +100,13 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     """ Puts supply, demand, calculated demand and
     calculated supply into a nice dictionary format
     if given the sql file and commodity name
-
     for a non-driving commodity
-
     Parameters
     ----------
     sqlite: sql file to analyze
     commod: string of commod name
     demand_driven: Boolean. If true, the commodity is demand driven,
     if false, the commodity is supply driven
-
     Returns
     -------
     returns 4 dicts: dictionaries of supply, demand, calculated
@@ -153,6 +155,11 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     for x in range(0, len(fuel_demand)):
         dict_demand[fuel_demand[x][0]] = fuel_demand[x][1]
 
+    # give dict supply zeros at timesteps 1 and 2
+    for key in dict_demand.keys():
+        if key not in dict_supply:
+            dict_supply[key] = 0.0
+
     all_dict = {}
     all_dict['dict_demand'] = dict_demand
     all_dict['dict_supply'] = dict_supply
@@ -162,14 +169,61 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
     return all_dict
 
 
+def supply_demand_dict_nond3ploy(sqlite, commod, demand_eq=0):
+    """ Puts supply and demand into a nice dictionary format
+    if given the sql file and commodity name
+
+    Parameters
+    ----------
+    sqlite: sql file to analyze
+    commod: string of commod name
+    demand_eq: provide a demand eq is the commodity is 'power'
+
+    Returns
+    -------
+    returns 2 dicts: dictionaries of supply and demand
+    """
+    cur = get_cursor(sqlite)
+    tables = {}
+    all_dict = {}
+
+    tables[0] = "timeseriessupply" + commod
+    fuel_supply = cur.execute(
+        "select time, sum(value) from " +
+        tables[0] +
+        " group by time").fetchall()
+    dict_supply = {}
+    for x in range(0, len(fuel_supply)):
+        dict_supply[fuel_supply[x][0]] = fuel_supply[x][1]
+    all_dict['dict_supply'] = dict_supply
+
+    dict_demand = {}
+    if commod.lower() == 'power':
+        oldt = np.fromiter(dict_supply.keys(), dtype=float)
+        t = np.arange(0, oldt[-1] + 1)
+        fuel_demand = eval(demand_eq)
+        if isinstance(fuel_demand, int):
+            fuel_demand = fuel_demand * np.ones(len(t))
+        for x in range(0, len(t)):
+            dict_demand[t[x]] = fuel_demand[x]
+    else:
+        tables[1] = "timeseriesdemand" + commod
+        fuel_demand = cur.execute(
+            "select time, sum(value) from " + tables[1] +
+            " group by time").fetchall()
+        for x in range(0, len(fuel_demand)):
+            dict_demand[fuel_demand[x][0]] = fuel_demand[x][1]
+    all_dict['dict_demand'] = dict_demand
+
+    return all_dict
+
+
 def residuals(all_dict):
     """ Conducts a chi2 goodness of fit test
-
     Parameters
     ----------
     dict_demand: timeseries dictionary of demand values
     dict_supply: timeseries dictionary of supply values
-
     Returns
     -------
     returns an int of the chi2 (goodness of fit value) for
@@ -206,12 +260,10 @@ def residuals(all_dict):
 
 def chi_goodness_test(all_dict):
     """ Conducts a chi2 goodness of fit test
-
     Parameters
     ----------
     dict_demand: timeseries dictionary of demand values
     dict_supply: timeseries dictionary of supply values
-
     Returns
     -------
     returns an int of the chi2 (goodness of fit value) for
@@ -236,12 +288,10 @@ def chi_goodness_test(all_dict):
 def supply_under_demand(all_dict, demand_driven):
     """ Calculates the number of time steps supply is
     under demand
-
     Parameters
     ----------
     dict_demand: timeseries dictionary of demand values
     dict_supply: timeseries dictionary of supply values
-
     Returns
     -------
     returns an int of the number of time steps supply is
@@ -251,34 +301,33 @@ def supply_under_demand(all_dict, demand_driven):
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
-    num_negative = 0
-    start = int(list(dict_demand.keys())[0])
-    for x in range(start - 1, len(dict_demand)):
-        y = x + 1
-        try:
-            if dict_supply[y] < dict_demand[y]:
-                num_negative = num_negative + 1
-        except KeyError:
-            num_negative += 0
+    num_under = 0
 
-    if demand_driven:
-        number_under = num_negative
-    else:
-        number_under = len(dict_demand) - num_negative
-    return number_under
+    for x in range(len(dict_demand)):
+        if demand_driven:
+            try:
+                if dict_supply[x] < dict_demand[x]:
+                    num_under = num_under + 1
+            except KeyError:
+                num_under += 0
+        else:
+            try:
+                if dict_supply[x] > dict_demand[x]:
+                    num_under = num_under + 1
+            except KeyError:
+                num_under += 0
+    return num_under
 
 
 def best_calc_method(in_dict, maximum):
     """ Calculates the number of time steps supply is
     under demand
-
     Parameters
     ----------
     in_dict: keys => calc methods, values => results from
     tests of each calc method (chi2 goodness of fit etc)
     max: true/false boolean, true => find max of in_dict,
     false => find min of in_dict
-
     Returns
     -------
     returns a list of the calc methods that have the max

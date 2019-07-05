@@ -14,6 +14,8 @@ deterministing optimization (DO), and Stochastic optimization (SO).
 
 **Pmdarima**: A python package for ARIMA/SARIMA methods. [Documentation](https://pypi.org/project/pmdarima/)
 
+## Installation and Testing
+Install from the d3ploy directory by typing `python setup.py install` and test with the command `pytest`. If tests fail due to module import errors, try `pip3 install --upgrade scipy==1.2.0`. Make sure the python version used to install cyclus and d3ploy is consistent. If Python 3 is being used, the python package dependencies should be installed with `pip3`.
 
 ## demand_driven_deployment_inst and supply_driven_deployment_inst
 
@@ -63,6 +65,24 @@ and for `supply_driven_deployment_inst`, the facility included should be the fac
 - **driving_commod**: The driving commodity for the institution.
 - **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable.
 - **calc_method**: This is the method used to predict the supply and demand.
+- **buffer_type**: This is a mapstringstring defining each commodity and the type of supply/capacity 
+buffer for it. For percentage, the user should input `perc`, for a absolute value, the user should 
+input `float`. The default is percentage. 
+
+#### Differing Inputs 
+DemandDrivenDeploymentInst:
+- **supply_buffer**: This is the amount above demand that the user wants the supply to meet. 
+The user can define the buffer type in the state variable `buffer_type`.
+If the user wants a 20% value of supply higher than demand, they should input '0.2'
+and if the user wants a 100[whatever unit] value of supply higher than demand, they should input '100'. 
+- **installed_cap**: This is a boolean to determine whether deployment is governed by supply of the commodity of installed capacity for that commodity. 
+
+SupplyDrivenDeploymentInst:
+- **capacity_buffer**: This is the amount above supply that the user wants the capacity to meet. 
+The user can define the buffer type in the state variable `buffer_type`.
+If the user wants a 20% value of capacity higher than supply, they should input '0.2'
+and if the user wants a 100[whatever unit] value of capacity higher than supply, they should input '100'. 
+- **installed_cap**: This is a boolean to determine whether deployment is governed by actual capacity of the commodity of installed capacity for that commodity. 
 
 
 ### Prediction Methods
