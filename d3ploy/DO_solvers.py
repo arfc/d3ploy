@@ -48,7 +48,7 @@ def exp_smoothing(ts, back_steps=10, degree=1):
     timeseries = np.array(list(ts.values()))
     timeseries = timeseries[-back_steps:]
     if len(timeseries) == 1:
-        timeseries = np.append(timeseries, timeseries[-1])
+        timeseries = [np.inf,0]
     # exponential smoothing errors when there are five datapoints
     # average is appended to the beginning of the timeseries for minimal impact
     # https://github.com/statsmodels/statsmodels/issues/4878
@@ -77,7 +77,7 @@ def holt_winters(ts, back_steps=10, degree=1):
     timeseries = timeseries[-back_steps:]
     # exponential smoothing errors when there is only one datapoint
     if len(timeseries) == 1:
-        timeseries = np.append(timeseries, timeseries[-1])
+        timeseries = [np.inf,0]
     # exponential smoothing errors when there are five datapoints
     # average is appended to the beginning of the timeseries for minimal impact
     # https://github.com/statsmodels/statsmodels/issues/4878

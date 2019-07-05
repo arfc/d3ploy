@@ -307,51 +307,39 @@ class SupplyDrivenDeploymentInst(Institution):
                 return self.installed_capacity[incommod]
             else:
                 return self.commodity_capacity[incommod]
-	    try:
-		    if self.calc_method in ['arma', 'ma', 'arch']:
-		        capacity = CALC_METHODS[self.calc_method](target(commod),
-		                                                  steps=self.steps,
-		                                                  std_dev=self.capacity_std_dev,
-		                                                  back_steps=self.back_steps)
-		    elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
-		        capacity = CALC_METHODS[self.calc_method](
-		            target(commod), back_steps=self.back_steps, degree=self.degree)
-		    elif self.calc_method in ['sw_seasonal']:
-		        capacity = CALC_METHODS[self.calc_method](
-		            target(commod), period=self.degree)
-		    else:
-		        raise ValueError(
-		            'The input calc_method is not valid. Check again.')
-	    except:
-            capacity = CALC_METHODS['ma'](target(commod),
-                                          steps=1,
-                                          std_dev=self.capacity_std_dev,
-                                          back_steps=1)
+	    if self.calc_method in ['arma', 'ma', 'arch']:
+	        capacity = CALC_METHODS[self.calc_method](target(commod),
+	                                                  steps=self.steps,
+	                                                  std_dev=self.capacity_std_dev,
+	                                                  back_steps=self.back_steps)
+	    elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
+	        capacity = CALC_METHODS[self.calc_method](
+	            target(commod), back_steps=self.back_steps, degree=self.degree)
+	    elif self.calc_method in ['sw_seasonal']:
+	        capacity = CALC_METHODS[self.calc_method](
+	            target(commod), period=self.degree)
+	    else:
+	        raise ValueError(
+	            'The input calc_method is not valid. Check again.')
         return capacity
 
     def predict_supply(self, commod, time):
-        try:
-            if self.calc_method in ['arma', 'ma', 'arch']:
-                supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
-                                                        steps=self.steps,
-                                                        std_dev=self.capacity_std_dev,
-                                                        back_steps=self.back_steps)
-            elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
-                supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
-                                                        back_steps=self.back_steps,
-                                                        degree=self.degree)
-            elif self.calc_method in ['sw_seasonal']:
-                supply = CALC_METHODS[self.calc_method](
-                    self.commodity_supply[commod], period=self.degree)
-            else:
-                raise ValueError(
-                    'The input calc_method is not valid. Check again.')
-        except:
-            capacity = CALC_METHODS['ma'](target(commod),
-                                          steps=1,
-                                          std_dev=self.capacity_std_dev,
-                                          back_steps=1)        
-        return supply
+        if self.calc_method in ['arma', 'ma', 'arch']:
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
+                                                    steps=self.steps,
+                                                    std_dev=self.capacity_std_dev,
+                                                    back_steps=self.back_steps)
+        elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
+            supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
+                                                    back_steps=self.back_steps,
+                                                    degree=self.degree)
+        elif self.calc_method in ['sw_seasonal']:
+            supply = CALC_METHODS[self.calc_method](
+                self.commodity_supply[commod], period=self.degree)
+        else:
+            raise ValueError(
+                'The input calc_method is not valid. Check again.')
+    return supply
 
     def extract_capacity(self, agent, time, value, commod):
         """

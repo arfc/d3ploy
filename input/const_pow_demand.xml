@@ -104,7 +104,7 @@
     <institution>
       <config>
         <DemandDrivenDeploymentInst>
-          <calc_method>fft</calc_method>
+          <calc_method>exp_smoothing</calc_method>
           <facility_commod>
             <item>
               <facility>reactor</facility>
