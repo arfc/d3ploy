@@ -121,7 +121,6 @@ def test_d3ploy(calc_method):
         print(e.output)
     cur = functions.get_cursor(output_file)
     query = 'SELECT COUNT(*) from agententry WHERE Prototype = "_"'
-
     for prototype in ['reactor', 'source']:
         row_count = cur.execute(query.replace('_', prototype)).fetchone()[0]
         assert (row_count >= 1)
