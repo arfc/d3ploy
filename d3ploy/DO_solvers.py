@@ -48,7 +48,7 @@ def exp_smoothing(ts, back_steps=10, degree=1):
     timeseries = np.array(list(ts.values()))
     timeseries = timeseries[-back_steps:]
     if len(timeseries) == 1:
-        timeseries = np.append(timeseries, timeseries[-1])
+        timeseries = [np.inf,0]
     # exponential smoothing errors when there are five datapoints
     # average is appended to the beginning of the timeseries for minimal impact
     # https://github.com/statsmodels/statsmodels/issues/4878
@@ -77,7 +77,7 @@ def holt_winters(ts, back_steps=10, degree=1):
     timeseries = timeseries[-back_steps:]
     # exponential smoothing errors when there is only one datapoint
     if len(timeseries) == 1:
-        timeseries = np.append(timeseries, timeseries[-1])
+        timeseries = [np.inf,0]
     # exponential smoothing errors when there are five datapoints
     # average is appended to the beginning of the timeseries for minimal impact
     # https://github.com/statsmodels/statsmodels/issues/4878
@@ -95,7 +95,10 @@ def fft(ts, back_steps=1e6, degree=1):
     n = timeseries.size
     n_harm = 100                    # number of harmonics in model
     t = np.arange(0, n)
-    p = np.polyfit(t, timeseries, degree)         # find linear trend in x
+    if len(t) == 1: 
+        p = [np.inf,0]
+    else:
+        p = np.polyfit(t, timeseries, degree) # find linear trend in x
     x_notrend = timeseries - p[0] * t        # detrended x
     x_freqdom = np.fft.fft(x_notrend)  # detrended x in frequency domain
     f = np.fft.fftfreq(n)              # frequencies
