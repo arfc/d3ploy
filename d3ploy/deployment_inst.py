@@ -68,5 +68,5 @@ def build_buffer_type_dict(buffer, commods):
                 count += 1
                 buffer_dict[key] = value
         if count == 0:
-            buffer_dict[i] = "perc"
+            buffer_dict[i] = "rel"
     return buffer_dict

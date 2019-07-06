@@ -138,9 +138,10 @@ class DemandDrivenDeploymentInst(Institution):
     )
 
     buffer_type = ts.MapStringString(
-        doc="Indicates whether the buffer is in percentage or float form, perc: %," +
-        "float: float for each commodity",
-        tooltip="Supply buffer in Percentage or float form for each commodity",
+        doc="Indicates whether the buffer is a relative or absolute value," +
+        "rel: % value, abs: double value, for each commodity",
+        tooltip="Supply buffer as a relative or absolute value for," +
+        "each commodity",
         alias=[
             'buffer_type',
             'commod',
@@ -149,7 +150,7 @@ class DemandDrivenDeploymentInst(Institution):
         default={})
 
     supply_buffer = ts.MapStringDouble(
-        doc="Supply buffer size: Percentage or float amount ",
+        doc="Supply buffer size: relative or absolute value ",
         tooltip="Supply buffer Amount.",
         alias=['supply_buffer', 'commod', 'buffer'],
         uilabel="Supply Buffer",
@@ -297,15 +298,15 @@ class DemandDrivenDeploymentInst(Institution):
             self.commodity_supply[commod][time] = 0.0
         supply = self.predict_supply(commod)
 
-        if self.buffer_type_dict[commod] == 'perc':
+        if self.buffer_type_dict[commod] == 'rel':
             demand = self.predict_demand(
                 commod, time) * (1 + self.buffer_dict[commod])
-        elif self.buffer_type_dict[commod] == 'float':
+        elif self.buffer_type_dict[commod] == 'abs':
             demand = self.predict_demand(
                 commod, time) + self.buffer_dict[commod]
         else:
             raise Exception(
-                'You can only choose perc (%) or float (double) for buffer size')
+                'You can only choose rel or abs types for buffer type')
 
         diff = supply - demand
         return diff, supply, demand
