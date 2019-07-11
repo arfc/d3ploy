@@ -183,7 +183,8 @@ def find_mins(commod_min, commod_dict):
     """ This function updates the commod_min
     dictionary to contain the minimum production
     for each commodity. 
-     Parameters:
+
+    Parameters:
     ----------
     commod_min: dictionary
         key:commodity
