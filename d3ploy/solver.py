@@ -207,22 +207,36 @@ def find_mins(commod_min, commod_dict):
                 commod_min[commod] = dic['cap']
     return commod_min
 
-def decommission(agent, commod_dict, diff, commod):
-    fac_mins = {}
-    for fac, dic in agent.commod_min[commod]:
-        fac_mins[fac] = dic['cap']
-    tmp = sorted(fac_mins.values())
-    facs = []
-    for i in tmp:
-        facs.append(list(fac_mins.keys())[list(fac_mins.values()).index(i)])
+def decommission_oldest(agent, commod_dict, diff, commod):
+    """ Decommissions the oldest archetypes that produce
+        a capacity less than the difference. 
+
+    Parameters:
+    ----------
+    agent: cyclus institution
+        the institution that is managing the commodity
+    commod_dict: dictionary
+        key: prototype name
+        value: prototype capacity
+    diff: float
+        the amount of commodity oversupplied
+    commod: string
+        the commodity being oversupplied
+    
+    Returns:
+    --------
+    commod_min: dictionary
+        key: commodity
+        value: min capacity
+    """
     for agt in agent.children():
         for i in facs:
-            if commod_dict[agent.prototype]['cap'] < diff:
+            if commod_dict[agt.prototype]['cap'] < diff:
                 if agent.prototype is i:
                     agent.decommission()
                     diff -= commod_dict[agent.prototype]['cap']     
-                    itscommod = self.fac_commod[agent.prototype]
-                    self.installed_capacity[itscommod][time + 1] \
-                                    -= self.commodity_dict[itscommod][child.prototype]['cap']  
+                    itscommod = agent.fac_commod[agent.prototype]
+                    agent.installed_capacity[itscommod][time + 1] \
+                                    -= agent.commodity_dict[itscommod][child.prototype]['cap']  
 	
         
