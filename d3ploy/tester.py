@@ -218,44 +218,54 @@ def supply_demand_dict_nond3ploy(sqlite, commod, demand_eq=0):
     return all_dict
 
 
-def residuals(all_dict):
-    """ Conducts a chi2 goodness of fit test
+def residuals_under(all_dict):
+    """ obtains the cumulative under supply
     Parameters
     ----------
     dict_demand: timeseries dictionary of demand values
     dict_supply: timeseries dictionary of supply values
     Returns
     -------
-    returns an int of the chi2 (goodness of fit value) for
-    the two input timeseries dictionaries
+    returns a double as the cumulative difference between demand
+    and suppy, when the demand is larger than supply.
     """
 
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
-    start = int(list(dict_demand.keys())[0])
-    demand_total = 0
-    for x in range(start - 1, len(dict_demand)):
-        y = x + 1
-        try:
-            demand_total += dict_demand[y]
-        except KeyError:
-            demand_total += 0
-    demand_mean = (1 / len(dict_demand)) * demand_total
-    SStot = 0
     SSres = 0
-    for x in range(start - 1, len(dict_demand)):
-        y = x + 1
+    for x in dict_demand.keys():
         try:
-            SStot += (dict_demand[y] - demand_mean)**2
-            SSres += (dict_demand[y] - dict_supply[y])**2
+            if dict_supply[x] <= dict_demand[x]: 
+                SSres += (dict_demand[x] - dict_supply[x])
         except KeyError:
-            SStot += 0
             SSres += 0
-    if SStot == 0:
-        return 1
-    Rsquared = 1 - SSres / SStot
-    return Rsquared
+    return SSres
+
+
+def residuals_over(all_dict):
+    """ Obtains the cumulative over supply
+    Parameters
+    ----------
+    dict_demand: timeseries dictionary of demand values
+    dict_supply: timeseries dictionary of supply values
+    Returns
+    -------
+    returns a double as the cumulative difference between suppy
+    and demand, when the supply is larger than demand.
+    """
+
+    dict_demand = all_dict['dict_demand']
+    dict_supply = all_dict['dict_supply']
+
+    SSres = 0
+    for x in dict_demand.keys():
+        try:
+            if dict_supply[x] > dict_demand[x]:
+                SSres += (- dict_demand[x] + dict_supply[x])
+        except KeyError:
+            SSres += 0
+    return SSres
 
 
 def chi_goodness_test(all_dict):
@@ -347,11 +357,13 @@ def metrics(all_dict, metric_dict, calc_method, commod, demand_driven):
     # check if dictionary exists if not initialize
     value = metric_dict.get(commod + '_undersupply', 0)
     if value == 0:
-        #metric_dict[commod+'_residuals'] = {}
+        metric_dict[commod+'_residuals_under'] = {}
+        metric_dict[commod+'_residuals_over'] = {}
         #metric_dict[commod+'_chi2'] = {}
         metric_dict[commod + '_undersupply'] = {}
 
-    #metric_dict[commod+'_residuals'][calc_method] = residuals(all_dict)
+    metric_dict[commod+'_residuals_under'][calc_method] = residuals_under(all_dict)
+    metric_dict[commod+'_residuals_over'][calc_method] = residuals_over(all_dict)
     #metric_dict[commod+'_chi2'][calc_method] = chi_goodness_test(all_dict)
     metric_dict[commod +
                 '_undersupply'][calc_method] = supply_under_demand(all_dict, demand_driven)
