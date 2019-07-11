@@ -236,7 +236,7 @@ def residuals_under(all_dict):
     SSres = 0
     for x in dict_demand.keys():
         try:
-            if dict_supply[x] <= dict_demand[x]: 
+            if dict_supply[x] <= dict_demand[x]:
                 SSres += (dict_demand[x] - dict_supply[x])
         except KeyError:
             SSres += 0
@@ -362,11 +362,13 @@ def metrics(all_dict, metric_dict, calc_method, commod, demand_driven):
         #metric_dict[commod+'_chi2'] = {}
         metric_dict[commod + '_undersupply'] = {}
 
-    metric_dict[commod+'_residuals_under'][calc_method] = residuals_under(all_dict)
-    metric_dict[commod+'_residuals_over'][calc_method] = residuals_over(all_dict)
-    #metric_dict[commod+'_chi2'][calc_method] = chi_goodness_test(all_dict)
-    metric_dict[commod +
-                '_undersupply'][calc_method] = supply_under_demand(all_dict, demand_driven)
+    metric_dict[commod + '_residuals_under'][calc_method] = \
+        residuals_under(all_dict)
+    metric_dict[commod + '_residuals_over'][calc_method] = \
+        residuals_over(all_dict)
+    # metric_dict[commod+'_chi2'][calc_method] = chi_goodness_test(all_dict)
+    metric_dict[commod + '_undersupply'][calc_method] = \
+        supply_under_demand(all_dict, demand_driven)
 
     return metric_dict
 

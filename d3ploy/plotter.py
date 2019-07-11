@@ -6,7 +6,7 @@ def plot_demand_supply(
     all_dict, commod, test, demand_driven, log_scale, calculated
 ):
     """ Plots demand, supply, calculated demand and calculated supply
-    on a curve 
+    on a curve
     Parameters
     ----------
     4 dicts: dictionaries of supply, demand, calculated
