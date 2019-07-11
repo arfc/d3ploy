@@ -6,13 +6,17 @@ def plot_demand_supply(
     all_dict, commod, test, demand_driven, log_scale, calculated
 ):
     """ Plots demand, supply, calculated demand and calculated supply
-    on a curve for a non-driving commodity
+    on a curve 
     Parameters
     ----------
     4 dicts: dictionaries of supply, demand, calculated
     demand and calculated supply
+    commod: commodity
+    test: name of the prediction method used/name of the file
     demand_driven: Boolean. If true, the commodity is demand driven,
     if false, the commodity is supply driven
+    log_scale: if true plots are in log-lin scale
+    calculated: if true plots calculated supply and demand
     Returns
     -------
     plot of all four dicts
@@ -142,16 +146,21 @@ def plot_demand_supply_agent(
     size=6,
 ):
     """ Plots demand, supply, calculated demand and calculated supply on a curve
-    for a non-driving commodity
     Parameters
     ----------
     4 dicts: dictionaries of supply, demand, calculated
     demand and calculated supply
+    agent_dict: dictionary with prototypes that produce each commodities
+    commod: commodity
+    test: name of the prediction method used/name of the file
     demand_driven: Boolean. If true, the commodity is demand driven,
     if false, the commodity is supply driven
+    log_scale: if true plots are in log-lin scale
+    calculated: if true plots calculated supply and demand
+    size: defines the size of the markers in the plots
     Returns
     -------
-    plot of all four dicts
+    plot of all four dicts + the agents plot
     """
 
     dict_demand = all_dict["dict_demand"]
@@ -310,15 +319,20 @@ def plot_demand_supply_agent(
 def plot_demand_supply_nond3ploy(
     all_dict, agent_dict, commod, test, demand_driven, log_scale, size=6
 ):
-    """Plots demand and supply on a curve for a non-driving commodity
+    """ Plots demand and supply on a curve for a non-driving commodity
     Parameters
     ----------
     2 dicts: dictionaries of supply and demand
+    agent_dict: dictionary with prototypes that produce each commodities
+    commod: commodity
+    test: name of the prediction method used/name of the file
     demand_driven: Boolean. If true, the commodity is demand driven,
     if false, the commodity is supply driven
+    log_scale: if true plots are in log-lin scale
+    size: defines the size of the markers in the plots
     Returns
     -------
-    plot of all four dicts
+    plot of the two dicts
     """
 
     dict_demand = all_dict["dict_demand"]
@@ -337,7 +351,7 @@ def plot_demand_supply_nond3ploy(
             ax1.bar(x, y, label=key, bottom=prev, edgecolor="none")
             prev = np.add(prev, y)
     ax1.grid()
-    ax1.legend()
+    ax1.legend(loc='upper center', bbox_to_anchor=(1.2, 1.0))
     ax1.set_xlabel("Time (month timestep)")
     ax1.set_ylabel("Facilities")
 
@@ -397,7 +411,8 @@ def plot_demand_supply_nond3ploy(
     else:
         ax2.set_ylabel("Mass (Kg)", fontsize=14)
     handles, labels = ax2.get_legend_handles_labels()
-    ax2.legend(handles, labels, fontsize=11, loc="upper left", fancybox=True)
+    ax2.legend(handles, labels, fontsize=11, loc='upper center',
+               bbox_to_anchor=(1.2, 1.0), fancybox=True)
     ax1.set_title("Supply, Demand and Facilities for %s" % test)
     plt.savefig(test, dpi=300, bbox_inches="tight")
     plt.close()
