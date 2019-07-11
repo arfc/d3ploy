@@ -138,9 +138,10 @@ class DemandDrivenDeploymentInst(Institution):
     )
 
     buffer_type = ts.MapStringString(
-        doc="Indicates whether the buffer is in percentage or float form, perc: %," +
-        "float: float for each commodity",
-        tooltip="Supply buffer in Percentage or float form for each commodity",
+        doc="Indicates whether the buffer is a relative or absolute value," +
+        "rel: % value, abs: double value, for each commodity",
+        tooltip="Supply buffer as a relative or absolute value for," +
+        "each commodity",
         alias=[
             'buffer_type',
             'commod',
@@ -149,7 +150,7 @@ class DemandDrivenDeploymentInst(Institution):
         default={})
 
     supply_buffer = ts.MapStringDouble(
-        doc="Supply buffer size: Percentage or float amount ",
+        doc="Supply buffer size: relative or absolute value ",
         tooltip="Supply buffer Amount.",
         alias=['supply_buffer', 'commod', 'buffer'],
         uilabel="Supply Buffer",
@@ -240,13 +241,10 @@ class DemandDrivenDeploymentInst(Institution):
                                           commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
-<<<<<<< HEAD
             commod_mins = solver.find_mins(self.commod_min, self.commod_dict)
-=======
             for child in self.children:
                 itscommod = self.fac_commod[child.prototype]
                 self.installed_capacity[itscommod][0] += self.commodity_dict[itscommod][child.prototype]['cap']
->>>>>>> 783a7d58de1e4d09833244a2331ec5d8cd335a2e
             self.fresh = False
 
     def decision(self):
@@ -269,7 +267,9 @@ class DemandDrivenDeploymentInst(Institution):
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
-<<<<<<< HEAD
+            else:
+                self.installed_capacity[commod][time +
+                                                1] = self.installed_capacity[commod][time]
             os_limit = self.commod_min[commod] * self.os_int
             if diff > os_limit:
                 self.commod_os[commod] += 1
@@ -277,17 +277,11 @@ class DemandDrivenDeploymentInst(Institution):
                 solver.decommission(self, self.commod_dict[commod], diff)
             else:
                 self.commod_os[commod] = 0
-=======
                 # update installed capacity dict
                 for proto, num in deploy_dict.items():
                     self.installed_capacity[commod][time + 1] = \
                         self.installed_capacity[commod][time] + \
                         self.commodity_dict[commod][proto]['cap'] * num
-            else:
-                self.installed_capacity[commod][time +
-                                                1] = self.installed_capacity[commod][time]
-
->>>>>>> 783a7d58de1e4d09833244a2331ec5d8cd335a2e
             if self.record:
                 out_text = "Time " + str(time) + \
                     " Deployed " + str(len(self.children))
@@ -326,15 +320,15 @@ class DemandDrivenDeploymentInst(Institution):
             self.commodity_supply[commod][time] = 0.0
         supply = self.predict_supply(commod)
 
-        if self.buffer_type_dict[commod] == 'perc':
+        if self.buffer_type_dict[commod] == 'rel':
             demand = self.predict_demand(
                 commod, time) * (1 + self.buffer_dict[commod])
-        elif self.buffer_type_dict[commod] == 'float':
+        elif self.buffer_type_dict[commod] == 'abs':
             demand = self.predict_demand(
                 commod, time) + self.buffer_dict[commod]
         else:
             raise Exception(
-                'You can only choose perc (%) or float (double) for buffer size')
+                'You can only choose rel or abs types for buffer type')
 
         diff = supply - demand
         return diff, supply, demand

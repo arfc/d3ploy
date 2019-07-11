@@ -132,9 +132,9 @@ class SupplyDrivenDeploymentInst(Institution):
     )
 
     buffer_type = ts.MapStringString(
-        doc="Indicates whether the buffer is in percentage or float form, perc: %," +
-        "float: float for each commodity",
-        tooltip="Capacity buffer in Percentage or float form for each commodity",
+        doc="Indicates whether the buffer is a relative or absolute value," +
+        "rel: % value, abs: double value, for each commodity",
+        tooltip="Capacity buffer as a rel or avs value for each commodity",
         alias=[
             'buffer_type',
             'commod',
@@ -143,7 +143,7 @@ class SupplyDrivenDeploymentInst(Institution):
         default={})
 
     capacity_buffer = ts.MapStringDouble(
-        doc="Capacity buffer size: % or float amount",
+        doc="Capacity buffer size: relative or absolute value ",
         tooltip="Capacity buffer amount",
         alias=['capacity_buffer', 'commod', 'buffer'],
         uilabel="Capacity Buffer",
@@ -256,7 +256,9 @@ class SupplyDrivenDeploymentInst(Institution):
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
-<<<<<<< HEAD
+            else:
+                self.installed_capacity[commod][time +
+                                                1] = self.installed_capacity[commod][time]
             os_limit = self.commod_min[commod] * self.os_int
             if diff > os_limit:
                 self.commod_os[commod] += 1    
@@ -264,16 +266,11 @@ class SupplyDrivenDeploymentInst(Institution):
                 solver.decommission(self, self.commod_dict[commod], diff)
             else:
                 self.commod_os[commod] = 0
-=======
                 # update installed capacity dict
                 for proto, num in deploy_dict.items():
                     self.installed_capacity[commod][time + 1] = \
                         self.installed_capacity[commod][time] + \
                         self.commodity_dict[commod][proto]['cap'] * num
-            else:
-                self.installed_capacity[commod][time +
-                                                1] = self.installed_capacity[commod][time]
->>>>>>> 783a7d58de1e4d09833244a2331ec5d8cd335a2e
             if self.record:
                 out_text = "Time " + str(time) + \
                     " Deployed " + str(len(self.children))
@@ -312,15 +309,15 @@ class SupplyDrivenDeploymentInst(Institution):
             self.commodity_capacity[commod][time] = 0.0
         capacity = self.predict_capacity(commod)
 
-        if self.buffer_type_dict[commod] == 'perc':
+        if self.buffer_type_dict[commod] == 'rel':
             supply = self.predict_supply(
                 commod, time) * (1 + self.buffer_dict[commod])
-        elif self.buffer_type_dict[commod] == 'float':
+        elif self.buffer_type_dict[commod] == 'abs':
             supply = self.predict_supply(
                 commod, time) + self.buffer_dict[commod]
         else:
             raise Exception(
-                'You can only choose perc (%) or float (double) for buffer size')
+                'You can only choose rel or abs types for buffer type')
 
         diff = capacity - supply
         return diff, capacity, supply

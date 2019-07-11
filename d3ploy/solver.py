@@ -219,6 +219,9 @@ def decommission(agent, commod_dict, diff, commod):
             if commod_dict[agent.prototype]['cap'] < diff:
                 if agent.prototype is i:
                     agent.decommission()
-                    diff -= commod_dict[agent.prototype]['cap']       
+                    diff -= commod_dict[agent.prototype]['cap']     
+                    itscommod = self.fac_commod[agent.prototype]
+                    self.installed_capacity[itscommod][time + 1] \
+                                    -= self.commodity_dict[itscommod][child.prototype]['cap']  
 	
         
