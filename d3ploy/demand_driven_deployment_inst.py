@@ -175,7 +175,10 @@ class DemandDrivenDeploymentInst(Institution):
     )
 
     os_int = ts.Int(
-        doc="The number minimum capacities over supply limit",
+        doc="The number facilities over capacity " + 
+            "for a given commodity that is allowed. i.e If this" +
+            " value is 1. One full facility supply over demand considered" +
+            " an oversupplied situtation.",
         tooltip="",
         uilabel="Oversupply Fac Limit",
         default=1
