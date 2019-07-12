@@ -181,8 +181,9 @@ def minimize_number_of_deployment(proto_commod, remainder):
 
 def find_mins(commod_min, commod_dict):
     """ This function updates the commod_min
-    dictionary to contain the minimum production
-    for each commodity. 
+    dictionary to contain the minimum capacity facility
+    for each commodity. The purpose of this is to facilitate
+    the decommissioning of the smallest facilities first. 
 
     Parameters:
     ----------
