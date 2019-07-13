@@ -227,7 +227,7 @@ def residuals_under(all_dict):
     Returns
     -------
     returns a double as the cumulative difference between demand
-    and suppy, when the demand is larger than supply.
+        and supply if demand is larger than supply. 0 otherwise.
     """
 
     dict_demand = all_dict['dict_demand']
