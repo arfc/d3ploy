@@ -219,7 +219,7 @@ def supply_demand_dict_nond3ploy(sqlite, commod, demand_eq=0):
 
 
 def residuals_under(all_dict):
-    """ obtains the cumulative under supply
+    """obtains the cumulative undersupply
     Parameters
     ----------
     dict_demand: timeseries dictionary of demand values
