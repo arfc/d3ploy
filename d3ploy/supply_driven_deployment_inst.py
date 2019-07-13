@@ -167,6 +167,7 @@ class SupplyDrivenDeploymentInst(Institution):
         self.installed_capacity = {}
         self.fac_commod = {}
         self.fresh = True
+        self.constraint_toggle = {}
         CALC_METHODS['ma'] = no.predict_ma
         CALC_METHODS['arma'] = no.predict_arma
         CALC_METHODS['arch'] = no.predict_arch
@@ -234,10 +235,10 @@ class SupplyDrivenDeploymentInst(Institution):
 
             if diff < 0:
                 if self.installed_cap:
-                    deploy_dict = solver.deploy_solver(
+                    deploy_dict, self.commodity_dict = solver.deploy_solver(
                         self.installed_capacity, self.commodity_dict, commod, diff, time)
                 else:
-                    deploy_dict = solver.deploy_solver(
+                    deploy_dict, self.commodity_dict = solver.deploy_solver(
                         self.commodity_supply, self.commodity_dict, commod, diff, time)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
