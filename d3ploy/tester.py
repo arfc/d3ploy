@@ -254,7 +254,6 @@ def residuals_over(all_dict):
     returns a double as the cumulative difference between suppy
     and demand, when the supply is larger than demand.
     """
-
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
