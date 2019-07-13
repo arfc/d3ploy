@@ -186,3 +186,4 @@ def minimize_number_of_deployment(proto_commod, remainder):
         break
 
     return deploy_dict
+        
