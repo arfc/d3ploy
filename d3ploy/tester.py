@@ -220,7 +220,7 @@ def cumulative_undersupply(all_dict):
     """obtains the cumulative undersupply over time
     Parameters
     ----------
-    all_dict: dict 
+    all_dict: dict
         a dictionary containing two timeseries dictionaries
         (dict_supply and dict_demand) which contains supply
         and demand values respectively.
@@ -248,7 +248,7 @@ def cumulative_oversupply(all_dict):
     """btains the cumulative oversupply over time
     Parameters
     ----------
-    all_dict: dict 
+    all_dict: dict
         a dictionary containing two timeseries dictionaries
         (dict_supply and dict_demand) which contains supply
         and demand values respectively.
