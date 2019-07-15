@@ -216,7 +216,7 @@ def supply_demand_dict_nond3ploy(sqlite, commod, demand_eq=0):
     return all_dict
 
 
-def residuals_under(all_dict):
+def cumulative_undersupply(all_dict):
     """obtains the cumulative undersupply
     Parameters
     ----------
@@ -231,17 +231,17 @@ def residuals_under(all_dict):
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
-    SSres = 0
+    cumulative = 0
     for x in dict_demand.keys():
         try:
             if dict_supply[x] <= dict_demand[x]:
-                SSres += (dict_demand[x] - dict_supply[x])
+                cumulative += (dict_demand[x] - dict_supply[x])
         except KeyError:
-            SSres += 0
-    return SSres
+            cumulative += 0
+    return cumulative
 
 
-def residuals_over(all_dict):
+def cumulative_oversupply(all_dict):
     """ Obtains the cumulative over supply
     Parameters
     ----------
@@ -255,14 +255,14 @@ def residuals_over(all_dict):
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
-    SSres = 0
+    cumulative = 0
     for x in dict_demand.keys():
         try:
             if dict_supply[x] > dict_demand[x]:
-                SSres += (- dict_demand[x] + dict_supply[x])
+                cumulative += (- dict_demand[x] + dict_supply[x])
         except KeyError:
-            SSres += 0
-    return SSres
+            cumulative += 0
+    return cumulative
 
 
 def chi_goodness_test(all_dict):
@@ -354,15 +354,15 @@ def metrics(all_dict, metric_dict, calc_method, commod, demand_driven):
     # check if dictionary exists if not initialize
     value = metric_dict.get(commod + '_undersupply', 0)
     if value == 0:
-        metric_dict[commod+'_residuals_under'] = {}
-        metric_dict[commod+'_residuals_over'] = {}
+        metric_dict[commod+'_cumulative_undersupply'] = {}
+        metric_dict[commod+'_cumualtive_oversupply'] = {}
         #metric_dict[commod+'_chi2'] = {}
         metric_dict[commod + '_undersupply'] = {}
 
-    metric_dict[commod + '_residuals_under'][calc_method] = \
-        residuals_under(all_dict)
-    metric_dict[commod + '_residuals_over'][calc_method] = \
-        residuals_over(all_dict)
+    metric_dict[commod + '_cumulative_undersupply'][calc_method] = \
+        cumulative_undersupply(all_dict)
+    metric_dict[commod + '_cumualtive_oversupply'][calc_method] = \
+        cumulative_oversupply(all_dict)
     metric_dict[commod + '_undersupply'][calc_method] = \
         supply_under_demand(all_dict, demand_driven)
 
