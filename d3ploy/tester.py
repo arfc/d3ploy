@@ -220,23 +220,25 @@ def cumulative_undersupply(all_dict):
     """obtains the cumulative undersupply over time
     Parameters
     ----------
-    dict_demand: timeseries dictionary of demand values
-    dict_supply: timeseries dictionary of supply values
+    all_dict: dict 
+        a dictionary containing two timeseries dictionaries
+        (dict_supply and dict_demand) which contains supply
+        and demand values respectively.
     Returns
     -------
-    ss_res : float
-        The cumulative difference between demand
-        and supply if demand is larger than supply. 0 otherwise.
+    cumulative: float
+        The cumulative difference between demand and supply
+        if demand is larger than supply. 0 otherwise.
     """
 
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
     cumulative = 0
-    for x in dict_demand.keys():
+    for step in set().union(dict_demand.keys(), dict_supply.keys()):
         try:
-            if dict_supply[x] <= dict_demand[x]:
-                cumulative += (dict_demand[x] - dict_supply[x])
+            if dict_supply[step] <= dict_demand[step]:
+                cumulative += (dict_demand[step] - dict_supply[step])
         except KeyError:
             cumulative += 0
     return cumulative
@@ -247,21 +249,24 @@ def cumulative_oversupply(all_dict):
     Parameters
     ----------
     all_dict: dict 
-        a dictionary containing two timeseries dictionaries (dict_supply and dict_demand) 
-        which contain  supply and demand values respectively. 
+        a dictionary containing two timeseries dictionaries
+        (dict_supply and dict_demand) which contains supply
+        and demand values respectively.
     Returns
     -------
-    returns a double as the cumulative difference between supply
-    and demand, when the supply is larger than demand.
+    cumulative: float
+        The cumulative difference between supply and demand
+        if supply is larger than demand. 0 otherwise.
     """
+
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
     cumulative = 0
-    for timestep in set().union(dict_demand.keys(), dict_supply.keys())
+    for step in set().union(dict_demand.keys(), dict_supply.keys()):
         try:
-            if dict_supply[x] > dict_demand[x]:
-                cumulative += (- dict_demand[x] + dict_supply[x])
+            if dict_supply[step] > dict_demand[step]:
+                cumulative += (- dict_demand[step] + dict_supply[step])
         except KeyError:
             cumulative += 0
     return cumulative
