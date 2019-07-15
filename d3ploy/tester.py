@@ -230,7 +230,6 @@ def cumulative_undersupply(all_dict):
         The cumulative difference between demand and supply
         if demand is larger than supply. 0 otherwise.
     """
-
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
@@ -258,7 +257,6 @@ def cumulative_oversupply(all_dict):
         The cumulative difference between supply and demand
         if supply is larger than demand. 0 otherwise.
     """
-
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
