@@ -218,12 +218,14 @@ def supply_demand_dict_nond3ploy(sqlite, commod, demand_eq=0):
     return all_dict
 
 
-def residuals_under(all_dict):
-    """ obtains the cumulative under supply
+def cummulative_undersupply(all_dict):
+    """ Obtains the cumulative under supply over time
     Parameters
     ----------
-    dict_demand: timeseries dictionary of demand values
-    dict_supply: timeseries dictionary of supply values
+    all_dict: dict 
+        a dictionary containing two timeseries dictionaries
+        (dict_supply and dict_demand) which contain supply
+        and demand values respectively.
     Returns
     -------
     returns a double as the cumulative difference between demand
@@ -233,39 +235,41 @@ def residuals_under(all_dict):
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
-    SSres = 0
+    cumulative = 0
     for x in dict_demand.keys():
         try:
             if dict_supply[x] <= dict_demand[x]:
-                SSres += (dict_demand[x] - dict_supply[x])
+                cumulative += (dict_demand[x] - dict_supply[x])
         except KeyError:
-            SSres += 0
-    return SSres
+            cumulative += 0
+    return cumulative
 
 
-def residuals_over(all_dict):
-    """ Obtains the cumulative over supply
+def cummulative_oversupply(all_dict):
+    """ Obtains the cumulative under supply over time
     Parameters
     ----------
-    dict_demand: timeseries dictionary of demand values
-    dict_supply: timeseries dictionary of supply values
+    all_dict: dict 
+        a dictionary containing two timeseries dictionaries
+        (dict_supply and dict_demand) which contain supply
+        and demand values respectively.
     Returns
     -------
-    returns a double as the cumulative difference between suppy
+    returns a double as the cumulative difference between supply
     and demand, when the supply is larger than demand.
     """
 
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
-    SSres = 0
+    cumulative = 0
     for x in dict_demand.keys():
         try:
             if dict_supply[x] > dict_demand[x]:
-                SSres += (- dict_demand[x] + dict_supply[x])
+                cumulative += (- dict_demand[x] + dict_supply[x])
         except KeyError:
-            SSres += 0
-    return SSres
+            cumulative += 0
+    return cumulative
 
 
 def chi_goodness_test(all_dict):
@@ -357,15 +361,15 @@ def metrics(all_dict, metric_dict, calc_method, commod, demand_driven):
     # check if dictionary exists if not initialize
     value = metric_dict.get(commod + '_undersupply', 0)
     if value == 0:
-        metric_dict[commod+'_residuals_under'] = {}
-        metric_dict[commod+'_residuals_over'] = {}
+        metric_dict[commod+'_cumulative_under'] = {}
+        metric_dict[commod+'_cumulative_over'] = {}
         #metric_dict[commod+'_chi2'] = {}
         metric_dict[commod + '_undersupply'] = {}
 
-    metric_dict[commod + '_residuals_under'][calc_method] = \
-        residuals_under(all_dict)
-    metric_dict[commod + '_residuals_over'][calc_method] = \
-        residuals_over(all_dict)
+    metric_dict[commod + '_cumulative_under'][calc_method] = \
+        cumulative_undersupply(all_dict)
+    metric_dict[commod + '_cumulative_over'][calc_method] = \
+        cumulative_oversupply(all_dict)
     # metric_dict[commod+'_chi2'][calc_method] = chi_goodness_test(all_dict)
     metric_dict[commod + '_undersupply'][calc_method] = \
         supply_under_demand(all_dict, demand_driven)
