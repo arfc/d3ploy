@@ -217,7 +217,7 @@ def supply_demand_dict_nond3ploy(sqlite, commod, demand_eq=0):
 
 
 def cumulative_undersupply(all_dict):
-    """obtains the cumulative undersupply
+    """obtains the cumulative undersupply over time
     Parameters
     ----------
     dict_demand: timeseries dictionary of demand values
@@ -242,7 +242,7 @@ def cumulative_undersupply(all_dict):
 
 
 def cumulative_oversupply(all_dict):
-    """ Obtains the cumulative over supply
+    """btains the cumulative oversupply over time
     Parameters
     ----------
     dict_demand: timeseries dictionary of demand values
