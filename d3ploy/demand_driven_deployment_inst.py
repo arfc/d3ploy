@@ -228,13 +228,15 @@ class DemandDrivenDeploymentInst(Institution):
                 self.commodity_demand[commod] = defaultdict(float)
             for child in self.children:
                 itscommod = self.fac_commod[child.prototype]
-                self.installed_capacity[itscommod][0] += self.commodity_dict[itscommod][child.prototype]['cap']
+                self.installed_capacity[itscommod][0] += \
+                    self.commodity_dict[itscommod][child.prototype]['cap']
             self.fresh = False
 
     def decision(self):
         """
-        This is the tock method for decision the institution. Here the institution determines the difference
-        in supply and demand and makes the the decision to deploy facilities or not.
+        This is the tock method for decision the institution. Here the
+        institution determines the difference in supply and demand and
+        makes the the decision to deploy facilities or not.
         """
         time = self.context.time
         for commod, proto_dict in self.commodity_dict.items():
@@ -252,13 +254,14 @@ class DemandDrivenDeploymentInst(Institution):
                     for i in range(num):
                         self.context.schedule_build(self, proto)
                 # update installed capacity dict
+                self.installed_capacity[commod][time + 1] = \
+                    self.installed_capacity[commod][time]
                 for proto, num in deploy_dict.items():
-                    self.installed_capacity[commod][time + 1] = \
-                        self.installed_capacity[commod][time] + \
+                    self.installed_capacity[commod][time + 1] += \
                         self.commodity_dict[commod][proto]['cap'] * num
             else:
-                self.installed_capacity[commod][time +
-                                                1] = self.installed_capacity[commod][time]
+                self.installed_capacity[commod][time + 1] = \
+                    self.installed_capacity[commod][time]
 
             if self.record:
                 out_text = "Time " + str(time) + \
@@ -272,8 +275,8 @@ class DemandDrivenDeploymentInst(Institution):
         for child in self.children:
             if child.exit_time == time:
                 itscommod = self.fac_commod[child.prototype]
-                self.installed_capacity[itscommod][time +
-                                                   1] -= self.commodity_dict[itscommod][child.prototype]['cap']
+                self.installed_capacity[itscommod][time + 1] -= \
+                    self.commodity_dict[itscommod][child.prototype]['cap']
 
     def calc_diff(self, commod, time):
         """
