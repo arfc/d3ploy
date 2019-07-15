@@ -167,7 +167,6 @@ class SupplyDrivenDeploymentInst(Institution):
         self.installed_capacity = {}
         self.fac_commod = {}
         self.fresh = True
-        self.constraint_toggle = {}
         CALC_METHODS['ma'] = no.predict_ma
         CALC_METHODS['arma'] = no.predict_arma
         CALC_METHODS['arch'] = no.predict_arch
