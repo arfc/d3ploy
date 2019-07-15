@@ -224,7 +224,8 @@ def cumulative_undersupply(all_dict):
     dict_supply: timeseries dictionary of supply values
     Returns
     -------
-    returns a double as the cumulative difference between demand
+    ss_res : float
+        The cumulative difference between demand
         and supply if demand is larger than supply. 0 otherwise.
     """
 
