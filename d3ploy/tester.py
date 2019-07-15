@@ -245,7 +245,9 @@ def cumulative_oversupply(all_dict):
     """btains the cumulative oversupply over time
     Parameters
     ----------
-    dict_demand: timeseries dictionary of demand values
+    all_dict: dict 
+        a dictionary containing two timeseries dictionaries (dict_supply and dict_demand) 
+        which contain  supply and demand values respectively. 
     dict_supply: timeseries dictionary of supply values
     Returns
     -------
