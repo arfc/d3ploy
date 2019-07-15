@@ -243,10 +243,10 @@ class DemandDrivenDeploymentInst(Institution):
             lib.record_time_series('calc_demand' + commod, self, demand)
             if diff < 0:
                 if self.installed_cap:
-                    deploy_dict = solver.deploy_solver(
+                    deploy_dict, self.commodity_dict = solver.deploy_solver(
                         self.installed_capacity, self.commodity_dict, commod, diff, time)
                 else:
-                    deploy_dict = solver.deploy_solver(
+                    deploy_dict, self.commodity_dict = solver.deploy_solver(
                         self.commodity_supply, self.commodity_dict, commod, diff, time)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
