@@ -251,7 +251,7 @@ def cumulative_oversupply(all_dict):
         which contain  supply and demand values respectively. 
     Returns
     -------
-    returns a double as the cumulative difference between suppy
+    returns a double as the cumulative difference between supply
     and demand, when the supply is larger than demand.
     """
     dict_demand = all_dict['dict_demand']
