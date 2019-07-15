@@ -258,7 +258,7 @@ def cumulative_oversupply(all_dict):
     dict_supply = all_dict['dict_supply']
 
     cumulative = 0
-    for x in dict_demand.keys():
+    for timestep in set().union(dict_demand.keys(), dict_supply.keys())
         try:
             if dict_supply[x] > dict_demand[x]:
                 cumulative += (- dict_demand[x] + dict_supply[x])
