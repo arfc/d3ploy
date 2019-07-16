@@ -66,8 +66,8 @@ and for `supply_driven_deployment_inst`, the facility included should be the fac
 - **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable.
 - **calc_method**: This is the method used to predict the supply and demand.
 - **buffer_type**: This is a mapstringstring defining each commodity and the type of supply/capacity 
-buffer for it. For percentage, the user should input `perc`, for a absolute value, the user should 
-input `float`. The default is percentage. 
+buffer for it. For percentage, the user should input `rel`, for a absolute value, the user should 
+input `abs`. The default is percentage. 
 
 #### Differing Inputs 
 DemandDrivenDeploymentInst:
