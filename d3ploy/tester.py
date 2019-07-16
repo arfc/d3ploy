@@ -222,7 +222,7 @@ def cumulative_undersupply(all_dict):
     ----------
     all_dict: dict
         a dictionary containing two timeseries dictionaries
-        (dict_supply and dict_demand) which contains supply
+        (dict_supply and dict_demand) which contain supply
         and demand values respectively.
     Returns
     -------
