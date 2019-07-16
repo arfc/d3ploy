@@ -411,7 +411,7 @@ def plot_demand_supply_nond3ploy(
     else:
         ax2.set_ylabel("Mass (Kg)", fontsize=14)
     handles, labels = ax2.get_legend_handles_labels()
-    ax2.legend(handles, labels, fontsize=11, loc='upper center',
+    ax2.legend(handles, labels, fontsize=11, loc='best',
                bbox_to_anchor=(1.2, 1.0), fancybox=True)
     ax1.set_title("Supply, Demand and Facilities for %s" % test)
     plt.savefig(test, dpi=300, bbox_inches="tight")
