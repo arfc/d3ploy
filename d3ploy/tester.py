@@ -267,7 +267,6 @@ def cumulative_oversupply(all_dict):
             if dict_supply[step] > dict_demand[step]:
                 cumulative += (dict_supply[step] - dict_demand[step])
         except KeyError:
-            cumulative += 0
     return cumulative
 
 
