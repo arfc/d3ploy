@@ -240,19 +240,20 @@ def cumulative_undersupply(all_dict):
                 cumulative += (dict_demand[step] - dict_supply[step])
         except KeyError:
             cumulative += 0
+
     return cumulative
 
 
 def cumulative_oversupply(all_dict):
     """Obtains the cumulative oversupply over time
-    
+
     Parameters
     ----------
     all_dict: dict
         a dictionary containing two timeseries dictionaries
         (dict_supply and dict_demand) which contains supply
         and demand values respectively.
-        
+ 
     Returns
     -------
     cumulative: float
@@ -269,6 +270,7 @@ def cumulative_oversupply(all_dict):
                 cumulative += (dict_supply[step] - dict_demand[step])
         except KeyError:
             cumulative += 0
+
     return cumulative
 
 
