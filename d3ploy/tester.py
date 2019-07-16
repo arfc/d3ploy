@@ -252,6 +252,7 @@ def cumulative_oversupply(all_dict):
         a dictionary containing two timeseries dictionaries
         (dict_supply and dict_demand) which contains supply
         and demand values respectively.
+        
     Returns
     -------
     cumulative: float
