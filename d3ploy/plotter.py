@@ -351,7 +351,7 @@ def plot_demand_supply_nond3ploy(
             ax1.bar(x, y, label=key, bottom=prev, edgecolor="none")
             prev = np.add(prev, y)
     ax1.grid()
-    ax1.legend(loc='upper center', bbox_to_anchor=(1.2, 1.0))
+    ax1.legend(loc='best', bbox_to_anchor=(1.2, 1.0))
     ax1.set_xlabel("Time (month timestep)")
     ax1.set_ylabel("Facilities")
 
