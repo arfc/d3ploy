@@ -244,7 +244,8 @@ def cumulative_undersupply(all_dict):
 
 
 def cumulative_oversupply(all_dict):
-    """btains the cumulative oversupply over time
+    """Obtains the cumulative oversupply over time
+    
     Parameters
     ----------
     all_dict: dict
