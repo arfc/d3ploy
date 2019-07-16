@@ -239,7 +239,6 @@ def cumulative_undersupply(all_dict):
             if dict_supply[step] <= dict_demand[step]:
                 cumulative += (dict_demand[step] - dict_supply[step])
         except KeyError:
-            cumulative += 0
     return cumulative
 
 
