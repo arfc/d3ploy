@@ -319,7 +319,7 @@ def plot_demand_supply_agent(
 def plot_demand_supply_nond3ploy(
     all_dict, agent_dict, commod, test, demand_driven, log_scale, size=6
 ):
-    """ Plots demand and supply on a curve for a non-driving commodity
+    """Plots demand and supply on a curve for a non-driving commodity
     Parameters
     ----------
     2 dicts: dictionaries of supply and demand
