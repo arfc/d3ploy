@@ -1,7 +1,7 @@
 <simulation>
 
 <control>
-    <duration>2</duration>
+    <duration>4</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
 </control>
@@ -140,7 +140,6 @@
                     <driving_commod>POWER</driving_commod>
                     <calc_method>ma</calc_method>
                     <demand_eq>100*t</demand_eq>
-                    <share>0</share>
                     <facility_commod>
                         <item>
                             <facility>reactor1</facility>
@@ -161,14 +160,24 @@
                             <capacity>30</capacity>
                         </item>
                     </facility_capacity>
+                    <facility_pref>
+                        <item>
+                          <facility>reactor1</facility>
+                          <pref>2.0</pref>
+                        </item>
+                        <item>
+                          <facility>reactor2</facility>
+                          <pref>1.0</pref>
+                        </item>
+                    </facility_pref>
                     <facility_sharing>
                         <item>
                             <facility>reactor1</facility>
-                            <percentage>60</percentage>
+                            <percentage>40</percentage>
                         </item>
                         <item>
                             <facility>reactor2</facility>
-                            <percentage>40</percentage>
+                            <percentage>60</percentage>
                         </item>                    
                     </facility_sharing>
                 </DemandDrivenDeploymentInst>

@@ -86,14 +86,6 @@ class DemandDrivenDeploymentInst(Institution):
         default={}
     )
 
-    share = ts.Bool(
-        doc="True if the demand has to be met by different facilities " +
-        "that produce the same commodity",
-        tooltip="Boolean to indicate whether or not the production of the " +
-        "commodity is shared",
-        uilabel="share",
-        default = False)
-
     demand_eq = ts.String(
         doc="This is the string for the demand equation of the driving commodity. " +
         "The equation should use `t' as the dependent variable",
@@ -218,10 +210,7 @@ class DemandDrivenDeploymentInst(Institution):
                 self.facility_pref,
                 self.facility_constraintcommod,
                 self.facility_constraintval,
-                self.facility_sharing)
-            
-            #print("enter:commodity_dict: ", self.commodity_dict)
-            
+                self.facility_sharing)           
             for commod, proto_dict in self.commodity_dict.items():
                 protos = proto_dict.keys()
                 for proto in protos:
@@ -232,12 +221,18 @@ class DemandDrivenDeploymentInst(Institution):
                 self.installed_capacity[commod][0] = 0.
             for commod, commod_dict in self.commodity_dict.items():
                 for proto, proto_dict in commod_dict.items():
+                    print(proto_dict)
                     if proto_dict['constraint_commod'] != '0':
                         self.commod_list.append(
                             proto_dict['constraint_commod'])
-                    #if proto_dict['share'] != 0:
-                    #    print("do this")
 
+            for commod, commod_dict in self.commodity_dict.items():
+                tot = 0
+                for proto, proto_dict in commod_dict.items():
+                    tot += proto_dict['share']
+                if tot!=0 and tot!=100:
+                    print("Share preferences do not add to 100")
+                    raise Exception()
             self.buffer_dict = di.build_buffer_dict(self.supply_buffer,
                                                     self.commod_list)
             self.buffer_type_dict = di.build_buffer_type_dict(

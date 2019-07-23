@@ -52,38 +52,42 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
     # if pref>0 but they are different, use share
     # if one of them is >0 and the others are not,
     # just deploy that one, ignore share.
-    for proto, proto_dict in proto_commod.items():
-        if proto_dict['share'] != 0:
-            print("do this")
-            return sharing_deploy(proto_commod, diff), commodity_dict
+
+    # if the preference is defined
+    eval_pref_fac = evaluate_preference(proto_commod, time)
+    eval_pref_fac, proto_commod = check_constraint(proto_commod,
+                                                   commodity_supply,
+                                                   eval_pref_fac,
+                                                   time)
+    commodity_dict[commod] = proto_commod
+    filtered_pref_fac = {}
+    for key, val in eval_pref_fac.items():
+        if val >= 0:
+            filtered_pref_fac[key] = val
         else:
-            print("do that")
-            # if the preference is defined
-            eval_pref_fac = evaluate_preference(proto_commod, time)
-            eval_pref_fac, proto_commod = check_constraint(proto_commod,
-                                                           commodity_supply,
-                                                           eval_pref_fac,
-                                                           time)
-            commodity_dict[commod] = proto_commod
-            filtered_pref_fac = {}
-            for key, val in eval_pref_fac.items():
-                if val >= 0:
-                    filtered_pref_fac[key] = val
+            filtered_pref_fac[key] = -1
+    # check if the preference values are different   
+    if len(set(filtered_pref_fac.values())) != 1:
+        # if there is a difference, deploys the one with highest
+        # preference until it oversupplies
+        # if all the preferences are negative it does not deploy anything
+        return preference_deploy(proto_commod, eval_pref_fac,
+                                 diff), commodity_dict
+    else:
+        # if all the preferences are equal checks if there sign
+        if list(filtered_pref_fac.values())[0] < 0:
+            # if the preferences are negative, does not deploy anything
+            return preference_deploy(proto_commod, eval_pref_fac,
+                                     diff), commodity_dict
+        else:
+            # if the preferences are positive, checks first if there are
+            # sharing preferences given.
+            for proto, proto_dict in proto_commod.items():
+                if proto_dict['share'] != 0:
+                    # if there are sharing percentages defined
+                    return sharing_deploy(proto_commod, diff), commodity_dict
                 else:
-                    filtered_pref_fac[key] = -1
-            # check if the preference values are different
-            if len(set(filtered_pref_fac.values())) != 1:
-                # if there is a difference, deploys the one with highest
-                # preference until it oversupplies
-                return preference_deploy(proto_commod, eval_pref_fac,
-                                         diff), commodity_dict
-            else:
-                if list(filtered_pref_fac.values())[0] < 0:
-                    return preference_deploy(proto_commod, eval_pref_fac,
-                                             diff), commodity_dict
-                else:
-                    # if preference is not given, or all the preference
-                    # values are the same, deploys to minimize number of
+                    # deploys to minimize number of
                     # facilities deployed. It deploys first the one with
                     # largest capacities.
                     return minimize_number_of_deployment(proto_commod,
@@ -146,11 +150,14 @@ def preference_deploy(proto_commod, pref_fac, diff):
             deploy_dict[proto] += 1
             diff -= proto_commod[proto]['cap']
         if diff == 0:
+            print("pref1: ", deploy_dict)
             return deploy_dict
         else:
             deploy_dict[proto] += 1
     elif diff > 0:
         deploy_dict[proto] = 1
+
+    print("pref2: ", deploy_dict)
     return deploy_dict
 
 
@@ -187,9 +194,10 @@ def minimize_number_of_deployment(proto_commod, remainder):
                 deploy_dict[proto] += 1
                 remainder -= proto_commod[proto]['cap']
     if remainder == 0:
+        print("minimize1: ", deploy_dict)
         return deploy_dict
 
-    # i have to check this, I think that it deploys the biggest one but then the smallest one
+    # i have to check this
     for proto in list(reversed(key_list)):
         # see if the prototype cap is bigger than remainder
         if remainder > proto_commod[proto]['cap']:
@@ -199,6 +207,7 @@ def minimize_number_of_deployment(proto_commod, remainder):
         else:
             deploy_dict[proto] = 1
         break
+    print("minimize2: ", deploy_dict)
 
     return deploy_dict
         
@@ -226,7 +235,7 @@ def sharing_deploy(proto_commod, remainder):
     share_dict = {}
     remain = {}
     for proto, proto_dict in proto_commod.items():
-        print(proto, proto_dict['share'])
+        # print(proto, proto_dict['share'])
         # I need to add something that checks that the percentages add to 100
         remain[proto] = proto_dict['share'] * remainder/100.0
         deploy_dict[proto] = 0
@@ -235,7 +244,6 @@ def sharing_deploy(proto_commod, remainder):
         while remain[proto] > 0:
             deploy_dict[proto] += 1
             remain[proto] -= proto_commod[proto]['cap']
-
-    print(deploy_dict)
+    print("sharing: ", deploy_dict)
 
     return deploy_dict
