@@ -1,0 +1,201 @@
+<simulation>
+
+<control>
+    <duration>40</duration>
+    <startmonth>1</startmonth>
+    <startyear>2000</startyear>
+</control>
+<archetypes>
+        <spec>
+            <lib>cycamore</lib>
+            <name>Source</name>
+        </spec>
+        <spec>
+            <lib>cycamore</lib>
+            <name>Reactor</name>
+        </spec>
+        <spec>
+            <lib>cycamore</lib>
+            <name>Sink</name>
+        </spec>
+        <spec>
+            <lib>agents</lib>
+            <name>NullRegion</name>
+        </spec>
+        <spec>
+            <lib>agents</lib>
+            <name>NullInst</name>
+        </spec>
+        <spec>
+            <lib>cycamore</lib>
+            <name>DeployInst</name>
+        </spec>
+        <spec>
+            <lib>d3ploy.demand_driven_deployment_inst</lib>
+            <name>DemandDrivenDeploymentInst</name>
+        </spec>
+    </archetypes>
+
+<facility>
+    <name>source</name>
+    <config>
+        <Source>
+            <outcommod>sourceout</outcommod>
+            <outrecipe>sourceoutrecipe</outrecipe>
+            <throughput>3000</throughput>
+        </Source>
+    </config>
+</facility>
+
+<facility>
+    <name>reactor1</name>
+    <config>
+      <Reactor>
+        <fuel_inrecipes>
+            <val>sourceoutrecipe</val>
+        </fuel_inrecipes>
+        <fuel_outrecipes>
+            <val>reactoroutrecipe</val>
+        </fuel_outrecipes>
+        <fuel_incommods>
+            <val>sourceout</val>
+        </fuel_incommods>
+        <fuel_outcommods>
+            <val>reactorout</val>
+        </fuel_outcommods>
+        <cycle_time>1</cycle_time>
+        <refuel_time>0</refuel_time>
+        <assem_size>100</assem_size>
+        <n_assem_core>3</n_assem_core>
+        <n_assem_batch>1</n_assem_batch>
+        <power_cap>20</power_cap>
+      </Reactor>
+    </config>
+</facility>
+
+<facility>
+    <name>reactor2</name>
+    <config>
+      <Reactor>
+        <fuel_inrecipes>
+            <val>sourceoutrecipe</val>
+        </fuel_inrecipes>
+        <fuel_outrecipes>
+            <val>reactoroutrecipe</val>
+        </fuel_outrecipes>
+        <fuel_incommods>
+            <val>sourceout</val>
+        </fuel_incommods>
+        <fuel_outcommods>
+            <val>reactorout</val>
+        </fuel_outcommods>
+        <cycle_time>1</cycle_time>
+        <refuel_time>0</refuel_time>
+        <assem_size>100</assem_size>
+        <n_assem_core>3</n_assem_core>
+        <n_assem_batch>1</n_assem_batch>
+        <power_cap>30</power_cap>
+      </Reactor>
+    </config>
+</facility>
+
+<facility>
+        <name>sink</name>
+        <config>
+            <Sink>
+                <in_commods>
+                    <val>reactorout</val>
+                </in_commods>
+                <max_inv_size>1e6</max_inv_size>
+            </Sink>
+        </config>
+    </facility>
+
+    <region>
+        <config>
+            <NullRegion>
+            </NullRegion>
+        </config>
+
+        <institution>
+          <config>
+            <NullInst/>
+          </config>
+          <initialfacilitylist>
+            <entry>
+              <number>1</number>
+              <prototype>sink</prototype>
+            </entry>              
+          </initialfacilitylist>
+          <name>sink_source_facilities</name>
+        </institution>
+
+        <institution>
+            <config>
+                <DemandDrivenDeploymentInst>
+                    <driving_commod>POWER</driving_commod>
+                    <calc_method>ma</calc_method>
+                    <demand_eq>100*t</demand_eq>
+                    <record>1</record>
+                    <steps>1</steps>
+                    <share>1</share>
+                    <facility_commod>
+                        <item>
+                            <facility>source</facility>
+                            <commod>sourceout</commod>
+                        </item>
+                        <item>
+                            <facility>reactor1</facility>
+                            <commod>POWER</commod>
+                        </item>
+                        <item>
+                            <facility>reactor2</facility>
+                            <commod>POWER</commod>
+                        </item>
+                    </facility_commod>
+                    <facility_capacity>
+                        <item>
+                            <facility>source</facility>
+                            <capacity>3000</capacity>
+                        </item>
+                        <item>
+                            <facility>reactor1</facility>
+                            <capacity>20</capacity>
+                        </item>
+                        <item>
+                            <facility>reactor2</facility>
+                            <capacity>30</capacity>
+                        </item>
+                    </facility_capacity>
+                    <facility_sharing>
+                        <item>
+                            <facility>reactor1</facility>
+                            <percentage>60</percentage>
+                        </item>
+                        <item>
+                            <facility>reactor2</facility>
+                            <percentage>40</percentage>
+                        </item>
+                    </facility_sharing>
+                </DemandDrivenDeploymentInst>
+            </config>
+            <name>source_inst</name>
+            </institution>
+
+        <name>SingleRegion</name>
+    </region>
+    
+<recipe>
+   <name>sourceoutrecipe</name>
+   <basis>mass</basis>
+   <nuclide> <id>U235</id> <comp>0.711</comp> </nuclide>
+   <nuclide> <id>U238</id> <comp>99.289</comp> </nuclide>
+</recipe>
+ 
+<recipe>
+   <name>reactoroutrecipe</name>
+   <basis>mass</basis>
+   <nuclide> <id>Kr85</id> <comp>50</comp> </nuclide>
+   <nuclide> <id>Cs137</id> <comp>50</comp> </nuclide>
+</recipe>
+ </simulation>
