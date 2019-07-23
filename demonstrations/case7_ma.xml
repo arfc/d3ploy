@@ -1,7 +1,7 @@
 <simulation>
 
 <control>
-    <duration>40</duration>
+    <duration>2</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
 </control>
@@ -42,7 +42,7 @@
         <Source>
             <outcommod>sourceout</outcommod>
             <outrecipe>sourceoutrecipe</outrecipe>
-            <throughput>3000</throughput>
+            <throughput>1e5</throughput>
         </Source>
     </config>
 </facility>
@@ -124,6 +124,10 @@
           <initialfacilitylist>
             <entry>
               <number>1</number>
+              <prototype>source</prototype>
+            </entry>   
+            <entry>
+              <number>1</number>
               <prototype>sink</prototype>
             </entry>              
           </initialfacilitylist>
@@ -136,14 +140,8 @@
                     <driving_commod>POWER</driving_commod>
                     <calc_method>ma</calc_method>
                     <demand_eq>100*t</demand_eq>
-                    <record>1</record>
-                    <steps>1</steps>
-                    <share>1</share>
+                    <share>0</share>
                     <facility_commod>
-                        <item>
-                            <facility>source</facility>
-                            <commod>sourceout</commod>
-                        </item>
                         <item>
                             <facility>reactor1</facility>
                             <commod>POWER</commod>
@@ -154,10 +152,6 @@
                         </item>
                     </facility_commod>
                     <facility_capacity>
-                        <item>
-                            <facility>source</facility>
-                            <capacity>3000</capacity>
-                        </item>
                         <item>
                             <facility>reactor1</facility>
                             <capacity>20</capacity>
@@ -175,7 +169,7 @@
                         <item>
                             <facility>reactor2</facility>
                             <percentage>40</percentage>
-                        </item>
+                        </item>                    
                     </facility_sharing>
                 </DemandDrivenDeploymentInst>
             </config>

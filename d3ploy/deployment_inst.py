@@ -18,7 +18,8 @@ def build_dict(
         facility_capacity,
         facility_pref,
         facility_constraintcommod,
-        facility_constraintval):
+        facility_constraintval,
+        facility_sharing):
     facility_dict = {}
     commodity_dict = {}
     for key, val in facility_capacity.items():
@@ -38,6 +39,11 @@ def build_dict(
                 {'constraint': facility_constraintval[key]})
         else:
             facility_dict[key].update({'constraint': 0.0})
+        if key in facility_sharing.keys():
+            facility_dict[key].update(
+                {'share': facility_sharing[key]})
+        else:
+            facility_dict[key].update({'share': 0.0})
     for key, val in facility_commod.items():
         if val not in commodity_dict.keys():
             commodity_dict[val] = {}

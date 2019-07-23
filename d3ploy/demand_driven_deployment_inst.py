@@ -78,6 +78,22 @@ class DemandDrivenDeploymentInst(Institution):
         default={}
     )
 
+    facility_sharing = ts.MapStringDouble(
+        doc="A map of facilities that share a commodity",
+        tooltip="Map of facilities and percentages of sharing",
+        alias=['facility_sharing', 'facility', 'percentage'],
+        uilabel="Facility and Percentages",
+        default={}
+    )
+
+    share = ts.Bool(
+        doc="True if the demand has to be met by different facilities " +
+        "that produce the same commodity",
+        tooltip="Boolean to indicate whether or not the production of the " +
+        "commodity is shared",
+        uilabel="share",
+        default = False)
+
     demand_eq = ts.String(
         doc="This is the string for the demand equation of the driving commodity. " +
         "The equation should use `t' as the dependent variable",
@@ -201,7 +217,11 @@ class DemandDrivenDeploymentInst(Institution):
                 self.facility_capacity,
                 self.facility_pref,
                 self.facility_constraintcommod,
-                self.facility_constraintval)
+                self.facility_constraintval,
+                self.facility_sharing)
+            
+            #print("enter:commodity_dict: ", self.commodity_dict)
+            
             for commod, proto_dict in self.commodity_dict.items():
                 protos = proto_dict.keys()
                 for proto in protos:
@@ -215,6 +235,9 @@ class DemandDrivenDeploymentInst(Institution):
                     if proto_dict['constraint_commod'] != '0':
                         self.commod_list.append(
                             proto_dict['constraint_commod'])
+                    #if proto_dict['share'] != 0:
+                    #    print("do this")
+
             self.buffer_dict = di.build_buffer_dict(self.supply_buffer,
                                                     self.commod_list)
             self.buffer_type_dict = di.build_buffer_type_dict(
@@ -244,12 +267,17 @@ class DemandDrivenDeploymentInst(Institution):
             lib.record_time_series('calc_supply' + commod, self, supply)
             lib.record_time_series('calc_demand' + commod, self, demand)
             if diff < 0:
+
+                # the solver is responsible for creating deploy_dict
                 if self.installed_cap:
                     deploy_dict, self.commodity_dict = solver.deploy_solver(
                         self.installed_capacity, self.commodity_dict, commod, diff, time)
                 else:
                     deploy_dict, self.commodity_dict = solver.deploy_solver(
                         self.commodity_supply, self.commodity_dict, commod, diff, time)
+
+
+
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
