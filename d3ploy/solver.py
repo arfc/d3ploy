@@ -45,14 +45,6 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
     diff = -1.0 * diff
     proto_commod = commodity_dict[commod]
 
-    # checks if the commodity has a sharing percentage
-    # it should check the constraint first. <---- bug
-    # need to change this, if pref>0 then check share
-    # if pref<0 then don't deploy anything.
-    # if pref>0 but they are different, use share
-    # if one of them is >0 and the others are not,
-    # just deploy that one, ignore share.
-
     # if the preference is defined
     eval_pref_fac = evaluate_preference(proto_commod, time)
     eval_pref_fac, proto_commod = check_constraint(proto_commod,
@@ -155,7 +147,6 @@ def preference_deploy(proto_commod, pref_fac, diff):
             deploy_dict[proto] += 1
     elif diff > 0:
         deploy_dict[proto] = 1
-
     return deploy_dict
 
 
@@ -194,7 +185,6 @@ def minimize_number_of_deployment(proto_commod, remainder):
     if remainder == 0:
         return deploy_dict
 
-    # i have to check this
     for proto in list(reversed(key_list)):
         # see if the prototype cap is bigger than remainder
         if remainder > proto_commod[proto]['cap']:
@@ -204,7 +194,6 @@ def minimize_number_of_deployment(proto_commod, remainder):
         else:
             deploy_dict[proto] = 1
         break
-
     return deploy_dict
         
 
@@ -231,8 +220,6 @@ def sharing_deploy(proto_commod, remainder):
     share_dict = {}
     remain = {}
     for proto, proto_dict in proto_commod.items():
-        # print(proto, proto_dict['share'])
-        # I need to add something that checks that the percentages add to 100
         remain[proto] = proto_dict['share'] * remainder/100.0
         deploy_dict[proto] = 0
 
@@ -240,5 +227,4 @@ def sharing_deploy(proto_commod, remainder):
         while remain[proto] > 0:
             deploy_dict[proto] += 1
             remain[proto] -= proto_commod[proto]['cap']
-
     return deploy_dict
