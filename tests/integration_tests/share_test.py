@@ -127,8 +127,8 @@ share_template["simulation"].update({"region": {
                  {"number": "1", "prototype": "sink"}
              ]
         },
-    "name": "sink_source_facilities"
-},
+         "name": "sink_source_facilities"
+    },
         {"config": {
             "DemandDrivenDeploymentInst": {
                 "calc_method": "ma",
@@ -154,9 +154,9 @@ share_template["simulation"].update({"region": {
             }
         },
          "name": "reactor_inst"
-}
-],
-"name": "SingleRegion"
+      }
+   ],
+   "name": "SingleRegion"
 }
 })
 
