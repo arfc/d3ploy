@@ -1,0 +1,183 @@
+<simulation>
+<control>
+    <duration>20</duration>
+    <startmonth>1</startmonth>
+    <startyear>2000</startyear>
+</control>
+
+<archetypes>
+    <spec>
+        <lib>cycamore</lib>
+        <name>Source</name>
+    </spec>
+    <spec>
+        <lib>cycamore</lib>
+        <name>Reactor</name>
+    </spec>
+    <spec>
+        <lib>cycamore</lib>
+        <name>Sink</name>
+    </spec>
+    <spec>
+        <lib>agents</lib>
+        <name>NullRegion</name>
+    </spec>
+    <spec>
+        <lib>agents</lib>
+        <name>NullInst</name>
+    </spec>
+    <spec>
+        <lib>cycamore</lib>
+        <name>DeployInst</name>
+    </spec>
+    <spec>
+        <lib>d3ploy.demand_driven_deployment_inst</lib>
+        <name>DemandDrivenDeploymentInst</name>
+    </spec>
+    <spec>
+        <lib>d3ploy.supply_driven_deployment_inst</lib>
+        <name>SupplyDrivenDeploymentInst</name>
+    </spec>
+</archetypes>
+
+<facility>
+    <name>source</name>
+    <config>
+        <Source>
+            <outcommod>sourceout</outcommod>
+            <outrecipe>sourceoutrecipe</outrecipe>
+            <throughput>1E10</throughput>
+        </Source>
+    </config>
+</facility>
+
+<facility>
+    <name>reactor</name>
+    <config>
+      <Reactor>
+        <fuel_inrecipes>
+            <val>sourceoutrecipe</val>
+        </fuel_inrecipes>
+        <fuel_outrecipes>
+            <val>reactoroutrecipe</val>
+        </fuel_outrecipes>
+        <fuel_incommods>
+            <val>sourceout</val>
+        </fuel_incommods>
+        <fuel_outcommods>
+            <val>reactorout</val>
+        </fuel_outcommods>
+        <cycle_time>5</cycle_time>
+        <refuel_time>0</refuel_time>
+        <assem_size>1000</assem_size>
+        <n_assem_core>3</n_assem_core>
+        <n_assem_batch>1</n_assem_batch>
+        <power_cap>1000</power_cap>
+      </Reactor>
+    </config>
+</facility>
+
+<facility>
+    <name>sink1</name>
+    <config>
+        <Sink>
+            <in_commods>
+                <val>reactorout</val>
+            </in_commods>
+            <max_inv_size>200</max_inv_size>
+        </Sink>
+    </config>
+</facility>
+
+<facility>
+    <name>sink2</name>
+    <config>
+        <Sink>
+            <in_commods>
+                <val>reactorout</val>
+            </in_commods>
+            <max_inv_size>100</max_inv_size>
+        </Sink>
+    </config>
+</facility>
+
+<region>
+    <config>
+        <NullRegion>
+        </NullRegion>
+    </config>
+
+    <institution>
+        <config>
+            <NullInst/>
+        </config>
+        <initialfacilitylist>
+        <entry>
+          <number>1</number>
+          <prototype>source</prototype>
+        </entry>
+        <entry>
+          <number>1</number>
+          <prototype>reactor</prototype>
+        </entry>
+        </initialfacilitylist>
+        <name>sink_source_facilities</name>
+    </institution>
+          
+    <institution>
+    <config>
+        <SupplyDrivenDeploymentInst>
+            <calc_method>ma</calc_method>
+            <facility_commod>
+                <item>
+                    <facility>sink1</facility>
+                    <commod>reactorout</commod>
+                </item>
+                <item>
+                    <facility>sink2</facility>
+                    <commod>reactorout</commod>
+                </item>
+            </facility_commod>
+            <facility_capacity>
+                <item>
+                    <facility>sink1</facility>
+                    <capacity>200</capacity>
+                </item>
+                <item>
+                    <facility>sink2</facility>
+                    <capacity>100</capacity>
+                </item>
+            </facility_capacity>
+            <facility_sharing>
+                <item>
+                    <facility>sink1</facility>
+                    <percentage>60</percentage>
+                </item>
+                <item>
+                    <facility>sink2</facility>
+                    <percentage>40</percentage>
+                </item>                    
+            </facility_sharing>
+        </SupplyDrivenDeploymentInst>
+    </config>
+    <name>supply_inst</name>
+    </institution>
+
+    <name>SingleRegion</name>
+</region>
+    
+<recipe>
+   <name>sourceoutrecipe</name>
+   <basis>mass</basis>
+   <nuclide> <id>U235</id> <comp>0.711</comp> </nuclide>
+   <nuclide> <id>U238</id> <comp>99.289</comp> </nuclide>
+</recipe>
+ 
+<recipe>
+   <name>reactoroutrecipe</name>
+   <basis>mass</basis>
+   <nuclide> <id>Kr85</id> <comp>50</comp> </nuclide>
+   <nuclide> <id>Cs137</id> <comp>50</comp> </nuclide>
+</recipe>
+
+</simulation>

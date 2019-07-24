@@ -150,14 +150,12 @@ def preference_deploy(proto_commod, pref_fac, diff):
             deploy_dict[proto] += 1
             diff -= proto_commod[proto]['cap']
         if diff == 0:
-            print("pref1: ", deploy_dict)
             return deploy_dict
         else:
             deploy_dict[proto] += 1
     elif diff > 0:
         deploy_dict[proto] = 1
 
-    print("pref2: ", deploy_dict)
     return deploy_dict
 
 
@@ -194,7 +192,6 @@ def minimize_number_of_deployment(proto_commod, remainder):
                 deploy_dict[proto] += 1
                 remainder -= proto_commod[proto]['cap']
     if remainder == 0:
-        print("minimize1: ", deploy_dict)
         return deploy_dict
 
     # i have to check this
@@ -207,7 +204,6 @@ def minimize_number_of_deployment(proto_commod, remainder):
         else:
             deploy_dict[proto] = 1
         break
-    print("minimize2: ", deploy_dict)
 
     return deploy_dict
         

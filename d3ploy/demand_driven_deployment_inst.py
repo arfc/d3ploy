@@ -221,7 +221,6 @@ class DemandDrivenDeploymentInst(Institution):
                 self.installed_capacity[commod][0] = 0.
             for commod, commod_dict in self.commodity_dict.items():
                 for proto, proto_dict in commod_dict.items():
-                    print(proto_dict)
                     if proto_dict['constraint_commod'] != '0':
                         self.commod_list.append(
                             proto_dict['constraint_commod'])
