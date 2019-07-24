@@ -240,6 +240,5 @@ def sharing_deploy(proto_commod, remainder):
         while remain[proto] > 0:
             deploy_dict[proto] += 1
             remain[proto] -= proto_commod[proto]['cap']
-    print("sharing: ", deploy_dict)
 
     return deploy_dict
