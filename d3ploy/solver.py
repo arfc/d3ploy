@@ -57,7 +57,7 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
             filtered_pref_fac[key] = val
         else:
             filtered_pref_fac[key] = -1
-    # check if the preference values are different   
+    # check if the preference values are different
     if len(set(filtered_pref_fac.values())) != 1:
         # if there is a difference, deploys the one with highest
         # preference until it oversupplies.

@@ -210,7 +210,7 @@ class DemandDrivenDeploymentInst(Institution):
                 self.facility_pref,
                 self.facility_constraintcommod,
                 self.facility_constraintval,
-                self.facility_sharing)           
+                self.facility_sharing)
             for commod, proto_dict in self.commodity_dict.items():
                 protos = proto_dict.keys()
                 for proto in protos:
@@ -229,7 +229,7 @@ class DemandDrivenDeploymentInst(Institution):
                 tot = 0
                 for proto, proto_dict in commod_dict.items():
                     tot += proto_dict['share']
-                if tot!=0 and tot!=100:
+                if tot != 0 and tot != 100:
                     print("Share preferences do not add to 100")
                     raise Exception()
             self.buffer_dict = di.build_buffer_dict(self.supply_buffer,

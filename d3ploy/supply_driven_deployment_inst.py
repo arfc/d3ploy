@@ -215,7 +215,7 @@ class SupplyDrivenDeploymentInst(Institution):
                 tot = 0
                 for proto, proto_dict in commod_dict.items():
                     tot += proto_dict['share']
-                if tot!=0 and tot!=100:
+                if tot != 0 and tot != 100:
                     print("Share preferences do not add to 100")
                     raise Exception()
             self.buffer_dict = di.build_buffer_dict(self.capacity_buffer,

@@ -71,7 +71,7 @@ TEMPLATE = {
                     }
                 },
                 "name": "reactor1"
-            },            
+            },     
             {
                 "config": {
                     "Reactor": {
@@ -108,10 +108,10 @@ TEMPLATE = {
 }
 
 
-# ----------------------------------------------------------------------------- #
+# ------------------------------------------------------------------ #
 # Two prototypes of reactor are deployed. They produce 2 and 3 MW,
 # respectively. The sharing percentages are 40 and 60%. The
-# power demand increases by 10 MW every timestep. Then to meet 
+# power demand increases by 10 MW every timestep. Then to meet
 # the demand, two reactors of each type has to be deployed.
 # This test will fail if at any time step two of each type of
 # reactor are not deployed.
@@ -133,7 +133,7 @@ share_template["simulation"].update({
        "name": "sink_source_facilities"
     },
     {
-   "config": {
+    "config": {
             "DemandDrivenDeploymentInst": {
                 "calc_method": "ma",
                 "facility_capacity": {
@@ -160,7 +160,6 @@ share_template["simulation"].update({
         "name": "reactor_inst"
     }
     ],
-
     "name": "SingleRegion"
 }
 })
@@ -173,22 +172,22 @@ def test_supply_buffer():
         json.dump(share_template, f)
 
     s = subprocess.check_output(['cyclus',
-                                 '-o',
-                                 output_file_share,
-                                 input_file_share],
-                                 universal_newlines=True,
-                                 env=ENV)
+                                '-o',
+                                output_file_share,
+                                input_file_share],
+                                universal_newlines=True,
+                                env=ENV)
 
     # check number of reactors deployed
     cur_share = functions.get_cursor(output_file_share)
 
-    reactors = cur_share.execute("select entertime, prototype " + \
-        "from agententry where prototype = 'reactor1' or " +\
-        " prototype = 'reactor2'").fetchall()
-    
+    reactors = cur_share.execute("select entertime, prototype from " +
+                                 "agententry where prototype = " + 
+                                 "'reactor1' or prototype = " +
+                                 "'reactor2'").fetchall()
     j = 0
     count_errors = 0
-    for i in range(1,4):
+    for i in range(1, 4):
         count_reactor1 = 0
         count_reactor2 = 0
         while int(reactors[j][0]) <= i:
@@ -198,7 +197,7 @@ def test_supply_buffer():
                 count_reactor2 += 1
             j += 1
             if j == len(reactors):
-                break;
+                break
         if count_reactor1 != count_reactor2:
             count_errors += 1
     assert(count_errors == 0)
