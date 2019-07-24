@@ -71,7 +71,7 @@ TEMPLATE = {
                     }
                 },
                 "name": "reactor1"
-            },     
+            },
             {
                 "config": {
                     "Reactor": {
@@ -117,12 +117,10 @@ TEMPLATE = {
 # reactor are not deployed.
 
 share_template = copy.deepcopy(TEMPLATE)
-share_template["simulation"].update({
-"region": {
+share_template["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
-
-   "institution": [
-   {
+    "institution": [
+    {
        "config": {"NullInst": "\n      "},
        "initialfacilitylist": {
            "entry": [
@@ -157,7 +155,7 @@ share_template["simulation"].update({
                 "demand_eq": "10*t",
             }
         },
-        "name": "reactor_inst"
+         "name": "reactor_inst"
     }
     ],
     "name": "SingleRegion"
@@ -172,9 +170,9 @@ def test_supply_buffer():
         json.dump(share_template, f)
 
     s = subprocess.check_output(['cyclus',
-                                '-o',
-                                output_file_share,
-                                input_file_share],
+                                 '-o',
+                                 output_file_share,
+                                 input_file_share],
                                 universal_newlines=True,
                                 env=ENV)
 
@@ -182,7 +180,7 @@ def test_supply_buffer():
     cur_share = functions.get_cursor(output_file_share)
 
     reactors = cur_share.execute("select entertime, prototype from " +
-                                 "agententry where prototype = " + 
+                                 "agententry where prototype = " +
                                  "'reactor1' or prototype = " +
                                  "'reactor2'").fetchall()
     j = 0
