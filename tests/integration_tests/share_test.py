@@ -120,17 +120,16 @@ share_template = copy.deepcopy(TEMPLATE)
 share_template["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": [
-        {
-        "config": {"NullInst": "\n      "},
-        "initialfacilitylist": {
-            "entry": [
-               {"number": "1", "prototype": "source"},
-               {"number": "1", "prototype": "sink"}
-            ]
+        {"config": {"NullInst": "\n      "},
+         "initialfacilitylist": {
+             "entry": [
+                 {"number": "1", "prototype": "source"},
+                 {"number": "1", "prototype": "sink"}
+             ]
         },
         "name": "sink_source_facilities"
     },
-    {"config": {
+        {"config": {
             "DemandDrivenDeploymentInst": {
                 "calc_method": "ma",
                 "facility_capacity": {
