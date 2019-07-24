@@ -211,7 +211,6 @@ class SupplyDrivenDeploymentInst(Institution):
             for commod in commod_list:
                 self.installed_capacity[commod] = defaultdict(float)
                 self.installed_capacity[commod][0] = 0.
-
             for commod, commod_dict in self.commodity_dict.items():
                 tot = 0
                 for proto, proto_dict in commod_dict.items():

@@ -44,7 +44,6 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
     """
     diff = -1.0 * diff
     proto_commod = commodity_dict[commod]
-
     # if the preference is defined
     eval_pref_fac = evaluate_preference(proto_commod, time)
     eval_pref_fac, proto_commod = check_constraint(proto_commod,
@@ -61,7 +60,7 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
     # check if the preference values are different   
     if len(set(filtered_pref_fac.values())) != 1:
         # if there is a difference, deploys the one with highest
-        # preference until it oversupplies
+        # preference until it oversupplies.
         # if all the preferences are negative it does not deploy anything
         return preference_deploy(proto_commod, eval_pref_fac,
                                  diff), commodity_dict
