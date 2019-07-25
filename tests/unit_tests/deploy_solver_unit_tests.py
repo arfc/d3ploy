@@ -123,10 +123,10 @@ def test_pref_positive_over_share():
               }
 
     deploy_dict, commodity_dict = solver.deploy_solver(commodity_supply={},
-                                        commodity_dict={'commod': commod},
-                                        commod='commod',
-                                        diff=diff,
-                                        time=t)
+                                       commodity_dict={'commod': commod},
+                                       commod='commod',
+                                       diff=diff,
+                                       time=t)
     for key in deploy_dict.keys():
         if key != '1':
             raise ValueError('wrong deployment')
@@ -150,13 +150,10 @@ def test_pref_negative_over_share():
                     'constraint': 0,
                     'share': 90}
               }
-
-    deploy_dict, commodity_dict = solver.deploy_solver(commodity_supply={},
-                                        commodity_dict={'commod': commod},
-                                        commod='commod',
-                                        diff=diff,
-                                        time=t)
-    if bool(deploy_dict) != False:
+    deploy_dict, commodity_dict = solver.deploy_solver(commodity_supply={}, \
+        commodity_dict={'commod': commod}, \
+        commod='commod', diff=diff, time=t)
+    if bool(deploy_dict):
         raise ValueError('wrong deployment')
     assert(True)
 
@@ -178,13 +175,10 @@ def test_equal_pref_then_share():
                     'constraint': 0,
                     'share': 80}
               }
-
     deploy_dict, commodity_dict = solver.deploy_solver(commodity_supply={},
-                                        commodity_dict={'commod': commod},
-                                        commod='commod',
-                                        diff=diff,
-                                        time=t)
-    if bool(deploy_dict) != False:
+                                      commodity_dict={'commod': commod},
+                                      commod='commod', diff=diff, time=t)
+    if bool(deploy_dict):
         if deploy_dict['1'] != 1:
             raise ValueError('wrong deployment')
         if deploy_dict['2'] != 2:
