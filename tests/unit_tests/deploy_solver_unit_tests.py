@@ -16,7 +16,8 @@ def test_min_deploy_solver():
             commod.update({str(i): {'cap': random.uniform(0.1, 9.9),
                                     'pref': '0',
                                     'constraint_commod': '0',
-                                    'constraint': 0}})
+                                    'constraint': 0,
+                                    'share': 0}})
         deploy_dict, commodity_dict = solver.deploy_solver(commodity_supply={},
                                            commodity_dict={'commod': commod},
                                            commod='commod',
@@ -46,7 +47,8 @@ def test_pref_solver_const():
             commod.update({str(i): {'cap': random.uniform(0.1, 9.9),
                                     'pref': str(random.uniform(0.1, 9.9)),
                                     'constraint_commod': '0',
-                                    'constraint': 0}})
+                                    'constraint': 0,
+                                    'share': 0}})
         deploy_dict, commodity_dict = solver.deploy_solver(commodity_supply={},
                                            commodity_dict={'commod': commod},
                                            commod='commod',
@@ -78,14 +80,15 @@ def test_pref_solver_eq():
     commod = {'1': {'cap': 2,
                     'pref': '1*t',
                     'constraint_commod': '0',
-                    'constraint': 0},
+                    'constraint': 0,
+                    'share': 0},
               '2': {'cap': 4,
                     'pref': '10 - (1*t)',
                     'constraint_commod': '0',
-                    'constraint': 0}
+                    'constraint': 0,
+                    'share': 0}
               }
     for t in range(10):
-        print(t)
         deploy_dict, commodity_dict = solver.deploy_solver(commodity_supply={},
                                            commodity_dict={'commod': commod},
                                            commod='commod',
