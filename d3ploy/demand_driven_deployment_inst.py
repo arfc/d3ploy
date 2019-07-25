@@ -295,15 +295,18 @@ class DemandDrivenDeploymentInst(Institution):
             The calculated demand of the demand commodity at [time]
         """
         if time not in self.commodity_demand[commod]:
-            t = 0
-            self.commodity_demand[commod][time] = eval(self.demand_eq)
+            if commod == self.driving_commod:
+                t = time
+                self.commodity_demand[commod][time] = eval(self.demand_eq)
+            else:
+                self.commodity_demand[commod][time] = 0.0
         if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = 0.0
         supply = self.predict_supply(commod)
 
         if self.buffer_type_dict[commod] == 'rel':
             demand = self.predict_demand(
-                commod, time) * (1 + self.buffer_dict[commod])
+                commod, time) * (1 + self.buffer_dict[commod])     
         elif self.buffer_type_dict[commod] == 'abs':
             demand = self.predict_demand(
                 commod, time) + self.buffer_dict[commod]
@@ -339,6 +342,7 @@ class DemandDrivenDeploymentInst(Institution):
         return supply
 
     def predict_demand(self, commod, time):
+
         if commod == self.driving_commod:
             demand = self.demand_calc(time + 1)
             self.commodity_demand[commod][time + 1] = demand
