@@ -306,7 +306,7 @@ class DemandDrivenDeploymentInst(Institution):
 
         if self.buffer_type_dict[commod] == 'rel':
             demand = self.predict_demand(
-                commod, time) * (1 + self.buffer_dict[commod])     
+                commod, time) * (1 + self.buffer_dict[commod])
         elif self.buffer_type_dict[commod] == 'abs':
             demand = self.predict_demand(
                 commod, time) + self.buffer_dict[commod]
@@ -342,7 +342,6 @@ class DemandDrivenDeploymentInst(Institution):
         return supply
 
     def predict_demand(self, commod, time):
-
         if commod == self.driving_commod:
             demand = self.demand_calc(time + 1)
             self.commodity_demand[commod][time + 1] = demand
