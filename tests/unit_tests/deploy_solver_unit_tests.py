@@ -102,3 +102,93 @@ def test_pref_solver_eq():
         if t > 5:
             assert(deploy_dict['1'] == 5)
     assert(True)
+
+
+def test_pref_positive_over_share():
+    """ Tests if the deploy_solver function works correctly
+        when the preferences are different and greater than 0
+        and the share percentages are different to 0 """
+    diff = -1.0 * random.uniform(1.0, 10.0)
+    t = random.uniform(1.0, 10.0)
+    commod = {'1': {'cap': 2,
+                    'pref': '2*t',
+                    'constraint_commod': '0',
+                    'constraint': 0,
+                    'share': 10},
+              '2': {'cap': 4,
+                    'pref': '1',
+                    'constraint_commod': '0',
+                    'constraint': 0,
+                    'share': 90}
+              }
+
+    deploy_dict, commodity_dict = solver.deploy_solver(commodity_supply={},
+                                        commodity_dict={'commod': commod},
+                                        commod='commod',
+                                        diff=diff,
+                                        time=t)
+    for key in deploy_dict.keys():
+        if key != '1':
+            raise ValueError('wrong deployment')
+    assert(True)
+
+
+def test_pref_negative_over_share():
+    """ Tests if the deploy_solver function works correctly
+        when the preferences are different and lower than 0
+        and the share percentages are different to 0 """
+    diff = -1.0 * random.uniform(2.0, 10.0)
+    t = random.uniform(1.0, 10.0)
+    commod = {'1': {'cap': 2,
+                    'pref': '-1*t',
+                    'constraint_commod': '0',
+                    'constraint': 0,
+                    'share': 10},
+              '2': {'cap': 4,
+                    'pref': '-2*t',
+                    'constraint_commod': '0',
+                    'constraint': 0,
+                    'share': 90}
+              }
+
+    deploy_dict, commodity_dict = solver.deploy_solver(commodity_supply={},
+                                        commodity_dict={'commod': commod},
+                                        commod='commod',
+                                        diff=diff,
+                                        time=t)
+    if bool(deploy_dict) != False:
+        raise ValueError('wrong deployment')
+    assert(True)
+
+
+def test_equal_pref_then_share():
+    """ Tests if the deploy_solver function works correctly
+        when the preferences are different and lower than 0
+        and the share percentages are different to 0 """
+    diff = -10.0
+    t = random.uniform(1.0, 10.0)
+    commod = {'1': {'cap': 2,
+                    'pref': '1',
+                    'constraint_commod': '0',
+                    'constraint': 0,
+                    'share': 20},
+              '2': {'cap': 4,
+                    'pref': '1',
+                    'constraint_commod': '0',
+                    'constraint': 0,
+                    'share': 80}
+              }
+
+    deploy_dict, commodity_dict = solver.deploy_solver(commodity_supply={},
+                                        commodity_dict={'commod': commod},
+                                        commod='commod',
+                                        diff=diff,
+                                        time=t)
+    if bool(deploy_dict) != False:
+        if deploy_dict['1'] != 1:
+            raise ValueError('wrong deployment')
+        if deploy_dict['2'] != 2:
+            raise ValueError('wrong deployment')
+    else:
+        raise ValueError('wrong deployment')
+    assert(True)
