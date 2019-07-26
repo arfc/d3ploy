@@ -186,3 +186,73 @@ def test_equal_pref_then_share():
     else:
         raise ValueError('wrong deployment')
     assert(True)
+
+
+def test_some_pref_negative_some_share():
+    """ Tests if the deploy_solver function works correctly
+        when the preferences are different some lower than 0
+        and some have share percentages different to 0 """
+    diff = -10.0
+    t = random.uniform(1.0, 10.0)
+    commod = {'1': {'cap': 2,
+                    'pref': '-1*t',
+                    'constraint_commod': '0',
+                    'constraint': 0,
+                    'share': 10},
+              '2': {'cap': 2,
+                    'pref': 't',
+                    'constraint_commod': '0',
+                    'constraint': 0,
+                    'share': 20},
+              '3': {'cap': 4,
+                    'pref': 't',
+                    'constraint_commod': '0',
+                    'constraint': 0,
+                    'share': 80}
+              }
+    deploy_dict, commodity_dict = \
+        solver.deploy_solver(commodity_supply={},
+                             commodity_dict={'commod': commod},
+                             commod='commod', diff=diff, time=t)
+    if bool(deploy_dict):
+        if '1' in deploy_dict.keys():
+            raise ValueError('wrong deployment')
+        if deploy_dict['2'] != 1:
+            raise ValueError('wrong deployment')
+        if deploy_dict['3'] != 2:
+            raise ValueError('wrong deployment')
+    else:
+        raise ValueError('wrong deployment')
+    assert(True)
+
+
+def test_some_pref_negative_and_share():
+    """ Tests if the deploy_solver function works correctly
+        when one preference is negative but the prototype 
+        has sharing percentages defines """
+    diff = -10.0
+    t = random.uniform(1.0, 10.0)
+    commod = {'1': {'cap': 2,
+                    'pref': '-1',
+                    'constraint_commod': '0',
+                    'constraint': 0,
+                    'share': 20},
+              '2': {'cap': 4,
+                    'pref': 't',
+                    'constraint_commod': '0',
+                    'constraint': 0,
+                    'share': 80}
+              }
+    deploy_dict, commodity_dict = \
+        solver.deploy_solver(commodity_supply={},
+                             commodity_dict={'commod': commod},
+                             commod='commod', diff=diff, time=t)
+    print(deploy_dict)
+    if bool(deploy_dict):
+        if '1' in deploy_dict.keys():
+            raise ValueError('wrong deployment')
+        if deploy_dict['2'] != 3:
+            raise ValueError('wrong deployment')
+    else:
+        raise ValueError('wrong deployment')
+    assert(True)

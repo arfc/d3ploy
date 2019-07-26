@@ -52,38 +52,41 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
                                                    time)
     commodity_dict[commod] = proto_commod
     filtered_pref_fac = {}
+    # the dictionary keeps only the keys that have a preference >= 0
     for key, val in eval_pref_fac.items():
         if val >= 0:
             filtered_pref_fac[key] = val
-        else:
-            filtered_pref_fac[key] = -1
-    # check if the preference values are different
-    if len(set(filtered_pref_fac.values())) != 1:
-        # if there is a difference, deploys the one with highest
-        # preference until it oversupplies.
-        # if all the preferences are negative it does not deploy anything
-        return preference_deploy(proto_commod, eval_pref_fac,
-                                 diff), commodity_dict
+
+    update_proto_commod = {}
+    # the dictionary keeps only the keys that have a preference >= 0
+    for proto, proto_dict in proto_commod.items():
+        if proto in filtered_pref_fac.keys():
+            update_proto_commod[proto] = proto_dict
+
+    if not bool(filtered_pref_fac):
+        # if all the facilities have a negative preference,
+        # do not deploy anything
+        deploy_dict = {}
+        return deploy_dict, commodity_dict
+    elif len(filtered_pref_fac.keys()) == 1:
+        # if there is only one facility with preference >= 0
+            return preference_deploy(update_proto_commod, filtered_pref_fac,
+                                     diff), commodity_dict
     else:
-        # if all the preferences are equal checks if there sign
-        if list(filtered_pref_fac.values())[0] < 0:
-            # if the preferences are negative, does not deploy anything
-            return preference_deploy(proto_commod, eval_pref_fac,
+        if len(set(filtered_pref_fac.values())) != 1:
+            # it gets in here if the facilities have different preferences
+            return preference_deploy(update_proto_commod, filtered_pref_fac,
                                      diff), commodity_dict
         else:
-            # if the preferences are positive, checks first if there are
-            # sharing preferences given.
-            for proto, proto_dict in proto_commod.items():
+            # it gets in here if the facilities have same preferences
+            for proto, proto_dict in update_proto_commod.items():
                 if proto_dict['share'] != 0:
-                    # if there are sharing percentages defined
-                    return sharing_deploy(proto_commod, diff), commodity_dict
+                    # it gets in here if there is a share percentage defined
+                    return sharing_deploy(update_proto_commod, diff), commodity_dict
                 else:
-                    # deploys to minimize number of
-                    # facilities deployed. It deploys first the one with
-                    # largest capacities.
-                    return minimize_number_of_deployment(proto_commod,
+                    # otherwise it minimizes the deployment
+                    return minimize_number_of_deployment(update_proto_commod,
                                                          diff), commodity_dict
-
 
 def evaluate_preference(proto_commod, time):
     t = time
