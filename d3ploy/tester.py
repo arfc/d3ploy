@@ -172,13 +172,11 @@ def supply_demand_dict_nondriving(sqlite, commod, demand_driven):
 def supply_demand_dict_nond3ploy(sqlite, commod, demand_eq=0):
     """ Puts supply and demand into a nice dictionary format
     if given the sql file and commodity name
-
     Parameters
     ----------
     sqlite: sql file to analyze
     commod: string of commod name
     demand_eq: provide a demand eq is the commodity is 'power'
-
     Returns
     -------
     returns 2 dicts: dictionaries of supply and demand
@@ -218,44 +216,62 @@ def supply_demand_dict_nond3ploy(sqlite, commod, demand_eq=0):
     return all_dict
 
 
-def residuals(all_dict):
-    """ Conducts a chi2 goodness of fit test
+def cumulative_undersupply(all_dict):
+    """obtains the cumulative undersupply over time
     Parameters
     ----------
-    dict_demand: timeseries dictionary of demand values
-    dict_supply: timeseries dictionary of supply values
+    all_dict: dict
+        a dictionary containing two timeseries dictionaries
+        (dict_supply and dict_demand) which contain supply
+        and demand values respectively.
     Returns
     -------
-    returns an int of the chi2 (goodness of fit value) for
-    the two input timeseries dictionaries
+    cumulative: float
+        The cumulative difference between demand and supply
+        if demand is larger than supply. 0 otherwise.
     """
-
     dict_demand = all_dict['dict_demand']
     dict_supply = all_dict['dict_supply']
 
-    start = int(list(dict_demand.keys())[0])
-    demand_total = 0
-    for x in range(start - 1, len(dict_demand)):
-        y = x + 1
+    cumulative = 0
+    for step in set().union(dict_demand.keys(), dict_supply.keys()):
         try:
-            demand_total += dict_demand[y]
+            if dict_supply[step] <= dict_demand[step]:
+                cumulative += (dict_demand[step] - dict_supply[step])
         except KeyError:
-            demand_total += 0
-    demand_mean = (1 / len(dict_demand)) * demand_total
-    SStot = 0
-    SSres = 0
-    for x in range(start - 1, len(dict_demand)):
-        y = x + 1
+            cumulative += 0
+
+    return cumulative
+
+
+def cumulative_oversupply(all_dict):
+    """Obtains the cumulative oversupply over time
+
+    Parameters
+    ----------
+    all_dict: dict
+        a dictionary containing two timeseries dictionaries
+        (dict_supply and dict_demand) which contains supply
+        and demand values respectively.
+
+    Returns
+    -------
+    cumulative: float
+        The cumulative difference between supply and demand
+        if supply is larger than demand. 0 otherwise.
+    """
+    dict_demand = all_dict['dict_demand']
+    dict_supply = all_dict['dict_supply']
+
+    cumulative = 0
+    for step in set().union(dict_demand.keys(), dict_supply.keys()):
         try:
-            SStot += (dict_demand[y] - demand_mean)**2
-            SSres += (dict_demand[y] - dict_supply[y])**2
+            if dict_supply[step] > dict_demand[step]:
+                cumulative += (dict_supply[step] - dict_demand[step])
         except KeyError:
-            SStot += 0
-            SSres += 0
-    if SStot == 0:
-        return 1
-    Rsquared = 1 - SSres / SStot
-    return Rsquared
+            cumulative += 0
+
+    return cumulative
 
 
 def chi_goodness_test(all_dict):
@@ -347,14 +363,17 @@ def metrics(all_dict, metric_dict, calc_method, commod, demand_driven):
     # check if dictionary exists if not initialize
     value = metric_dict.get(commod + '_undersupply', 0)
     if value == 0:
-        #metric_dict[commod+'_residuals'] = {}
+        metric_dict[commod+'_cumulative_undersupply'] = {}
+        metric_dict[commod+'_cumualtive_oversupply'] = {}
         #metric_dict[commod+'_chi2'] = {}
         metric_dict[commod + '_undersupply'] = {}
 
-    #metric_dict[commod+'_residuals'][calc_method] = residuals(all_dict)
-    #metric_dict[commod+'_chi2'][calc_method] = chi_goodness_test(all_dict)
-    metric_dict[commod +
-                '_undersupply'][calc_method] = supply_under_demand(all_dict, demand_driven)
+    metric_dict[commod + '_cumulative_undersupply'][calc_method] = \
+        cumulative_undersupply(all_dict)
+    metric_dict[commod + '_cumualtive_oversupply'][calc_method] = \
+        cumulative_oversupply(all_dict)
+    metric_dict[commod + '_undersupply'][calc_method] = \
+        supply_under_demand(all_dict, demand_driven)
 
     return metric_dict
 
