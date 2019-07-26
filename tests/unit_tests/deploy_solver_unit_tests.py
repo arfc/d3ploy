@@ -228,7 +228,7 @@ def test_some_pref_negative_some_share():
 
 def test_some_pref_negative_and_share():
     """ Tests if the deploy_solver function works correctly
-        when one preference is negative but the prototype 
+        when one preference is negative but the prototype
         has sharing percentages defines """
     diff = -10.0
     t = random.uniform(1.0, 10.0)

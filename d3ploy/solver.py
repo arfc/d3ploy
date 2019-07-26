@@ -70,8 +70,8 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
         return deploy_dict, commodity_dict
     elif len(filtered_pref_fac.keys()) == 1:
         # if there is only one facility with preference >= 0
-            return preference_deploy(update_proto_commod, filtered_pref_fac,
-                                     diff), commodity_dict
+        return preference_deploy(update_proto_commod, filtered_pref_fac,
+                                 diff), commodity_dict
     else:
         if len(set(filtered_pref_fac.values())) != 1:
             # it gets in here if the facilities have different preferences
@@ -82,7 +82,8 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
             for proto, proto_dict in update_proto_commod.items():
                 if proto_dict['share'] != 0:
                     # it gets in here if there is a share percentage defined
-                    return sharing_deploy(update_proto_commod, diff), commodity_dict
+                    return sharing_deploy(update_proto_commod, diff), \
+                        commodity_dict
                 else:
                     # otherwise it minimizes the deployment
                     return minimize_number_of_deployment(update_proto_commod,
