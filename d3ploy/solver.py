@@ -179,7 +179,7 @@ def minimize_number_of_deployment(proto_commod, remainder):
 
     return deploy_dict
 
-def find_mins(commod_min, commod_dict):
+def find_mins(commod_dict):
     """ This function updates the commod_min
     dictionary to contain the minimum capacity facility
     for each commodity. The purpose of this is to facilitate
@@ -187,10 +187,6 @@ def find_mins(commod_min, commod_dict):
 
     Parameters:
     ----------
-    commod_min: dictionary
-        key:commodity
-        value: min capacity
-        dictionary of the minimum commod production    
     commod_dict: dictionary
         key: prototype name
         value: prototype capacity
@@ -199,8 +195,9 @@ def find_mins(commod_min, commod_dict):
     --------
     commod_min: dictionary
         key: commodity
-        value: min capacity
+        value: capacity
     """
+    commod_min = {}
     for commod, proto in commod_dict.items(): 
         commod_min[commod] = 1e299
         for fac, dic in proto.items():
@@ -208,7 +205,7 @@ def find_mins(commod_min, commod_dict):
                 commod_min[commod] = dic['cap']
     return commod_min
 
-def decommission_oldest(agent, commod_dict, diff, commod):
+def decommission_oldest(agent, commod_dict, diff, commod, time):
     """ Decommissions the oldest archetypes that produce
         a capacity less than the difference. 
 
@@ -230,14 +227,20 @@ def decommission_oldest(agent, commod_dict, diff, commod):
         key: commodity
         value: min capacity
     """
-    for agt in agent.children():
-        for i in facs:
-            if commod_dict[agt.prototype]['cap'] < diff:
-                if agent.prototype is i:
-                    agent.decommission()
-                    diff -= commod_dict[agent.prototype]['cap']     
-                    itscommod = agent.fac_commod[agent.prototype]
-                    agent.installed_capacity[itscommod][time + 1] \
-                                    -= agent.commodity_dict[itscommod][child.prototype]['cap']  
-	
+    for agt in agent.children:
+        if str(agt.prototype) not in commod_dict.keys():
+            continue
+        if commod_dict[agt.prototype]['cap'] < diff:
+            life_x = time - agt.enter_time + 3
+            print('test', time, life_x)
+            try:
+                agt.lifetime(life_x, True)
+                print('end', agt.exit_time)
+            except:
+                print('Cannot adjust agent lifetime')
+            diff -= commod_dict[agt.prototype]['cap']     
+            itscommod = agent.fac_commod[agt.prototype]
+            agent.installed_capacity[itscommod][time + 1] \
+                            -= agent.commodity_dict[itscommod][agt.prototype]['cap']  
+
         

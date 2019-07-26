@@ -170,7 +170,7 @@ class SupplyDrivenDeploymentInst(Institution):
     os_int = ts.Int(
         doc="The number facilities over capacity " + 
             "for a given commodity that is allowed. i.e If this" +
-            " value is 1. One full facility supply over demand considered" +
+            " value is 1. One facility capacity over demand is considered" +
             " an oversupplied situtation.",
         tooltip="",
         uilabel="Oversupply Fac Limit",
@@ -183,6 +183,7 @@ class SupplyDrivenDeploymentInst(Institution):
         self.commodity_supply = {}
         self.installed_capacity = {}
         self.fac_commod = {}
+        self.commod_os = {}
         self.fresh = True
         CALC_METHODS['ma'] = no.predict_ma
         CALC_METHODS['arma'] = no.predict_arma
@@ -212,6 +213,7 @@ class SupplyDrivenDeploymentInst(Institution):
                 self.facility_constraintcommod,
                 self.facility_constraintval)
             for commod, proto_dict in self.commodity_dict.items():
+                self.commod_os[commod] = 0
                 protos = proto_dict.keys()
                 for proto in protos:
                     self.fac_commod[proto] = commod
@@ -259,6 +261,11 @@ class SupplyDrivenDeploymentInst(Institution):
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
+                # update installed capacity dict
+                for proto, num in deploy_dict.items():
+                    self.installed_capacity[commod][time + 1] = \
+                        self.installed_capacity[commod][time] + \
+                        self.commodity_dict[commod][proto]['cap'] * num
             else:
                 self.installed_capacity[commod][time +
                                                 1] = self.installed_capacity[commod][time]
@@ -266,14 +273,9 @@ class SupplyDrivenDeploymentInst(Institution):
             if diff > os_limit:
                 self.commod_os[commod] += 1    
             elif diff > os_limit and self.commod_os[commod] > self.os_time:
-                solver.decommission_oldest(self, self.commod_dict[commod], diff)
+                solver.decommission_oldest(self, self.commod_dict[commod], diff, commod, time)
             else:
                 self.commod_os[commod] = 0
-                # update installed capacity dict
-                for proto, num in deploy_dict.items():
-                    self.installed_capacity[commod][time + 1] = \
-                        self.installed_capacity[commod][time] + \
-                        self.commodity_dict[commod][proto]['cap'] * num
             if self.record:
                 out_text = "Time " + str(time) + \
                     " Deployed " + str(len(self.children))

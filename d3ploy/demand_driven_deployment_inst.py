@@ -177,7 +177,7 @@ class DemandDrivenDeploymentInst(Institution):
     os_int = ts.Int(
         doc="The number facilities over capacity " + 
             "for a given commodity that is allowed. i.e If this" +
-            " value is 1. One full facility supply over demand considered" +
+            " value is 1. One facility capacity over demand is considered" +
             " an oversupplied situtation.",
         tooltip="",
         uilabel="Oversupply Fac Limit",
@@ -190,8 +190,8 @@ class DemandDrivenDeploymentInst(Institution):
         self.commodity_demand = {}
         self.installed_capacity = {}
         self.fac_commod = {}
+        self.commod_os = {}
         self.fresh = True
-        self.commod_mins = {}
         CALC_METHODS['ma'] = no.predict_ma
         CALC_METHODS['arma'] = no.predict_arma
         CALC_METHODS['arch'] = no.predict_arch
@@ -221,6 +221,7 @@ class DemandDrivenDeploymentInst(Institution):
                 self.facility_constraintcommod,
                 self.facility_constraintval)
             for commod, proto_dict in self.commodity_dict.items():
+                self.commod_os[commod] = 0
                 protos = proto_dict.keys()
                 for proto in protos:
                     self.fac_commod[proto] = commod
@@ -244,7 +245,7 @@ class DemandDrivenDeploymentInst(Institution):
                                           commod].append(self.extract_demand)
                 self.commodity_supply[commod] = defaultdict(float)
                 self.commodity_demand[commod] = defaultdict(float)
-            commod_mins = solver.find_mins(self.commod_min, self.commod_dict)
+            self.commod_mins = solver.find_mins(self.commodity_dict)
             for child in self.children:
                 itscommod = self.fac_commod[child.prototype]
                 self.installed_capacity[itscommod][0] += self.commodity_dict[itscommod][child.prototype]['cap']
@@ -256,6 +257,7 @@ class DemandDrivenDeploymentInst(Institution):
         in supply and demand and makes the the decision to deploy facilities or not.
         """
         time = self.context.time
+        print(time)
         for commod, proto_dict in self.commodity_dict.items():
             diff, supply, demand = self.calc_diff(commod, time)
             lib.record_time_series('calc_supply' + commod, self, supply)
@@ -270,21 +272,26 @@ class DemandDrivenDeploymentInst(Institution):
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
-            else:
-                self.installed_capacity[commod][time +
-                                                1] = self.installed_capacity[commod][time]
-            os_limit = self.commod_min[commod] * self.os_int
-            if diff > os_limit:
-                self.commod_os[commod] += 1
-            elif diff > os_limit and self.commod_os[commod] > self.os_time:
-                solver.decommission_oldest(self, self.commod_dict[commod], diff)
-            else:
-                self.commod_os[commod] = 0
                 # update installed capacity dict
                 for proto, num in deploy_dict.items():
                     self.installed_capacity[commod][time + 1] = \
                         self.installed_capacity[commod][time] + \
                         self.commodity_dict[commod][proto]['cap'] * num
+            else:
+                self.installed_capacity[commod][time +
+                                                1] = self.installed_capacity[commod][time]
+            os_limit = self.commod_mins[commod] * self.os_int
+            print(commod, os_limit)
+            print(commod, self.commod_os[commod])
+            print(diff, os_limit)
+            if diff > os_limit and self.commod_os[commod] > self.os_time:
+                print('decomm')
+                solver.decommission_oldest(self, self.commodity_dict[commod], diff, commod, time)
+                print('enddecomm')
+            elif diff > os_limit:
+                self.commod_os[commod] += 1
+            else:
+                self.commod_os[commod] = 0
             if self.record:
                 out_text = "Time " + str(time) + \
                     " Deployed " + str(len(self.children))
