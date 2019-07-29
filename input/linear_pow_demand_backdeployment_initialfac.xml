@@ -14,10 +14,6 @@
     </spec>
     <spec>
       <lib>cycamore</lib>
-      <name>Storage</name>
-    </spec>
-    <spec>
-      <lib>cycamore</lib>
       <name>Sink</name>
     </spec>
     <spec>
@@ -30,7 +26,7 @@
     </spec>
   </archetypes>
   <control>
-    <duration>20</duration>
+    <duration>10</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
   </control>
@@ -44,7 +40,17 @@
     </config>
     <name>source</name>
   </facility>
-
+  <facility>
+    <config>
+      <Sink>
+        <in_commods>
+          <val>spentfuel</val>
+        </in_commods>
+        <max_inv_size>1e6</max_inv_size>
+      </Sink>
+    </config>
+    <name>sink</name>
+  </facility>
   <facility>
     <config>
       <Reactor>
@@ -57,7 +63,7 @@
           <val>fresh_uox</val>
         </fuel_inrecipes>
         <fuel_outcommods>
-          <val>spentuox</val>
+          <val>spentfuel</val>
         </fuel_outcommods>
         <fuel_outrecipes>
           <val>spent_uox</val>
@@ -70,62 +76,6 @@
     </config>
     <name>reactor</name>
   </facility>
-
-  <facility>
-  <config>
-    <Reactor>
-      <assem_size>1000</assem_size>
-      <cycle_time>1</cycle_time>
-      <fuel_incommods>
-        <val>storageuox</val>
-      </fuel_incommods>
-      <fuel_inrecipes>
-        <val>fresh_uox</val>
-      </fuel_inrecipes>
-      <fuel_outcommods>
-        <val>spentuox2</val>
-      </fuel_outcommods>
-      <fuel_outrecipes>
-        <val>spent_uox</val>
-      </fuel_outrecipes>
-      <n_assem_batch>1</n_assem_batch>
-      <n_assem_core>3</n_assem_core>
-      <power_cap>1000</power_cap>
-      <refuel_time>0</refuel_time>
-    </Reactor>
-  </config>
-  <name>reactor2</name>
-</facility>
-
-<facility>
-    <name>uoxpool</name>
-    <config>
-        <Storage>
-            <in_commods>
-                <val>spentuox</val>
-            </in_commods>
-            <out_commods>
-                <val>storageuox</val>
-            </out_commods>
-            <residence_time>1</residence_time>
-            <throughput>1e6</throughput>
-            <max_inv_size>1e6</max_inv_size>
-        </Storage>
-      </config>
-</facility>
-
-  <facility>
-    <config>
-      <Sink>
-        <in_commods>
-          <val>spentuox2</val>
-        </in_commods>
-        <max_inv_size>1e6</max_inv_size>
-      </Sink>
-    </config>
-    <name>sink</name>
-  </facility>
-
   <recipe>
     <basis>mass</basis>
     <name>fresh_uox</name>
@@ -158,16 +108,10 @@
     <institution>
       <config>
         <DemandDrivenDeploymentInst>
-          <calc_method>arma</calc_method>
-          <record>1</record>
-          <demand_eq>1000*t</demand_eq>
-          <facility_commod>
+          <calc_method>ma</calc_method>
+         <facility_commod>
             <item>
               <facility>reactor</facility>
-              <commod>POWER</commod>
-            </item>
-            <item>
-              <facility>reactor2</facility>
               <commod>POWER</commod>
             </item>
             <item>
@@ -178,68 +122,51 @@
           <facility_capacity>
             <item>
               <facility>reactor</facility>
-              <capacity>3000</capacity>
-            </item>
-            <item>
-              <facility>reactor2</facility>
-              <capacity>3000</capacity>
+              <capacity>1000</capacity>
             </item>
             <item>
               <facility>source</facility>
               <capacity>3000</capacity>
             </item>
           </facility_capacity>
-          <facility_pref>
-            <item>
-              <facility>reactor</facility>
-              <pref>t</pref>
-            </item>
-            <item>
-              <facility>reactor2</facility>
-              <pref>2*t</pref>
-            </item>
-          </facility_pref>
-          <facility_constraintcommod>
-            <item>
-              <facility>reactor2</facility>
-              <constraintcommod>storageuox</constraintcommod>
-            </item>
-          </facility_constraintcommod>
-          <facility_constraintval>
-            <item>
-              <facility>reactor2</facility>
-              <constraintval>8000</constraintval>
-            </item>
-          </facility_constraintval>
+          <demand_eq>1000*t</demand_eq>
+          <driving_commod>POWER</driving_commod>
+          <record>1</record>
           <steps>1</steps>
         </DemandDrivenDeploymentInst>
       </config>
-    <name>source_inst</name>
+      <name>source_inst</name>
     </institution>
      <institution>
       <config>
         <SupplyDrivenDeploymentInst>
-          <calc_method>arma</calc_method>
+          <calc_method>ma</calc_method>
           <facility_commod>
             <item>
-              <facility>uoxpool</facility>
-              <commod>spentuox</commod>
+              <facility>sink</facility>
+              <commod>spentfuel</commod>
             </item>
           </facility_commod>
           <facility_capacity>
             <item>
-              <facility>uoxpool</facility>
-              <capacity>1e6</capacity>
+              <facility>sink</facility>
+              <capacity>100000</capacity>
             </item>
           </facility_capacity>
           <capacity_std_dev>1.0</capacity_std_dev>
           <record>1</record>
           <steps>1</steps>
+          <installed_cap>1</installed_cap>
         </SupplyDrivenDeploymentInst>
       </config>
+      <initialfacilitylist>
+        <entry>
+          <prototype>sink</prototype>
+          <number>1</number>
+        </entry>
+      </initialfacilitylist>
       <name>hello_inst</name>
     </institution>
     <name>SingleRegion</name>
   </region>
-
 </simulation>

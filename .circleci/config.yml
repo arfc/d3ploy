@@ -4,9 +4,10 @@ jobs:
 
     build:
       docker:
-        - image: arfc/d3ploy
+        - image: cyclus/cycamore
       working_directory: ~/d3ploy
       steps:
+        - run: pip install pytest pmdarima arch statsmodels
         - checkout
         - run:
             name: build d3ploy
@@ -14,9 +15,10 @@ jobs:
 
     unit_test:
         docker:
-            - image: arfc/d3ploy
+            - image: cyclus/cycamore
         working_directory: ~/d3ploy
         steps:
+          - run: pip install pytest pmdarima arch statsmodels
           - checkout
           - run:
                 name: build
@@ -28,9 +30,10 @@ jobs:
                     pytest ./tests/unit_tests/deploy_solver_unit_tests.py
     full_integration_test:
         docker:
-            - image: arfc/d3ploy
+            - image: cyclus/cycamore
         working_directory: ~/d3ploy
         steps:
+          - run: pip install pytest pmdarima arch statsmodels
           - checkout
           - run:
                 name: build
@@ -40,12 +43,12 @@ jobs:
                 name: integration tests
                 command: |
                     pytest ./tests/integration_tests/continuous_integration_test.py
-
     functionality_test:
         docker:
-            - image: arfc/d3ploy
+            - image: cyclus/cycamore
         working_directory: ~/d3ploy
         steps:
+          - run: pip install pytest pmdarima arch statsmodels
           - checkout
           - run:
                 name: build
@@ -54,8 +57,14 @@ jobs:
           - run:
                 name: integration tests
                 command: |
-                    pytest ./tests/integration_tests/tech_pref_test.py
+                    pytest ./tests/integration_tests/back_deployment_test.py
+                    pytest ./tests/integration_tests/buffer_test.py
                     pytest ./tests/integration_tests/constraint_test.py
+                    pytest ./tests/integration_tests/installedcap_test.py
+                    pytest ./tests/integration_tests/tech_pref_test.py
+                    pytest ./tests/integration_tests/share_test.py
+                    
+                    
     
 
 workflows:

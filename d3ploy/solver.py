@@ -46,29 +46,48 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
     proto_commod = commodity_dict[commod]
     # if the preference is defined
     eval_pref_fac = evaluate_preference(proto_commod, time)
-    eval_pref_fac = check_constraint(proto_commod, commodity_supply,
-                                     eval_pref_fac, time)
+    eval_pref_fac, proto_commod = check_constraint(proto_commod,
+                                                   commodity_supply,
+                                                   eval_pref_fac,
+                                                   time)
+    commodity_dict[commod] = proto_commod
     filtered_pref_fac = {}
+    # the dictionary keeps only the keys that have a preference >= 0
     for key, val in eval_pref_fac.items():
         if val >= 0:
             filtered_pref_fac[key] = val
-        else:
-            filtered_pref_fac[key] = -1
-    # check if the preference values are different
-    if len(set(filtered_pref_fac.values())) != 1:
-        # if there is a difference,
-        # deploy the one with highest preference
-        # until it oversupplies
-        return preference_deploy(proto_commod, eval_pref_fac, diff)
-    else:
-        if list(filtered_pref_fac.values())[0] < 0:
-            return preference_deploy(proto_commod, eval_pref_fac, diff)
-        else:
-            # if preference is not given,
-            # or all the preference values are the same,
-            # deploy to minimize number of deployment
-            return minimize_number_of_deployment(proto_commod, diff)
 
+    update_proto_commod = {}
+    # the dictionary keeps only the keys that have a preference >= 0
+    for proto, proto_dict in proto_commod.items():
+        if proto in filtered_pref_fac.keys():
+            update_proto_commod[proto] = proto_dict
+
+    if not bool(filtered_pref_fac):
+        # if all the facilities have a negative preference,
+        # do not deploy anything
+        deploy_dict = {}
+        return deploy_dict, commodity_dict
+    elif len(filtered_pref_fac.keys()) == 1:
+        # if there is only one facility with preference >= 0
+        return preference_deploy(update_proto_commod, filtered_pref_fac,
+                                 diff), commodity_dict
+    else:
+        if len(set(filtered_pref_fac.values())) != 1:
+            # it gets in here if the facilities have different preferences
+            return preference_deploy(update_proto_commod, filtered_pref_fac,
+                                     diff), commodity_dict
+        else:
+            # it gets in here if the facilities have same preferences
+            for proto, proto_dict in update_proto_commod.items():
+                if proto_dict['share'] != 0:
+                    # it gets in here if there is a share percentage defined
+                    return sharing_deploy(update_proto_commod, diff), \
+                        commodity_dict
+                else:
+                    # otherwise it minimizes the deployment
+                    return minimize_number_of_deployment(update_proto_commod,
+                                                         diff), commodity_dict
 
 def evaluate_preference(proto_commod, time):
     t = time
@@ -86,7 +105,9 @@ def check_constraint(proto_commod, commodity_supply, eval_pref_fac, time):
             current_supply = commodity_supply[val_dict['constraint_commod']][time]
             if current_supply < float(val_dict['constraint']):
                 eval_pref_fac[proto] = -1e299
-    return eval_pref_fac
+            else:
+                proto_commod[proto]['constraint'] = '0'
+    return eval_pref_fac, proto_commod
 
 
 def preference_deploy(proto_commod, pref_fac, diff):
@@ -176,5 +197,37 @@ def minimize_number_of_deployment(proto_commod, remainder):
         else:
             deploy_dict[proto] = 1
         break
+    return deploy_dict
+        
 
+def sharing_deploy(proto_commod, remainder):
+    """ This functions deploys facilities based on the sharing percentages
+
+    Parameters:
+    ----------
+    proto_commod: dictionary
+        key: prototype name
+        value: dictionary
+            key: 'cap', 'pref', 'constraint_commod', 'constraint', 'share'
+            value
+    remainder: float
+        amount of capacity that is needed
+
+    Returns:
+    --------
+    deploy_dict: dictionary
+        key: prototype name
+        value: number of prototype to deploy
+    """
+    deploy_dict = {}
+    share_dict = {}
+    remain = {}
+    for proto, proto_dict in proto_commod.items():
+        remain[proto] = proto_dict['share'] * remainder/100.0
+        deploy_dict[proto] = 0
+
+    for proto in remain:
+        while remain[proto] > 0:
+            deploy_dict[proto] += 1
+            remain[proto] -= proto_commod[proto]['cap']
     return deploy_dict

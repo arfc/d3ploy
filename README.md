@@ -61,13 +61,14 @@ and for `supply_driven_deployment_inst`, the facility included should be the fac
  Only the facilities that the user wants to constrain with a second commodity need to be included in this input. 
 - **facility_constraintval**: This is a mapstringdouble defining each facility and the amount accumulated of the second commodity 
  before the facility can be deployed. 
- Only the facilities that the user wants to constrain by a second commodity need to be included in this input. 
+ Only the facilities that the user wants to constrain by a second commodity need to be included in this input.
+- **facility_sharing**: This is a mapstringdouble defining the percentages with which more than one facility share the supply or capacity for one commodity.
 - **driving_commod**: The driving commodity for the institution.
 - **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable.
 - **calc_method**: This is the method used to predict the supply and demand.
 - **buffer_type**: This is a mapstringstring defining each commodity and the type of supply/capacity 
-buffer for it. For percentage, the user should input `perc`, for a absolute value, the user should 
-input `float`. The default is percentage. 
+buffer for it. For percentage, the user should input `rel`, for a absolute value, the user should 
+input `abs`. The default is percentage. 
 
 #### Differing Inputs 
 DemandDrivenDeploymentInst:
@@ -75,12 +76,14 @@ DemandDrivenDeploymentInst:
 The user can define the buffer type in the state variable `buffer_type`.
 If the user wants a 20% value of supply higher than demand, they should input '0.2'
 and if the user wants a 100[whatever unit] value of supply higher than demand, they should input '100'. 
+- **installed_cap**: This is a boolean to determine whether deployment is governed by supply of the commodity of installed capacity for that commodity. 
 
 SupplyDrivenDeploymentInst:
 - **capacity_buffer**: This is the amount above supply that the user wants the capacity to meet. 
 The user can define the buffer type in the state variable `buffer_type`.
 If the user wants a 20% value of capacity higher than supply, they should input '0.2'
 and if the user wants a 100[whatever unit] value of capacity higher than supply, they should input '100'. 
+- **installed_cap**: This is a boolean to determine whether deployment is governed by actual capacity of the commodity of installed capacity for that commodity. 
 
 
 ### Prediction Methods
