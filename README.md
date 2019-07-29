@@ -61,7 +61,8 @@ and for `supply_driven_deployment_inst`, the facility included should be the fac
  Only the facilities that the user wants to constrain with a second commodity need to be included in this input. 
 - **facility_constraintval**: This is a mapstringdouble defining each facility and the amount accumulated of the second commodity 
  before the facility can be deployed. 
- Only the facilities that the user wants to constrain by a second commodity need to be included in this input. 
+ Only the facilities that the user wants to constrain by a second commodity need to be included in this input.
+- **facility_sharing**: This is a mapstringdouble defining the percentages with which more than one facility share the supply or capacity for one commodity.
 - **driving_commod**: The driving commodity for the institution.
 - **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable.
 - **calc_method**: This is the method used to predict the supply and demand.
