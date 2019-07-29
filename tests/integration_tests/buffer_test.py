@@ -722,3 +722,188 @@ def test_capacity_buffer_num():
             count += 1
 
     assert(count == 0)
+
+# ----------------------------------------------------------------------------- #
+# This test will fail if the inclusion of a 3MW value power supply buffer
+# with a supply_buffer_length of 5 time steps doesn't result in
+# a) the calculated demand being 3MW larger than a simulation
+#   without the supply buffer at time < supply_buffer_length
+# b) the calculated demand being equivalent to a simulation
+#   without the supply buffer at time >= supply_buffer_length
+
+TEMPLATE_length = {
+    "simulation": {
+        "archetypes": {
+            "spec": [
+                {"lib": "agents", "name": "NullRegion"},
+                {"lib": "cycamore", "name": "Source"},
+                {"lib": "cycamore", "name": "Reactor"},
+                {"lib": "cycamore", "name": "Sink"},
+                {"lib": "d3ploy.demand_driven_deployment_inst",
+                 "name": "DemandDrivenDeploymentInst"},
+                {"lib": "d3ploy.supply_driven_deployment_inst",
+                 "name": "SupplyDrivenDeploymentInst"}
+            ]
+        },
+        "control": {"duration": "10", "startmonth": "1", "startyear": "2000"},
+        "facility": [
+            {
+                "config": {"Source": {"outcommod": "fuel",
+                                      "outrecipe": "fresh_uox",
+                                                   "throughput": "1"}},
+                "name": "source"
+            },
+            {
+                "config": {"Sink": {"in_commods": {"val": "spent_uox"},
+                                    "max_inv_size": "10"}},
+                "name": "sink"
+            },
+            {
+                "config": {
+                    "Reactor": {
+                        "assem_size": "1",
+                        "cycle_time": "1",
+                        "fuel_incommods": {"val": "fuel"},
+                        "fuel_inrecipes": {"val": "fresh_uox"},
+                        "fuel_outcommods": {"val": "spent_uox"},
+                        "fuel_outrecipes": {"val": "spent_uox"},
+                        "n_assem_batch": "1",
+                        "n_assem_core": "1",
+                        "power_cap": "1",
+                        "refuel_time": "0"
+                    }
+                },
+                "name": "reactor1"
+            }
+        ],
+        "recipe": [
+            {
+                "basis": "mass",
+                "name": "fresh_uox",
+                "nuclide": [{"comp": "0.711", "id": "U235"},
+                            {"comp": "99.289", "id": "U238"}]
+            },
+            {
+                "basis": "mass",
+                "name": "spent_uox",
+                "nuclide": [{"comp": "50", "id": "Kr85"},
+                            {"comp": "50", "id": "Cs137"}]
+            }
+        ]
+    }
+}
+
+nobuf_template_length = copy.deepcopy(TEMPLATE_length)
+nobuf_template_length["simulation"].update({"region": {
+    "config": {"NullRegion": "\n      "},
+    "institution": {
+        "config": {
+            "DemandDrivenDeploymentInst": {
+                "calc_method": "poly",
+                "facility_capacity": {
+                    "item": [
+                        {"capacity": "1", "facility": "reactor1"},
+                        {"capacity": "1", "facility": "source"}
+                    ]
+                },
+                "facility_commod": {
+                    "item": [
+                        {"commod": "POWER", "facility": "reactor1"},
+                        {"commod": "fuel", "facility": "source"}
+                    ]
+                },
+                "demand_eq": "10",
+                "record": "1",
+                "steps": "10"
+            }
+        },
+        "name": "source_inst"
+    },
+    "name": "SingleRegion"
+}
+})
+
+
+yesbuf_template_length = copy.deepcopy(TEMPLATE_length)
+yesbuf_template_length["simulation"].update({"region": {
+    "config": {"NullRegion": "\n      "},
+    "institution": {
+        "config": {
+            "DemandDrivenDeploymentInst": {
+                "calc_method": "poly",
+                "facility_capacity": {
+                    "item": [
+                        {"capacity": "1", "facility": "reactor1"},
+                        {"capacity": "1", "facility": "source"}
+                    ]
+                },
+                "facility_commod": {
+                    "item": [
+                        {"commod": "POWER", "facility": "reactor1"},
+                        {"commod": "fuel", "facility": "source"}
+                    ]
+                },
+                "supply_buffer": {
+                    "item": [
+                        {"commod": "POWER", "buffer": 3}
+                    ]
+                },
+                "supply_buffer_length": {
+                    "item": [
+                        {"commod": "POWER", "length": 5}
+                    ]
+                },
+                "buffer_type": {
+                    "item": [
+                        {"commod": "POWER", "type": "abs"}
+                    ]
+                },
+                "demand_eq": "10",
+                "record": "1",
+                "steps": "10"
+            }
+        },
+        "name": "source_inst"
+    },
+    "name": "SingleRegion"
+}
+})
+
+def test_supply_buffer_length():
+    output_file_nobuf_length = 'nobuf_length.sqlite'
+    output_file_yesbuf_length = 'yesbuf_length.sqlite'
+    input_file_nobuf_length = output_file_nobuf_length.replace('.sqlite', '.json')
+    input_file_yesbuf_length = output_file_yesbuf_length.replace('.sqlite', '.json')
+    with open(input_file_nobuf_length, 'w') as f:
+        json.dump(nobuf_template_length, f)
+    s = subprocess.check_output(['cyclus',
+                                 '-o',
+                                 output_file_nobuf_length,
+                                 input_file_nobuf_length],
+                                universal_newlines=True,
+                                env=ENV)
+    with open(input_file_yesbuf_length, 'w') as f:
+        json.dump(yesbuf_template_length, f)
+    s = subprocess.check_output(['cyclus',
+                                 '-o',
+                                 output_file_yesbuf_length,
+                                 input_file_yesbuf_length],
+                                universal_newlines=True,
+                                env=ENV)
+
+    # check if calculated demand is 3 W higher for yesbuf case
+    cur_nobuf_length = functions.get_cursor(output_file_nobuf_length)
+    cur_yesbuf_length = functions.get_cursor(output_file_yesbuf_length)
+    calcdemand_nobuf_length = cur_nobuf_length.execute(
+        "select time, value from timeseriescalc_demandpower").fetchall()
+    calcdemand_yesbuf_length = cur_yesbuf_length.execute(
+        "select time, value from timeseriescalc_demandpower").fetchall()
+    count = 0
+    for x in range(0,6):
+        if (3 + calcdemand_nobuf_length[x][1]) != calcdemand_yesbuf_length[x][1]:
+            count += 1
+    for x in range(6,10):
+        if calcdemand_nobuf_length[x][1] != calcdemand_yesbuf_length[x][1]:
+            count += 1
+
+    assert(count == 0)
