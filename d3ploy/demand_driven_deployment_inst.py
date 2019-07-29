@@ -247,7 +247,7 @@ class DemandDrivenDeploymentInst(Institution):
                 self.buffer_type, self.commod_list)
 
             self.buffer_length_dict = di.build_buffer_length_dict(
-            	self.steps, self.supply_buffer_length, self.commod_list)
+                self.steps, self.supply_buffer_length, self.commod_list)
 
             for commod in self.commod_list:
                 lib.TIME_SERIES_LISTENERS["supply" +
