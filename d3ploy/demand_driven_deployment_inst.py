@@ -165,14 +165,6 @@ class DemandDrivenDeploymentInst(Institution):
         default={}
     )
 
-    supply_buffer_length = ts.MapStringDouble(
-        doc="Supply buffer length: time at which the buffer should stop being active",
-        tooltip="Supply buffer length of time active.",
-        alias=['supply_buffer_length', 'commod', 'length'],
-        uilabel="Supply Buffer Length",
-        default={}
-    )
-
     degree = ts.Int(
         doc="The degree of the fitting polynomial.",
         tooltip="The degree of the fitting polynomial, if using calc methods" +
@@ -244,10 +236,6 @@ class DemandDrivenDeploymentInst(Institution):
                                                     self.commod_list)
             self.buffer_type_dict = di.build_buffer_type_dict(
                 self.buffer_type, self.commod_list)
-
-            self.buffer_length_dict = di.build_buffer_length_dict(self.steps,
-                self.supply_buffer_length, self.commod_list)
-
             for commod in self.commod_list:
                 lib.TIME_SERIES_LISTENERS["supply" +
                                           commod].append(self.extract_supply)
@@ -332,9 +320,6 @@ class DemandDrivenDeploymentInst(Institution):
         if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = 0.0
         supply = self.predict_supply(commod)
-
-        if time > self.buffer_length_dict[commod]:
-            self.buffer_dict[commod] = 0.0
 
         if self.buffer_type_dict[commod] == 'rel':
             demand = self.predict_demand(

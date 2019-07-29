@@ -76,16 +76,3 @@ def build_buffer_type_dict(buffer, commods):
         if count == 0:
             buffer_dict[i] = "rel"
     return buffer_dict
-
-
-def build_buffer_length_dict(time_steps, buffer, commods):
-    buffer_dict = {}
-    for i in commods:
-        count = 0
-        for key, value in buffer.items():
-            if i == key:
-                count += 1
-                buffer_dict[key] = value
-        if count == 0:
-            buffer_dict[i] = time_steps+1.
-    return buffer_dict
