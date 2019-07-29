@@ -166,7 +166,8 @@ class DemandDrivenDeploymentInst(Institution):
     )
 
     supply_buffer_length = ts.MapStringDouble(
-        doc="Supply buffer length: time at which the buffer should stop being active",
+        doc="Supply buffer length: time at which the buffer"
+        	"should stop being active",
         tooltip="Supply buffer length of time active.",
         alias=['supply_buffer_length', 'commod', 'length'],
         uilabel="Supply Buffer Length",
@@ -245,8 +246,8 @@ class DemandDrivenDeploymentInst(Institution):
             self.buffer_type_dict = di.build_buffer_type_dict(
                 self.buffer_type, self.commod_list)
 
-            self.buffer_length_dict = di.build_buffer_length_dict(self.steps,
-                self.supply_buffer_length, self.commod_list)
+            self.buffer_length_dict = di.build_buffer_length_dict(
+            	self.steps, self.supply_buffer_length, self.commod_list)
 
             for commod in self.commod_list:
                 lib.TIME_SERIES_LISTENERS["supply" +

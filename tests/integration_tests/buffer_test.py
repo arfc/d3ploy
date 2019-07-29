@@ -724,7 +724,7 @@ def test_capacity_buffer_num():
     assert(count == 0)
 
 
-# ----------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
 # This test will fail if the inclusion of a 3MW value power supply buffer
 # with a supply_buffer_length of 5 time steps doesn't result in
 # a) the calculated demand being 3MW larger than a simulation
@@ -870,11 +870,14 @@ yesbuf_template_length["simulation"].update({"region": {
 }
 })
 
+
 def test_supply_buffer_length():
     output_file_nobuf_length = 'nobuf_length.sqlite'
     output_file_yesbuf_length = 'yesbuf_length.sqlite'
-    input_file_nobuf_length = output_file_nobuf_length.replace('.sqlite', '.json')
-    input_file_yesbuf_length = output_file_yesbuf_length.replace('.sqlite', '.json')
+    input_file_nobuf_length = output_file_nobuf_length.replace(
+        '.sqlite', '.json')
+    input_file_yesbuf_length = output_file_yesbuf_length.replace(
+        '.sqlite', '.json')
     with open(input_file_nobuf_length, 'w') as f:
         json.dump(nobuf_template_length, f)
     s = subprocess.check_output(['cyclus',
@@ -895,16 +898,16 @@ def test_supply_buffer_length():
     # check if calculated demand is 3 W higher for yesbuf case
     cur_nobuf_length = functions.get_cursor(output_file_nobuf_length)
     cur_yesbuf_length = functions.get_cursor(output_file_yesbuf_length)
-    calcdemand_nobuf_length = cur_nobuf_length.execute(
+    calcdemand_nobuf_len = cur_nobuf_length.execute(
         "select time, value from timeseriescalc_demandpower").fetchall()
-    calcdemand_yesbuf_length = cur_yesbuf_length.execute(
+    calcdemand_yesbuf_len = cur_yesbuf_length.execute(
         "select time, value from timeseriescalc_demandpower").fetchall()
     count = 0
-    for x in range(0,6):
-        if (3 + calcdemand_nobuf_length[x][1]) != calcdemand_yesbuf_length[x][1]:
+    for x in range(0,6): 
+        if (3 + calcdemand_nobuf_len[x][1]) != calcdemand_yesbuf_len[x][1]:
             count += 1
-    for x in range(6,10):
-        if calcdemand_nobuf_length[x][1] != calcdemand_yesbuf_length[x][1]:
+    for x in range(6,10): 
+        if calcdemand_nobuf_len[x][1] != calcdemand_yesbuf_len[x][1]:
             count += 1
 
     assert(count == 0)
