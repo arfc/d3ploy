@@ -903,10 +903,10 @@ def test_supply_buffer_length():
     calcdemand_yesbuf_len = cur_yesbuf_length.execute(
         "select time, value from timeseriescalc_demandpower").fetchall()
     count = 0
-    for x in range(0,6): 
+    for x in range(0, 6):
         if (3 + calcdemand_nobuf_len[x][1]) != calcdemand_yesbuf_len[x][1]:
             count += 1
-    for x in range(6,10): 
+    for x in range(6, 10):
         if calcdemand_nobuf_len[x][1] != calcdemand_yesbuf_len[x][1]:
             count += 1
 

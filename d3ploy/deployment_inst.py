@@ -89,4 +89,3 @@ def build_buffer_length_dict(time_steps, buffer, commods):
         if count == 0:
             buffer_dict[i] = time_steps+1.
     return buffer_dict
-    

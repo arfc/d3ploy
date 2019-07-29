@@ -167,7 +167,7 @@ class DemandDrivenDeploymentInst(Institution):
 
     supply_buffer_length = ts.MapStringDouble(
         doc="Supply buffer length: time at which the buffer"
-        	"should stop being active",
+        "should stop being active",
         tooltip="Supply buffer length of time active.",
         alias=['supply_buffer_length', 'commod', 'length'],
         uilabel="Supply Buffer Length",
