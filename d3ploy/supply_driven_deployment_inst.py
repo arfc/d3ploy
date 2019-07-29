@@ -299,8 +299,7 @@ class SupplyDrivenDeploymentInst(Institution):
             The calculated supply of the supply commodity at [time]
         """
         if time not in self.commodity_supply[commod]:
-            t = 0
-            self.commodity_supply[commod][time] = 0
+            self.commodity_supply[commod][time] = 0.0
         if time not in self.commodity_capacity[commod]:
             self.commodity_capacity[commod][time] = 0.0
         capacity = self.predict_capacity(commod)

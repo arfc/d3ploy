@@ -312,8 +312,11 @@ class DemandDrivenDeploymentInst(Institution):
             The calculated demand of the demand commodity at [time]
         """
         if time not in self.commodity_demand[commod]:
-            t = 0
-            self.commodity_demand[commod][time] = eval(self.demand_eq)
+            if commod == self.driving_commod:
+                t = time
+                self.commodity_demand[commod][time] = eval(self.demand_eq)
+            else:
+                self.commodity_demand[commod][time] = 0.0
         if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = 0.0
         supply = self.predict_supply(commod)
