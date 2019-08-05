@@ -96,7 +96,7 @@ scenario_input["simulation"].update({"region": {"config": {"NullRegion": "\n    
                 "facility_commod": {"item": {"commod": "fuel", "facility": "source"}},
                 "installed_cap": "1",
                 "record": "0",
-                "steps": "1"
+                "back_steps": "1"
             }
         },
         "name": "non_driving_inst"
@@ -111,7 +111,7 @@ scenario_input["simulation"].update({"region": {"config": {"NullRegion": "\n    
                 "facility_commod": {"item": {"commod": "POWER", "facility": "reactor"}},
                 "installed_cap": "1",
                 "record": "0",
-                "steps": "1"
+                "back_steps": "1"
             }
         },
         "name": "driving_inst"
@@ -183,7 +183,7 @@ scenario_input2["simulation"].update({"region": {"config": {"NullRegion": "\n   
                 "facility_commod": {"item": {"commod": "fuel", "facility": "source"}},
                 "installed_cap": "1",
                 "record": "0",
-                "steps": "1"
+                "back_steps": "1"
             }
         },
         "name": "non_driving_inst"
@@ -198,7 +198,7 @@ scenario_input2["simulation"].update({"region": {"config": {"NullRegion": "\n   
                 "facility_commod": {"item": {"commod": "POWER", "facility": "reactor"}},
                 "installed_cap": "1",
                 "record": "0",
-                "steps": "1"
+                "back_steps": "1"
             }
         },
         "initialfacilitylist": {"entry": {"number": "1", "prototype": "reactor"}},
