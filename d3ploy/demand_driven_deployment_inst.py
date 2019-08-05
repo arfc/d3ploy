@@ -136,7 +136,7 @@ class DemandDrivenDeploymentInst(Institution):
         "then the calculation will use all values in the time series.",
         tooltip="",
         uilabel="Back Steps",
-        default=10)
+        default=5)
 
     supply_std_dev = ts.Double(
         doc="The standard deviation adjustment for the supple side.",
