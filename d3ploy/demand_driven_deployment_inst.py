@@ -349,7 +349,8 @@ class DemandDrivenDeploymentInst(Institution):
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
             supply = CALC_METHODS[self.calc_method](target(commod),
                                                     back_steps=self.back_steps,
-                                                    degree=self.degree)
+                                                    degree=self.degree,
+                                                    steps=self.steps)
         elif self.calc_method in ['sw_seasonal']:
             supply = CALC_METHODS[self.calc_method](
                 target(commod), period=self.degree)
@@ -371,7 +372,8 @@ class DemandDrivenDeploymentInst(Institution):
             elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
                 demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                         back_steps=self.back_steps,
-                                                        degree=self.degree)
+                                                        degree=self.degree,
+                                                        steps=self.steps)
             elif self.calc_method in ['sw_seasonal']:
                 demand = CALC_METHODS[self.calc_method](
                     self.commodity_demand[commod], period=self.degree)
