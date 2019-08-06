@@ -26,11 +26,7 @@ def predict_ma(ts, steps=5, std_dev=0, back_steps=5):
     x : The moving average calculated by the function.
     """
     supply = np.array(list(ts.values()))
-    if steps >= len(supply):
-        steps = len(supply) * -1
-    else:
-        steps *= -1
-    x = np.average(supply[steps:])
+    x = np.average(supply[-1*back_steps:])
     return x
 
 
@@ -56,7 +52,7 @@ def predict_arma(ts, steps=5, std_dev=0, back_steps=5):
         forecast = fit.forecast(steps)
         x = forecast[0][steps-1] + forecast[1][steps-1]*std_dev
     except (ValueError, np.linalg.linalg.LinAlgError):
-        x = predict_ma(ts)
+        x = predict_ma(ts, steps, std_dev, back_steps)
     return x
 
 
@@ -67,7 +63,7 @@ def predict_arch(ts, steps=1, std_dev=0, back_steps=2):
     calculation to perform the prediciton.
     """
     v = list(ts.values())
-    v = v[-1*2:]
+    v = v[-1*back_steps:]
     try:
         model = arch_model(v)
         fit = model.fit(disp="off", show_warning=False)
@@ -75,7 +71,7 @@ def predict_arch(ts, steps=1, std_dev=0, back_steps=2):
         step = 'h.' + str(steps)
         x = forecast.mean.get(step)[len(v)-steps]
     except:
-        x = predict_ma(ts, steps=1)
+        x = predict_ma(ts, steps, std_dev, back_steps)
     if math.isnan(x):
-        x = predict_ma(ts, steps=1)
+        x = predict_ma(ts, steps, std_dev, back_steps)
     return x

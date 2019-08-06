@@ -129,7 +129,7 @@ class SupplyDrivenDeploymentInst(Institution):
             "will use all values in the time series.",
         tooltip="",
         uilabel="Back Steps",
-        default=10
+        default=5
     )
 
     capacity_std_dev = ts.Double(

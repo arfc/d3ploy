@@ -94,8 +94,8 @@ and stochastic-optimizing.
 There are three methods implemented for the NO models. Autoregressive
 moving average (ARMA), and autoregressive conditional heteroskedasticity (ARCH).
 There are four parameters users can define:
-- **steps**: Number of timesteps forward to prdict supply and demand (default = 2)
-- **back_steps**: Number of steps backwards from the current timestep to use for the prediction (default = 10)
+- **steps**: Number of timesteps forward to prdict supply and demand (default = 1)
+- **back_steps**: Number of steps backwards from the current timestep to use for the prediction (default = 5)
 - **supply_std_dev** = Standard deviation adjustment for supply (default = 0)
 - **demand_std_dev** = Standard deviation adjustment for demand  (default = 0)
 
