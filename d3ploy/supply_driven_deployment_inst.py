@@ -348,7 +348,8 @@ class SupplyDrivenDeploymentInst(Institution):
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     back_steps=self.back_steps,
-                                                    degree=self.degree)
+                                                    degree=self.degree,
+                                                    steps=self.steps)
         elif self.calc_method in ['sw_seasonal']:
             supply = CALC_METHODS[self.calc_method](
                 self.commodity_supply[commod], period=self.degree)
