@@ -54,7 +54,6 @@ def exp_smoothing(ts, back_steps=10, degree=1, steps=1):
     # https://github.com/statsmodels/statsmodels/issues/4878
     elif len(timeseries) == 5:
         timeseries = np.append(np.mean(timeseries), timeseries)
-    #print(timeseries)
     model = hw.SimpleExpSmoothing(timeseries)
     model_fit = model.fit()
     x = model_fit.predict(len(timeseries), len(timeseries) + steps - 1)
