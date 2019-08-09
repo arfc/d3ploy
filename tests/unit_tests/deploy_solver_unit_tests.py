@@ -17,7 +17,7 @@ def test_min_deploy_solver():
                                     'pref': '0',
                                     'constraint_commod': '0',
                                     'constraint': 0}})
-        deploy_dict = solver.deploy_solver(commodity_supply={},
+        deploy_dict, commodity_dict = solver.deploy_solver(commodity_supply={},
                                            commodity_dict={'commod': commod},
                                            commod='commod',
                                            diff=diff,
@@ -47,7 +47,7 @@ def test_pref_solver_const():
                                     'pref': str(random.uniform(0.1, 9.9)),
                                     'constraint_commod': '0',
                                     'constraint': 0}})
-        deploy_dict = solver.deploy_solver(commodity_supply={},
+        deploy_dict, commodity_dict = solver.deploy_solver(commodity_supply={},
                                            commodity_dict={'commod': commod},
                                            commod='commod',
                                            diff=diff,
@@ -86,7 +86,7 @@ def test_pref_solver_eq():
               }
     for t in range(10):
         print(t)
-        deploy_dict = solver.deploy_solver(commodity_supply={},
+        deploy_dict, commodity_dict = solver.deploy_solver(commodity_supply={},
                                            commodity_dict={'commod': commod},
                                            commod='commod',
                                            diff=diff,

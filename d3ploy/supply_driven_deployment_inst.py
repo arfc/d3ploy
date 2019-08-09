@@ -253,18 +253,19 @@ class SupplyDrivenDeploymentInst(Institution):
 
             if diff < 0:
                 if self.installed_cap:
-                    deploy_dict = solver.deploy_solver(
+                    deploy_dict, self.commodity_dict = solver.deploy_solver(
                         self.installed_capacity, self.commodity_dict, commod, diff, time)
                 else:
-                    deploy_dict = solver.deploy_solver(
+                    deploy_dict, self.commodity_dict = solver.deploy_solver(
                         self.commodity_supply, self.commodity_dict, commod, diff, time)
                 for proto, num in deploy_dict.items():
                     for i in range(num):
                         self.context.schedule_build(self, proto)
                 # update installed capacity dict
+                self.installed_capacity[commod][time + 1] = \
+                    self.installed_capacity[commod][time]
                 for proto, num in deploy_dict.items():
-                    self.installed_capacity[commod][time + 1] = \
-                        self.installed_capacity[commod][time] + \
+                    self.installed_capacity[commod][time + 1] += \
                         self.commodity_dict[commod][proto]['cap'] * num
             else:
                 self.installed_capacity[commod][time +
