@@ -61,7 +61,8 @@ and for `supply_driven_deployment_inst`, the facility included should be the fac
  Only the facilities that the user wants to constrain with a second commodity need to be included in this input. 
 - **facility_constraintval**: This is a mapstringdouble defining each facility and the amount accumulated of the second commodity 
  before the facility can be deployed. 
- Only the facilities that the user wants to constrain by a second commodity need to be included in this input. 
+ Only the facilities that the user wants to constrain by a second commodity need to be included in this input.
+- **facility_sharing**: This is a mapstringdouble defining the percentages with which more than one facility share the supply or capacity for one commodity.
 - **driving_commod**: The driving commodity for the institution.
 - **demand_eq**:  The demand equation for the driving commodity, using `t` as the dependent variable.
 - **calc_method**: This is the method used to predict the supply and demand.
@@ -93,8 +94,8 @@ and stochastic-optimizing.
 There are three methods implemented for the NO models. Autoregressive
 moving average (ARMA), and autoregressive conditional heteroskedasticity (ARCH).
 There are four parameters users can define:
-- **steps**: Number of timesteps forward to prdict supply and demand (default = 2)
-- **back_steps**: Number of steps backwards from the current timestep to use for the prediction (default = 10)
+- **steps**: Number of timesteps forward to prdict supply and demand (default = 1)
+- **back_steps**: Number of steps backwards from the current timestep to use for the prediction (default = 5)
 - **supply_std_dev** = Standard deviation adjustment for supply (default = 0)
 - **demand_std_dev** = Standard deviation adjustment for demand  (default = 0)
 

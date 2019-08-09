@@ -78,6 +78,14 @@ class DemandDrivenDeploymentInst(Institution):
         default={}
     )
 
+    facility_sharing = ts.MapStringDouble(
+        doc="A map of facilities that share a commodity",
+        tooltip="Map of facilities and percentages of sharing",
+        alias=['facility_sharing', 'facility', 'percentage'],
+        uilabel="Facility and Percentages",
+        default={}
+    )
+
     demand_eq = ts.String(
         doc="This is the string for the demand equation of the driving commodity. " +
         "The equation should use `t' as the dependent variable",
@@ -128,7 +136,7 @@ class DemandDrivenDeploymentInst(Institution):
         "then the calculation will use all values in the time series.",
         tooltip="",
         uilabel="Back Steps",
-        default=10)
+        default=5)
 
     supply_std_dev = ts.Double(
         doc="The standard deviation adjustment for the supple side.",
@@ -219,7 +227,8 @@ class DemandDrivenDeploymentInst(Institution):
                 self.facility_capacity,
                 self.facility_pref,
                 self.facility_constraintcommod,
-                self.facility_constraintval)
+                self.facility_constraintval,
+                self.facility_sharing)
             for commod, proto_dict in self.commodity_dict.items():
                 self.commod_os[commod] = 0
                 protos = proto_dict.keys()
@@ -234,6 +243,14 @@ class DemandDrivenDeploymentInst(Institution):
                     if proto_dict['constraint_commod'] != '0':
                         self.commod_list.append(
                             proto_dict['constraint_commod'])
+
+            for commod, commod_dict in self.commodity_dict.items():
+                tot = 0
+                for proto, proto_dict in commod_dict.items():
+                    tot += proto_dict['share']
+                if tot != 0 and tot != 100:
+                    print("Share preferences do not add to 100")
+                    raise Exception()
             self.buffer_dict = di.build_buffer_dict(self.supply_buffer,
                                                     self.commod_list)
             self.buffer_type_dict = di.build_buffer_type_dict(
@@ -327,8 +344,11 @@ class DemandDrivenDeploymentInst(Institution):
             The calculated demand of the demand commodity at [time]
         """
         if time not in self.commodity_demand[commod]:
-            t = 0
-            self.commodity_demand[commod][time] = eval(self.demand_eq)
+            if commod == self.driving_commod:
+                t = time
+                self.commodity_demand[commod][time] = eval(self.demand_eq)
+            else:
+                self.commodity_demand[commod][time] = 0.0
         if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = 0.0
         supply = self.predict_supply(commod)
@@ -361,7 +381,8 @@ class DemandDrivenDeploymentInst(Institution):
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
             supply = CALC_METHODS[self.calc_method](target(commod),
                                                     back_steps=self.back_steps,
-                                                    degree=self.degree)
+                                                    degree=self.degree,
+                                                    steps=self.steps)
         elif self.calc_method in ['sw_seasonal']:
             supply = CALC_METHODS[self.calc_method](
                 target(commod), period=self.degree)
@@ -383,7 +404,8 @@ class DemandDrivenDeploymentInst(Institution):
             elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
                 demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                         back_steps=self.back_steps,
-                                                        degree=self.degree)
+                                                        degree=self.degree,
+                                                        steps=self.steps)
             elif self.calc_method in ['sw_seasonal']:
                 demand = CALC_METHODS[self.calc_method](
                     self.commodity_demand[commod], period=self.degree)

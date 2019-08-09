@@ -79,6 +79,14 @@ class SupplyDrivenDeploymentInst(Institution):
         default={}
     )
 
+    facility_sharing = ts.MapStringDouble(
+        doc="A map of facilities that share a commodity",
+        tooltip="Map of facilities and percentages of sharing",
+        alias=['facility_sharing', 'facility', 'percentage'],
+        uilabel="Facility and Percentages",
+        default={}
+    )
+
     calc_method = ts.String(
         doc="This is the calculated method used to determine " +
         "the supply and capacity for the commodities of " +
@@ -121,7 +129,7 @@ class SupplyDrivenDeploymentInst(Institution):
             "will use all values in the time series.",
         tooltip="",
         uilabel="Back Steps",
-        default=10
+        default=5
     )
 
     capacity_std_dev = ts.Double(
@@ -211,7 +219,8 @@ class SupplyDrivenDeploymentInst(Institution):
                 self.facility_capacity,
                 self.facility_pref,
                 self.facility_constraintcommod,
-                self.facility_constraintval)
+                self.facility_constraintval,
+                self.facility_sharing)
             for commod, proto_dict in self.commodity_dict.items():
                 self.commod_os[commod] = 0
                 protos = proto_dict.keys()
@@ -221,6 +230,13 @@ class SupplyDrivenDeploymentInst(Institution):
             for commod in commod_list:
                 self.installed_capacity[commod] = defaultdict(float)
                 self.installed_capacity[commod][0] = 0.
+            for commod, commod_dict in self.commodity_dict.items():
+                tot = 0
+                for proto, proto_dict in commod_dict.items():
+                    tot += proto_dict['share']
+                if tot != 0 and tot != 100:
+                    print("Share preferences do not add to 100")
+                    raise Exception()
             self.buffer_dict = di.build_buffer_dict(self.capacity_buffer,
                                                     commod_list)
             self.buffer_type_dict = di.build_buffer_type_dict(
@@ -309,8 +325,7 @@ class SupplyDrivenDeploymentInst(Institution):
             The calculated supply of the supply commodity at [time]
         """
         if time not in self.commodity_supply[commod]:
-            t = 0
-            self.commodity_supply[commod][time] = 0
+            self.commodity_supply[commod][time] = 0.0
         if time not in self.commodity_capacity[commod]:
             self.commodity_capacity[commod][time] = 0.0
         capacity = self.predict_capacity(commod)
@@ -359,7 +374,8 @@ class SupplyDrivenDeploymentInst(Institution):
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
             supply = CALC_METHODS[self.calc_method](self.commodity_supply[commod],
                                                     back_steps=self.back_steps,
-                                                    degree=self.degree)
+                                                    degree=self.degree,
+                                                    steps=self.steps)
         elif self.calc_method in ['sw_seasonal']:
             supply = CALC_METHODS[self.calc_method](
                 self.commodity_supply[commod], period=self.degree)

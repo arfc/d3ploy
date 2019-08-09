@@ -6,7 +6,7 @@ import numpy as np
 import statsmodels.tsa.holtwinters as hw
 
 
-def polyfit_regression(ts, back_steps=10, degree=1):
+def polyfit_regression(ts, back_steps=10, degree=1, steps=1):
     """
     Fits a polynomial to the entries in timeseries [ts]
     to predict the next value.
@@ -28,11 +28,11 @@ def polyfit_regression(ts, back_steps=10, degree=1):
     fit = np.polyfit(time[-back_steps:],
                      timeseries[-back_steps:], deg=degree)
     eq = np.poly1d(fit)
-    x = eq(len(ts) + 1)
+    x = eq(len(ts) + steps)
     return x
 
 
-def exp_smoothing(ts, back_steps=10, degree=1):
+def exp_smoothing(ts, back_steps=10, degree=1, steps=1):
     """
     Predicts next value using simple exponential smoothing.
     Parameters:
@@ -54,14 +54,13 @@ def exp_smoothing(ts, back_steps=10, degree=1):
     # https://github.com/statsmodels/statsmodels/issues/4878
     elif len(timeseries) == 5:
         timeseries = np.append(np.mean(timeseries), timeseries)
-
     model = hw.SimpleExpSmoothing(timeseries)
     model_fit = model.fit()
-    x = model_fit.predict(len(timeseries), len(timeseries))
-    return x[0]
+    x = model_fit.predict(len(timeseries), len(timeseries) + steps - 1)
+    return x[-1]
 
 
-def holt_winters(ts, back_steps=10, degree=1):
+def holt_winters(ts, back_steps=10, degree=1, steps=1):
     """
     Predicts next value using triple exponential smoothing
     (holt-winters method).
@@ -85,11 +84,11 @@ def holt_winters(ts, back_steps=10, degree=1):
         timeseries = np.append(np.mean(timeseries), timeseries)
     model = hw.ExponentialSmoothing(timeseries)
     model_fit = model.fit()
-    x = model_fit.predict(len(timeseries), len(timeseries))
-    return x[0]
+    x = model_fit.predict(len(timeseries), len(timeseries) + steps - 1)
+    return x[-1]
 
 
-def fft(ts, back_steps=1e6, degree=1):
+def fft(ts, back_steps=10, degree=1, steps=1):
     timeseries = np.array(list(ts.values()))
     timeseries = timeseries[-back_steps:]
     n = timeseries.size
@@ -105,13 +104,11 @@ def fft(ts, back_steps=1e6, degree=1):
     indexes = list(range(n))
     # sort indexes by frequency, lower -> higher
     indexes.sort(key=lambda i: np.absolute(f[i]))
-
-    t = np.arange(0, n + 1)
+    t = np.arange(0, n + steps)
     restored_sig = np.zeros(t.size)
     for i in indexes[:1 + n_harm * 2]:
         ampli = np.absolute(x_freqdom[i]) / n   # amplitude
         phase = np.angle(x_freqdom[i])          # phase
         restored_sig += ampli * np.cos(2 * np.pi * f[i] * t + phase)
     fft_fit = restored_sig + p[0] * t
-
     return fft_fit[-1]
