@@ -240,12 +240,11 @@ def decommission_oldest(agent, commod_dict, diff, commod, time):
             continue
         if commod_dict[agt.prototype]['cap'] < diff:
             life_x = time - agt.enter_time + 1
-            print('test', time, life_x)
             try:
-                agt.lifetime_force(life_x)
-                print('end', agt.exit_time)
+                agt.decommission()
             except:
-                print('Cannot adjust agent lifetime')
+                agt.lifetime_force(life_x)
+                print('Force adjusted end of line for agent' + str(agt.id()))
             diff -= commod_dict[agt.prototype]['cap']     
             itscommod = agent.fac_commod[agt.prototype]
             agent.installed_capacity[itscommod][time + 1] \
