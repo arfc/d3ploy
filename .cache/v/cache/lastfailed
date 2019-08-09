@@ -1,0 +1,12 @@
+{
+  "tests/integration_tests/back_deployment_test.py::test_backdeployment": true,
+  "tests/integration_tests/buffer_test.py::test_capacity_buffer": true,
+  "tests/integration_tests/buffer_test.py::test_capacity_buffer_num": true,
+  "tests/integration_tests/buffer_test.py::test_supply_buffer": true,
+  "tests/integration_tests/buffer_test.py::test_supply_buffer_num": true,
+  "tests/integration_tests/buffer_test.py::test_supply_buffer_two": true,
+  "tests/integration_tests/constraint_test.py::test_constraint_deploy": true,
+  "tests/integration_tests/installedcap_test.py::test_backdeployment_IC": true,
+  "tests/integration_tests/installedcap_test.py::test_initial_facility": true,
+  "tests/integration_tests/installedcap_test.py::test_installed_cap": true
+}

@@ -241,7 +241,7 @@ def decommission_oldest(agent, commod_dict, diff, commod, time):
         if commod_dict[agt.prototype]['cap'] < diff:
             life_x = time - agt.enter_time + 1
             try:
-                agt.decommission()
+                agt.decomission()
             except:
                 agt.lifetime_force(life_x)
                 print('Force adjusted end of line for agent' + str(agt.id()))
