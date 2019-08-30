@@ -250,6 +250,7 @@ class SupplyDrivenDeploymentInst(Institution):
                                           commod].append(self.extract_capacity)
                 self.commodity_capacity[commod] = defaultdict(float)
                 self.commodity_supply[commod] = defaultdict(float)
+            self.commod_mins = solver.find_mins(self.commodity_dict)
             for child in self.children:
                 itscommod = self.fac_commod[child.prototype]
                 self.installed_capacity[itscommod][0] += self.commodity_dict[itscommod][child.prototype]['cap']
@@ -262,11 +263,9 @@ class SupplyDrivenDeploymentInst(Institution):
         """
         time = self.context.time
         for commod, proto_dict in self.commodity_dict.items():
-
             diff, capacity, supply = self.calc_diff(commod, time)
             lib.record_time_series('calc_supply' + commod, self, supply)
             lib.record_time_series('calc_capacity' + commod, self, capacity)
-
             if diff < 0:
                 if self.installed_cap:
                     deploy_dict, self.commodity_dict = solver.deploy_solver(
@@ -286,13 +285,13 @@ class SupplyDrivenDeploymentInst(Institution):
             else:
                 self.installed_capacity[commod][time +
                                                 1] = self.installed_capacity[commod][time]
-            os_limit = self.commod_min[commod] * self.os_int
+            os_limit = self.commod_mins[commod] * self.os_int
             if diff > os_limit:
-                self.commod_os[commod] += 1    
-            elif diff > os_limit and self.commod_os[commod] > self.os_time:
-                solver.decommission_oldest(self, self.commod_dict[commod], diff, commod, time)
+                self.commod_os[commod] += 1
             else:
                 self.commod_os[commod] = 0
+            if diff > os_limit and self.commod_os[commod] > self.os_time:
+                solver.decommission_oldest(self, self.commodity_dict[commod], diff, commod, time)
             if self.record:
                 out_text = "Time " + str(time) + \
                     " Deployed " + str(len(self.children))

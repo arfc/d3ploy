@@ -276,7 +276,6 @@ class DemandDrivenDeploymentInst(Institution):
         makes the the decision to deploy facilities or not.
         """
         time = self.context.time
-        print(time)
         for commod, proto_dict in self.commodity_dict.items():
             diff, supply, demand = self.calc_diff(commod, time)
             lib.record_time_series('calc_supply' + commod, self, supply)
@@ -301,17 +300,12 @@ class DemandDrivenDeploymentInst(Institution):
                 self.installed_capacity[commod][time +
                                                 1] = self.installed_capacity[commod][time]
             os_limit = self.commod_mins[commod] * self.os_int
-            print(commod, os_limit)
-            print(commod, self.commod_os[commod])
-            print(diff, os_limit)
-            if diff > os_limit and self.commod_os[commod] > self.os_time:
-                print('decomm')
-                solver.decommission_oldest(self, self.commodity_dict[commod], diff, commod, time)
-                print('enddecomm')
-            elif diff > os_limit:
+            if diff > os_limit:
                 self.commod_os[commod] += 1
             else:
                 self.commod_os[commod] = 0
+            if diff > os_limit and self.commod_os[commod] > self.os_time:
+                solver.decommission_oldest(self, self.commodity_dict[commod], diff, commod, time)
             if self.record:
                 out_text = "Time " + str(time) + \
                     " Deployed " + str(len(self.children))

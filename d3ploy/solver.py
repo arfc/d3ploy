@@ -253,14 +253,13 @@ def decommission_oldest(agent, commod_dict, diff, commod, time):
         if commod_dict[agt.prototype]['cap'] < diff:
             life_x = time - agt.enter_time + 1
             try:
-                agt.decomission()
-            except:
                 agt.lifetime_force(life_x)
-                print('Force adjusted end of line for agent' + str(agt.id()))
+            except:
+                print('Could not adjust lifetime of agent ' + str(agt.id())) 
             diff -= commod_dict[agt.prototype]['cap']     
             itscommod = agent.fac_commod[agt.prototype]
             agent.installed_capacity[itscommod][time + 1] \
-                            -= agent.commodity_dict[itscommod][agt.prototype]['cap']        
+                            -= agent.commodity_dict[itscommod][agt.prototype]['cap']
         
 
 def sharing_deploy(proto_commod, remainder):
@@ -282,6 +281,7 @@ def sharing_deploy(proto_commod, remainder):
         key: prototype name
         value: number of prototype to deploy
     """
+    print('share')
     deploy_dict = {}
     share_dict = {}
     remain = {}
@@ -293,4 +293,5 @@ def sharing_deploy(proto_commod, remainder):
         while remain[proto] > 0:
             deploy_dict[proto] += 1
             remain[proto] -= proto_commod[proto]['cap']
+    print('end share')
     return deploy_dict

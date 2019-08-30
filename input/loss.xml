@@ -22,7 +22,7 @@
     </spec>
   </archetypes>
   <control>
-    <duration>50</duration>
+    <duration>500</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
   </control>
@@ -31,7 +31,7 @@
       <Source>
         <outcommod>fuel</outcommod>
         <outrecipe>fresh_uox</outrecipe>
-        <throughput>1</throughput>
+        <throughput>10</throughput>
       </Source>
     </config>
     <name>source</name>
@@ -131,7 +131,7 @@
         <DemandDrivenDeploymentInst>
           <calc_method>ma</calc_method>
           <record>1</record>
-          <demand_eq>50.-t</demand_eq>
+          <demand_eq>50-0.1*t</demand_eq>
           <facility_commod>
             <item>
               <facility>reactor1</facility>
@@ -157,7 +157,7 @@
             </item>
             <item>
               <facility>source</facility>
-              <capacity>1</capacity>
+              <capacity>10000</capacity>
             </item>
           </facility_capacity>
           <facility_pref>
@@ -170,7 +170,7 @@
               <pref>t</pref>
             </item>
           </facility_pref>
-          <steps>1</steps>
+          <back_steps>1</back_steps>
         </DemandDrivenDeploymentInst>
       </config>
     <name>source_inst</name>
