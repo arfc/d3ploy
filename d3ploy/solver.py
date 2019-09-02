@@ -226,7 +226,7 @@ def find_mins(commod_dict):
     return commod_min
 
 def decommission_oldest(agent, commod_dict, diff, commod, time):
-    """ Decommissions the oldest archetypes that produce
+    """ Decommissions the oldest agents that produce
         a capacity less than the difference. 
 
     Parameters:
@@ -281,17 +281,14 @@ def sharing_deploy(proto_commod, remainder):
         key: prototype name
         value: number of prototype to deploy
     """
-    print('share')
     deploy_dict = {}
     share_dict = {}
     remain = {}
     for proto, proto_dict in proto_commod.items():
         remain[proto] = proto_dict['share'] * remainder/100.0
         deploy_dict[proto] = 0
-
     for proto in remain:
         while remain[proto] > 0:
             deploy_dict[proto] += 1
             remain[proto] -= proto_commod[proto]['cap']
-    print('end share')
     return deploy_dict
