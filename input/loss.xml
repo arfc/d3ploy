@@ -36,17 +36,19 @@
     </config>
     <name>source</name>
   </facility>
+
   <facility>
     <config>
       <Sink>
         <in_commods>
           <val>spent_uox</val>
         </in_commods>
-        <max_inv_size>10</max_inv_size>
+        <max_inv_size>1e6</max_inv_size>
       </Sink>
     </config>
     <name>sink</name>
   </facility>
+
   <facility>
     <config>
       <Reactor>
