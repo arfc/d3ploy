@@ -180,6 +180,10 @@
           <number>25</number>
           <prototype>reactor2</prototype>
         </entry>
+        <entry>
+          <number>1</number>
+          <prototype>source</prototype>
+        </entry>
       </initialfacilitylist>
       <name>source_inst</name>
     </institution>

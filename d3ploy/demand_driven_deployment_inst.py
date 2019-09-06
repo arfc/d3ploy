@@ -263,6 +263,8 @@ class DemandDrivenDeploymentInst(Institution):
                 self.commodity_demand[commod] = defaultdict(float)
             self.commod_mins = solver.find_mins(self.commodity_dict)
             for child in self.children:
+                if child.prototype not in self.fac_commod:
+                    continue
                 itscommod = self.fac_commod[child.prototype]
                 self.installed_capacity[itscommod][0] += \
                     self.commodity_dict[itscommod][child.prototype]['cap']
