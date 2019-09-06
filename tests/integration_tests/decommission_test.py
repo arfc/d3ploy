@@ -32,7 +32,7 @@ def test_decommission():
     find = 'd3ploy/'
     indx = input_path.rfind('d3ploy/')
     input_ = input_path.replace(
-        input_path[indx + len(find):], 'input/loss.xml')
+        input_path[indx + len(find):], 'input/decommission.xml')
     s = subprocess.check_output(['cyclus', input_],
                                 universal_newlines=True, env=ENV)
     with open('POWER.txt') as f:
@@ -40,3 +40,21 @@ def test_decommission():
     f.close()
     val = float(lines[-1].split(' ')[5])
     assert (val < 50.)
+    os.remove('POWER.txt')
+
+def test_backdecom():
+    output_ = 'POWER.txt'
+    input_path = os.path.abspath(__file__)
+    find = 'd3ploy/'
+    indx = input_path.rfind('d3ploy/')
+    input_ = input_path.replace(
+        input_path[indx + len(find):], 'input/backdecom.xml')
+    s = subprocess.check_output(['cyclus', input_],
+                                universal_newlines=True, env=ENV)
+    with open('fuel.txt') as f:
+        lines = f.readlines()
+    f.close()
+    val = float(lines[-1].split(' ')[5])
+    assert (val < 50.)
+    os.remove('POWER.txt')
+    os.remove('fuel.txt')

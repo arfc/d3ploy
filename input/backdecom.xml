@@ -35,7 +35,7 @@
       <Source>
         <outcommod>fuel</outcommod>
         <outrecipe>fresh_uox</outrecipe>
-        <throughput>1000</throughput>
+        <throughput>1</throughput>
       </Source>
     </config>
     <name>source</name>
@@ -135,9 +135,37 @@
     <institution>
       <config>
         <DemandDrivenDeploymentInst>
+          <demand_eq>50</demand_eq>
           <calc_method>ma</calc_method>
           <record>1</record>
+          <facility_commod>
+            <item>
+              <facility>source</facility>
+              <commod>fuel</commod>
+            </item>
+          </facility_commod>
+          <facility_capacity>
+            <item>
+              <facility>source</facility>
+              <capacity>1</capacity>
+            </item>
+          </facility_capacity>
+          <back_steps>1</back_steps>
+        </DemandDrivenDeploymentInst>
+      </config>
+      <initialfacilitylist>
+        <entry>
+          <number>50</number>
+          <prototype>source</prototype>
+        </entry>
+      </initialfacilitylist>
+      <name>source_inst</name>
+    </institution>
+    <institution>
+      <config>
+        <DemandDrivenDeploymentInst>
           <demand_eq>50-0.1*t</demand_eq>
+          <calc_method>ma</calc_method>
           <facility_commod>
             <item>
               <facility>reactor1</facility>
@@ -180,12 +208,8 @@
           <number>25</number>
           <prototype>reactor2</prototype>
         </entry>
-        <entry>
-          <number>1</number>
-          <prototype>source</prototype>
-        </entry>
       </initialfacilitylist>
-      <name>source_inst</name>
+      <name>reactor_inst</name>
     </institution>
     <institution>
       <config>
@@ -196,10 +220,6 @@
         <entry>
           <number>1</number>
           <prototype>Sink</prototype>
-        </entry>
-        <entry>
-          <number>1</number>
-          <prototype>source</prototype>
         </entry>
       </initialfacilitylist>
       <name>nullInst</name>
