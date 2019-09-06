@@ -243,7 +243,6 @@ class DemandDrivenDeploymentInst(Institution):
                     if proto_dict['constraint_commod'] != '0':
                         self.commod_list.append(
                             proto_dict['constraint_commod'])
-
             for commod, commod_dict in self.commodity_dict.items():
                 tot = 0
                 for proto, proto_dict in commod_dict.items():
@@ -346,7 +345,6 @@ class DemandDrivenDeploymentInst(Institution):
         if time not in self.commodity_supply[commod]:
             self.commodity_supply[commod][time] = 0.0
         supply = self.predict_supply(commod)
-
         if self.buffer_type_dict[commod] == 'rel':
             demand = self.predict_demand(
                 commod, time) * (1 + self.buffer_dict[commod])
@@ -356,7 +354,6 @@ class DemandDrivenDeploymentInst(Institution):
         else:
             raise Exception(
                 'You can only choose rel or abs types for buffer type')
-
         diff = supply - demand
         return diff, supply, demand
 
@@ -366,7 +363,6 @@ class DemandDrivenDeploymentInst(Institution):
                 return self.installed_capacity[incommod]
             else:
                 return self.commodity_supply[incommod]
-
         if self.calc_method in ['arma', 'ma', 'arch']:
             supply = CALC_METHODS[self.calc_method](target(commod),
                                                     steps=self.steps,
