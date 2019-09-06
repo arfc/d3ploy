@@ -1,4 +1,4 @@
-""" This python file contains tech pref capability tests for TimeSeriesInst
+""" This python file contains decommission capability tests for TimeSeriesInst
 archetype.
 """
 
@@ -33,7 +33,7 @@ def test_decommission():
     indx = input_path.rfind('d3ploy/')
     input_ = input_path.replace(
         input_path[indx + len(find):], 'input/loss.xml')
-    s = subprocess.check_output(['cyclus', '-o', output_, input_],
+    s = subprocess.check_output(['cyclus', input_],
                                 universal_newlines=True, env=ENV)
     with open('POWER.txt') as f:
         lines = f.readlines()
