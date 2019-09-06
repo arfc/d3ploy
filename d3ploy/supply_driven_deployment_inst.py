@@ -176,7 +176,7 @@ class SupplyDrivenDeploymentInst(Institution):
     )
 
     os_int = ts.Int(
-        doc="The number facilities over capacity " + 
+        doc="The number of facilities over capacity " + 
             "for a given commodity that is allowed. i.e If this" +
             " value is 1. One facility capacity over demand is considered" +
             " an oversupplied situtation.",
