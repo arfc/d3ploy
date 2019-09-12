@@ -56,5 +56,4 @@ def test_backdecom():
     f.close()
     val = float(lines[-1].split(' ')[5])
     assert (val < 50.)
-    os.remove('POWER.txt')
     os.remove('fuel.txt')
