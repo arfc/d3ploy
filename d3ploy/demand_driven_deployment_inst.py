@@ -136,7 +136,7 @@ class DemandDrivenDeploymentInst(Institution):
         "then the calculation will use all values in the time series.",
         tooltip="",
         uilabel="Back Steps",
-        default=10)
+        default=5)
 
     supply_std_dev = ts.Double(
         doc="The standard deviation adjustment for the supple side.",
@@ -365,7 +365,8 @@ class DemandDrivenDeploymentInst(Institution):
         elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
             supply = CALC_METHODS[self.calc_method](target(commod),
                                                     back_steps=self.back_steps,
-                                                    degree=self.degree)
+                                                    degree=self.degree,
+                                                    steps=self.steps)
         elif self.calc_method in ['sw_seasonal']:
             supply = CALC_METHODS[self.calc_method](
                 target(commod), period=self.degree)
@@ -387,7 +388,8 @@ class DemandDrivenDeploymentInst(Institution):
             elif self.calc_method in ['poly', 'exp_smoothing', 'holt_winters', 'fft']:
                 demand = CALC_METHODS[self.calc_method](self.commodity_demand[commod],
                                                         back_steps=self.back_steps,
-                                                        degree=self.degree)
+                                                        degree=self.degree,
+                                                        steps=self.steps)
             elif self.calc_method in ['sw_seasonal']:
                 demand = CALC_METHODS[self.calc_method](
                     self.commodity_demand[commod], period=self.degree)
