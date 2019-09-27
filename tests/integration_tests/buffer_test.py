@@ -32,7 +32,13 @@ ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 # the calculated demand being 20% larger than a simulation without the supply
 # buffer.
 
-with open('buff_test.py', 'r') as f:
+input_path = os.path.abspath(__file__)
+find = 'd3ploy/'
+indx = input_path.rfind('d3ploy/')
+input_ = input_path.replace(
+    input_path[indx + len(find):], 'tests/integration_tests/' +
+    'buff_test.py')
+with open(input_, 'r') as f:
     buff_template = json.load(f)
 f.close()
 
@@ -673,7 +679,11 @@ def test_capacity_buffer_num():
 # b) the calculated demand being equivalent to a simulation
 #   without the supply buffer at time >= supply_buffer_length
 
-with open('buff_test_length.py', 'r') as f:
+input_path = os.path.abspath(__file__)
+input_ = input_path.replace(
+    input_path[indx + len(find):], 'tests/integration_tests/' +
+    'buff_test_length.py')
+with open(input_, 'r') as f:
     buff_template = json.load(f)
 f.close()
 
