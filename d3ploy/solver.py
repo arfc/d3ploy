@@ -89,6 +89,7 @@ def deploy_solver(commodity_supply, commodity_dict, commod, diff, time):
                     return minimize_number_of_deployment(update_proto_commod,
                                                          diff), commodity_dict
 
+
 def evaluate_preference(proto_commod, time):
     t = time
     eval_pref_fac = {}
@@ -199,6 +200,7 @@ def minimize_number_of_deployment(proto_commod, remainder):
         break
     return deploy_dict
 
+
 def find_mins(commod_dict):
     """ This function updates the commod_min
     dictionary to contain the minimum capacity facility
@@ -210,7 +212,7 @@ def find_mins(commod_dict):
     commod_dict: dictionary
         key: prototype name
         value: prototype capacity
-    
+
     Returns:
     --------
     commod_min: dictionary
@@ -218,12 +220,13 @@ def find_mins(commod_dict):
         value: capacity
     """
     commod_min = {}
-    for commod, proto in commod_dict.items(): 
+    for commod, proto in commod_dict.items():
         commod_min[commod] = 1e299
         for fac, dic in proto.items():
             if dic['cap'] < commod_min[commod]:
                 commod_min[commod] = dic['cap']
     return commod_min
+
 
 def decommission_oldest(agent, commod_dict, diff, commod, time):
     """ Decommissions the oldest agents that produce
@@ -240,7 +243,7 @@ def decommission_oldest(agent, commod_dict, diff, commod, time):
         the amount of commodity oversupplied
     commod: string
         the commodity being oversupplied
-    
+
     Returns:
     --------
     commod_min: dictionary
@@ -255,12 +258,12 @@ def decommission_oldest(agent, commod_dict, diff, commod, time):
             try:
                 agt.lifetime_force(life_x)
             except:
-                print('Could not adjust lifetime of agent ' + str(agt.id())) 
-            diff -= commod_dict[agt.prototype]['cap']     
+                print('Could not adjust lifetime of agent ' + str(agt.id()))
+            diff -= commod_dict[agt.prototype]['cap']
             itscommod = agent.fac_commod[agt.prototype]
             agent.installed_capacity[itscommod][time + 1] \
-                            -= agent.commodity_dict[itscommod][agt.prototype]['cap']
-        
+                -= agent.commodity_dict[itscommod][agt.prototype]['cap']
+
 
 def sharing_deploy(proto_commod, remainder):
     """ This functions deploys facilities based on the sharing percentages
@@ -285,7 +288,7 @@ def sharing_deploy(proto_commod, remainder):
     share_dict = {}
     remain = {}
     for proto, proto_dict in proto_commod.items():
-        remain[proto] = proto_dict['share'] * remainder/100.0
+        remain[proto] = proto_dict['share'] * remainder / 100.0
         deploy_dict[proto] = 0
     for proto in remain:
         while remain[proto] > 0:
