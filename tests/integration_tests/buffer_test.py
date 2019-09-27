@@ -27,75 +27,16 @@ ENV = dict(os.environ)
 ENV['PYTHONPATH'] = ".:" + ENV.get('PYTHONPATH', '')
 
 
-TEMPLATE = {
-    "simulation": {
-        "archetypes": {
-            "spec": [
-                {"lib": "agents", "name": "NullRegion"},
-                {"lib": "cycamore", "name": "Source"},
-                {"lib": "cycamore", "name": "Reactor"},
-                {"lib": "cycamore", "name": "Sink"},
-                {"lib": "d3ploy.demand_driven_deployment_inst",
-                 "name": "DemandDrivenDeploymentInst"},
-                {"lib": "d3ploy.supply_driven_deployment_inst",
-                 "name": "SupplyDrivenDeploymentInst"}
-            ]
-        },
-        "control": {"duration": "3", "startmonth": "1", "startyear": "2000"},
-        "facility": [
-            {
-                "config": {"Source": {"outcommod": "fuel",
-                                      "outrecipe": "fresh_uox",
-                                                   "throughput": "1"}},
-                "name": "source"
-            },
-            {
-                "config": {"Sink": {"in_commods": {"val": "spent_uox"},
-                                    "max_inv_size": "10"}},
-                "name": "sink"
-            },
-            {
-                "config": {
-                    "Reactor": {
-                        "assem_size": "1",
-                        "cycle_time": "1",
-                        "fuel_incommods": {"val": "fuel"},
-                        "fuel_inrecipes": {"val": "fresh_uox"},
-                        "fuel_outcommods": {"val": "spent_uox"},
-                        "fuel_outrecipes": {"val": "spent_uox"},
-                        "n_assem_batch": "1",
-                        "n_assem_core": "1",
-                        "power_cap": "1",
-                        "refuel_time": "0"
-                    }
-                },
-                "name": "reactor1"
-            }
-        ],
-        "recipe": [
-            {
-                "basis": "mass",
-                "name": "fresh_uox",
-                "nuclide": [{"comp": "0.711", "id": "U235"},
-                            {"comp": "99.289", "id": "U238"}]
-            },
-            {
-                "basis": "mass",
-                "name": "spent_uox",
-                "nuclide": [{"comp": "50", "id": "Kr85"},
-                            {"comp": "50", "id": "Cs137"}]
-            }
-        ]
-    }
-}
-
-
 # ----------------------------------------------------------------------------- #
 # This test will fail if the inclusion of a 20% supply buffer doesn't result in
 # the calculated demand being 20% larger than a simulation without the supply
 # buffer.
 
-nobuf_template = copy.deepcopy(TEMPLATE)
+with open('buff_test.py', 'r') as f:
+    buff_template = json.load(f)
+f.close()
+
+nobuf_template = buff_template
 nobuf_template["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
@@ -126,7 +67,7 @@ nobuf_template["simulation"].update({"region": {
 })
 
 
-yesbuf_template = copy.deepcopy(TEMPLATE)
+yesbuf_template = buff_template
 yesbuf_template["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
@@ -204,7 +145,7 @@ def test_supply_buffer():
 # the calculated supply being 20% larger than a simulation without the capacity
 # buffer.
 
-nobuf_template2 = copy.deepcopy(TEMPLATE)
+nobuf_template2 = buff_template
 nobuf_template2["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": [
@@ -255,7 +196,7 @@ nobuf_template2["simulation"].update({"region": {
 })
 
 
-yesbuf_template2 = copy.deepcopy(TEMPLATE)
+yesbuf_template2 = buff_template
 yesbuf_template2["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": [
@@ -349,7 +290,7 @@ def test_capacity_buffer():
 # the calculated demand being 20% larger than a simulation without the supply
 # buffer.
 
-nobuf_template3 = copy.deepcopy(TEMPLATE)
+nobuf_template3 = buff_template
 nobuf_template3["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
@@ -380,7 +321,7 @@ nobuf_template3["simulation"].update({"region": {
 })
 
 
-yesbuf_template3 = copy.deepcopy(TEMPLATE)
+yesbuf_template3 = buff_template
 yesbuf_template3["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
@@ -468,7 +409,7 @@ def test_supply_buffer_two():
 # doesn't result in the calculated demand being 3MW larger than a simulation
 # without the supply buffer.
 
-nobuf_template4 = copy.deepcopy(TEMPLATE)
+nobuf_template4 = buff_template
 nobuf_template4["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
@@ -499,7 +440,7 @@ nobuf_template4["simulation"].update({"region": {
 })
 
 
-yesbuf_template4 = copy.deepcopy(TEMPLATE)
+yesbuf_template4 = buff_template
 yesbuf_template4["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
@@ -582,7 +523,7 @@ def test_supply_buffer_num():
 # result in the calculated supply being 20% larger than a simulation without the
 # capacity buffer.
 
-nobuf_template5 = copy.deepcopy(TEMPLATE)
+nobuf_template5 = buff_template
 nobuf_template5["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": [
@@ -633,7 +574,7 @@ nobuf_template5["simulation"].update({"region": {
 })
 
 
-yesbuf_template5 = copy.deepcopy(TEMPLATE)
+yesbuf_template5 = buff_template
 yesbuf_template5["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": [
@@ -732,69 +673,11 @@ def test_capacity_buffer_num():
 # b) the calculated demand being equivalent to a simulation
 #   without the supply buffer at time >= supply_buffer_length
 
-TEMPLATE_length = {
-    "simulation": {
-        "archetypes": {
-            "spec": [
-                {"lib": "agents", "name": "NullRegion"},
-                {"lib": "cycamore", "name": "Source"},
-                {"lib": "cycamore", "name": "Reactor"},
-                {"lib": "cycamore", "name": "Sink"},
-                {"lib": "d3ploy.demand_driven_deployment_inst",
-                 "name": "DemandDrivenDeploymentInst"},
-                {"lib": "d3ploy.supply_driven_deployment_inst",
-                 "name": "SupplyDrivenDeploymentInst"}
-            ]
-        },
-        "control": {"duration": "10", "startmonth": "1", "startyear": "2000"},
-        "facility": [
-            {
-                "config": {"Source": {"outcommod": "fuel",
-                                      "outrecipe": "fresh_uox",
-                                                   "throughput": "1"}},
-                "name": "source"
-            },
-            {
-                "config": {"Sink": {"in_commods": {"val": "spent_uox"},
-                                    "max_inv_size": "10"}},
-                "name": "sink"
-            },
-            {
-                "config": {
-                    "Reactor": {
-                        "assem_size": "1",
-                        "cycle_time": "1",
-                        "fuel_incommods": {"val": "fuel"},
-                        "fuel_inrecipes": {"val": "fresh_uox"},
-                        "fuel_outcommods": {"val": "spent_uox"},
-                        "fuel_outrecipes": {"val": "spent_uox"},
-                        "n_assem_batch": "1",
-                        "n_assem_core": "1",
-                        "power_cap": "1",
-                        "refuel_time": "0"
-                    }
-                },
-                "name": "reactor1"
-            }
-        ],
-        "recipe": [
-            {
-                "basis": "mass",
-                "name": "fresh_uox",
-                "nuclide": [{"comp": "0.711", "id": "U235"},
-                            {"comp": "99.289", "id": "U238"}]
-            },
-            {
-                "basis": "mass",
-                "name": "spent_uox",
-                "nuclide": [{"comp": "50", "id": "Kr85"},
-                            {"comp": "50", "id": "Cs137"}]
-            }
-        ]
-    }
-}
+with open('buff_test_length.py', 'r') as f:
+    buff_template = json.load(f)
+f.close()
 
-nobuf_template_length = copy.deepcopy(TEMPLATE_length)
+nobuf_template_length = buff_template
 nobuf_template_length["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {
@@ -825,7 +708,7 @@ nobuf_template_length["simulation"].update({"region": {
 })
 
 
-yesbuf_template_length = copy.deepcopy(TEMPLATE_length)
+yesbuf_template_length = buff_template
 yesbuf_template_length["simulation"].update({"region": {
     "config": {"NullRegion": "\n      "},
     "institution": {

@@ -30,7 +30,7 @@
     </spec>
   </archetypes>
   <control>
-    <duration>20</duration>
+    <duration>200</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
   </control>
@@ -44,7 +44,6 @@
     </config>
     <name>source</name>
   </facility>
-
   <facility>
     <config>
       <Reactor>
