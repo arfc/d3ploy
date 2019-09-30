@@ -43,20 +43,6 @@ jobs:
                 name: integration tests
                 command: |
                     pytest ./tests/integration_tests/continuous_integration_test.py
-    functionality_test:
-        docker:
-            - image: cyclus/cycamore
-        working_directory: ~/d3ploy
-        steps:
-          - run: pip install pytest pmdarima arch statsmodels
-          - checkout
-          - run:
-                name: build
-                command: |
-                    python setup.py install
-          - run:
-                name: integration tests
-                command: |
                     pytest ./tests/integration_tests/back_deployment_test.py
                     pytest ./tests/integration_tests/buffer_test.py
                     pytest ./tests/integration_tests/constraint_test.py
@@ -74,4 +60,3 @@ workflows:
             jobs:
                 - unit_test
                 - full_integration_test
-                - functionality_test
