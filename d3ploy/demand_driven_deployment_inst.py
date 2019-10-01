@@ -179,7 +179,7 @@ class DemandDrivenDeploymentInst(Institution):
         doc="The number of oversupply timesteps before decommission",
         tooltip="",
         uilabel="Oversupply Time Limit",
-        default=5
+        default=120
     )
 
     os_int = ts.Int(
