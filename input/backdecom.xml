@@ -167,6 +167,7 @@
         <DemandDrivenDeploymentInst>
           <demand_eq>50-0.1*t</demand_eq>
           <calc_method>ma</calc_method>
+          <os_time>5</os_time>
           <facility_commod>
             <item>
               <facility>reactor1</facility>
