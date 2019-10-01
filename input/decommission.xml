@@ -138,6 +138,7 @@
           <calc_method>ma</calc_method>
           <record>1</record>
           <demand_eq>50-0.1*t</demand_eq>
+          <os_time>5</os_time>
           <facility_commod>
             <item>
               <facility>reactor1</facility>

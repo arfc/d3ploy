@@ -138,6 +138,7 @@
           <demand_eq>50</demand_eq>
           <calc_method>ma</calc_method>
           <record>1</record>
+          <os_time>5</os_time>
           <facility_commod>
             <item>
               <facility>source</facility>
