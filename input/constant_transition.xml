@@ -407,7 +407,7 @@
     <institution>
       <config>
         <DemandDrivenDeploymentInst>
-          <calc_method>fft</calc_method>
+          <calc_method>ma</calc_method>
           <facility_commod>
           <item>
               <facility>newreactor</facility>

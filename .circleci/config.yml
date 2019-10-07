@@ -63,9 +63,7 @@ jobs:
                     pytest ./tests/integration_tests/installedcap_test.py
                     pytest ./tests/integration_tests/tech_pref_test.py
                     pytest ./tests/integration_tests/share_test.py
-                    
-                    
-    
+                    pytest ./tests/integration_tests/decommission_test.py
 
 workflows:
         version: 2

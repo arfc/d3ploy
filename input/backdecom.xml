@@ -5,6 +5,10 @@
       <name>NullRegion</name>
     </spec>
     <spec>
+      <lib>agents</lib>
+      <name>NullInst</name>
+    </spec>
+    <spec>
       <lib>cycamore</lib>
       <name>Source</name>
     </spec>
@@ -22,7 +26,7 @@
     </spec>
   </archetypes>
   <control>
-    <duration>10</duration>
+    <duration>50</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
   </control>
@@ -36,17 +40,19 @@
     </config>
     <name>source</name>
   </facility>
+
   <facility>
     <config>
       <Sink>
         <in_commods>
-          <val>spent_uox</val>
+          <val>spent</val>
         </in_commods>
-        <max_inv_size>10</max_inv_size>
+        <max_inv_size>1e6</max_inv_size>
       </Sink>
     </config>
-    <name>sink</name>
+    <name>Sink</name>
   </facility>
+
   <facility>
     <config>
       <Reactor>
@@ -59,7 +65,7 @@
           <val>fresh_uox</val>
         </fuel_inrecipes>
         <fuel_outcommods>
-          <val>spent_uox</val>
+          <val>spent</val>
         </fuel_outcommods>
         <fuel_outrecipes>
           <val>spent_uox</val>
@@ -84,7 +90,7 @@
         <val>fresh_uox</val>
       </fuel_inrecipes>
       <fuel_outcommods>
-        <val>spent_uox</val>
+        <val>spent</val>
       </fuel_outcommods>
       <fuel_outrecipes>
         <val>spent_uox</val>
@@ -129,9 +135,39 @@
     <institution>
       <config>
         <DemandDrivenDeploymentInst>
-          <calc_method>poly</calc_method>
+          <demand_eq>50</demand_eq>
+          <calc_method>ma</calc_method>
           <record>1</record>
-          <demand_eq>3*t</demand_eq>
+          <os_time>5</os_time>
+          <facility_commod>
+            <item>
+              <facility>source</facility>
+              <commod>fuel</commod>
+            </item>
+          </facility_commod>
+          <facility_capacity>
+            <item>
+              <facility>source</facility>
+              <capacity>1</capacity>
+            </item>
+          </facility_capacity>
+          <back_steps>1</back_steps>
+        </DemandDrivenDeploymentInst>
+      </config>
+      <initialfacilitylist>
+        <entry>
+          <number>50</number>
+          <prototype>source</prototype>
+        </entry>
+      </initialfacilitylist>
+      <name>source_inst</name>
+    </institution>
+    <institution>
+      <config>
+        <DemandDrivenDeploymentInst>
+          <demand_eq>50-0.1*t</demand_eq>
+          <calc_method>ma</calc_method>
+          <os_time>5</os_time>
           <facility_commod>
             <item>
               <facility>reactor1</facility>
@@ -141,10 +177,6 @@
               <facility>reactor2</facility>
               <commod>POWER</commod>
             </item>
-            <item>
-              <facility>source</facility>
-              <commod>fuel</commod>
-            </item>
           </facility_commod>
           <facility_capacity>
             <item>
@@ -153,10 +185,6 @@
             </item>
             <item>
               <facility>reactor2</facility>
-              <capacity>1</capacity>
-            </item>
-            <item>
-              <facility>source</facility>
               <capacity>1</capacity>
             </item>
           </facility_capacity>
@@ -170,10 +198,33 @@
               <pref>t</pref>
             </item>
           </facility_pref>
-          <steps>1</steps>
+          <back_steps>1</back_steps>
         </DemandDrivenDeploymentInst>
       </config>
-    <name>source_inst</name>
+      <initialfacilitylist>
+        <entry>
+          <number>25</number>
+          <prototype>reactor1</prototype>
+        </entry>
+        <entry>
+          <number>25</number>
+          <prototype>reactor2</prototype>
+        </entry>
+      </initialfacilitylist>
+      <name>reactor_inst</name>
+    </institution>
+    <institution>
+      <config>
+        <NullInst>
+        </NullInst>
+      </config>
+      <initialfacilitylist>
+        <entry>
+          <number>1</number>
+          <prototype>Sink</prototype>
+        </entry>
+      </initialfacilitylist>
+      <name>nullInst</name>
     </institution>
     <name>SingleRegion</name>
   </region>
